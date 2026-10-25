@@ -1,0 +1,474 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080808">
+  <meta name="description" content="Manage your DelightVendorEdit account settings.">
+  <title>Account Settings — DelightVendorEdit</title>
+
+  <link rel="icon" type="image/png" href="assets/dv-logo.png">
+  <link rel="apple-touch-icon" href="assets/dv-logo.png">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #080808;
+      --panel: #111;
+      --panel2: #191919;
+      --gold: #e7b94a;
+      --gold-light: #f7d77e;
+      --text: #f5f5f5;
+      --muted: #a3a3a3;
+      --border: #303030;
+      --success: #8ce5a8;
+      --danger: #ff9292;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: radial-gradient(ellipse at top, #211b0c, transparent 48%), var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button, input { font: inherit; }
+    a { color: var(--gold); text-decoration: none; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px clamp(15px, 4vw, 48px);
+      border-bottom: 1px solid #29251a;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      font-size: clamp(16px, 2.5vw, 22px);
+      font-weight: 800;
+    }
+
+    .brand img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .back-link { font-size: 13px; font-weight: 700; white-space: nowrap; }
+
+    main {
+      width: 100%;
+      max-width: 900px;
+      margin: auto;
+      padding: 34px 18px 55px;
+    }
+
+    h1 {
+      margin: 0 0 9px;
+      font-size: clamp(27px, 5vw, 36px);
+      letter-spacing: -.7px;
+    }
+
+    .intro {
+      margin: 0 0 25px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .section {
+      padding: clamp(20px, 4vw, 28px);
+      margin-bottom: 18px;
+      background: rgba(17,17,17,.97);
+      border: 1px solid var(--border);
+      border-radius: 17px;
+    }
+
+    .section h2 { margin: 0 0 8px; font-size: 19px; }
+
+    .section-description {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      margin: 0 0 20px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 17px 0;
+      border-top: 1px solid #292929;
+    }
+
+    .setting-copy { min-width: 0; }
+
+    .setting-copy strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .setting-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .toggle {
+      position: relative;
+      width: 48px;
+      height: 27px;
+      flex-shrink: 0;
+    }
+
+    .toggle input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      background: #414141;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .toggle-track::before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 21px;
+      height: 21px;
+      border-radius: 50%;
+      background: white;
+      transition: transform .2s;
+    }
+
+    .toggle input:checked + .toggle-track { background: #b68a28; }
+    .toggle input:checked + .toggle-track::before { transform: translateX(21px); }
+
+    .toggle input:focus-visible + .toggle-track {
+      outline: 2px solid var(--gold-light);
+      outline-offset: 3px;
+    }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 45px;
+      padding: 12px 17px;
+      border: 0;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: #171107;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      color: var(--text);
+      background: var(--panel2);
+      border: 1px solid #393939;
+    }
+
+    .btn-danger {
+      color: #ffb1b1;
+      background: #251313;
+      border: 1px solid #643131;
+    }
+
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    .message {
+      display: none;
+      margin-bottom: 17px;
+      padding: 13px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .message.show { display: block; }
+    .message.success { color: var(--success); background: #102017; border: 1px solid #285b3a; }
+    .message.error { color: var(--danger); background: #251313; border: 1px solid #643131; }
+    .message.info { color: var(--gold-light); background: #211b0e; border: 1px solid #4b3d1c; }
+
+    .account-email {
+      overflow-wrap: anywhere;
+      color: var(--gold-light);
+      font-size: 14px;
+    }
+
+    footer {
+      padding: 20px;
+      color: #777;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    @media (max-width: 540px) {
+      .topbar { padding: 13px; }
+      .brand img { width: 36px; height: 36px; }
+      .back-link { font-size: 12px; }
+      main { padding-top: 25px; }
+      .setting-row { gap: 12px; }
+      .setting-row .btn { flex-shrink: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <a class="brand" href="dashboard.html">
+      <img src="assets/dv-logo.png" alt="DV logo"
+           onerror="this.style.display='none'">
+      <span>DelightVendorEdit</span>
+    </a>
+    <a class="back-link" href="dashboard.html">← Dashboard</a>
+  </header>
+
+  <main>
+    <h1>Account Settings</h1>
+    <p class="intro">Manage your preferences and account security.</p>
+
+    <div id="loading" class="section">Checking your session…</div>
+
+    <div id="settingsContent" hidden>
+      <div id="message" class="message" role="status"></div>
+
+      <section class="section">
+        <h2>Preferences</h2>
+        <p class="section-description">
+          These preferences are stored on this device in this browser.
+          They do not change your account security settings.
+        </p>
+
+        <div class="setting-row">
+          <div class="setting-copy">
+            <strong>Marketing updates</strong>
+            <p>Choose whether this browser remembers your preference for marketing messages.</p>
+          </div>
+          <label class="toggle" aria-label="Marketing updates preference">
+            <input type="checkbox" id="marketingToggle">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-copy">
+            <strong>Product announcements</strong>
+            <p>Remember whether you want product announcement prompts on this device.</p>
+          </div>
+          <label class="toggle" aria-label="Product announcements preference">
+            <input type="checkbox" id="announcementsToggle">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Account information</h2>
+        <p class="section-description">
+          Your account email is managed by Supabase Authentication.
+        </p>
+        <div class="account-email" id="accountEmail">—</div>
+      </section>
+
+      <section class="section">
+        <h2>Password and security</h2>
+        <p class="section-description">
+          If you want to change your password, use the secure password
+          reset flow sent to your registered email address.
+        </p>
+        <button class="btn" id="resetPasswordButton" type="button">
+          Send Password Reset Link
+        </button>
+      </section>
+
+      <section class="section">
+        <h2>Sign out</h2>
+        <p class="section-description">
+          Sign out of your account on this device.
+        </p>
+        <button class="btn btn-danger" id="logoutButton" type="button">
+          Sign Out
+        </button>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    &copy; <span id="year"></span> DelightVendorEdit. All rights reserved.
+  </footer>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const SUPABASE_URL =
+        "https://genlmqzkjouinofkitqt.supabase.co";
+
+      const SUPABASE_ANON_KEY =
+        "sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
+
+      const supabase = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+
+      const loading = document.getElementById("loading");
+      const content = document.getElementById("settingsContent");
+      const message = document.getElementById("message");
+
+      document.getElementById("year").textContent =
+        new Date().getFullYear();
+
+      function showMessage(text, type = "info") {
+        message.textContent = text;
+        message.className = "message show " + type;
+      }
+
+      function loadPreferences() {
+        try {
+          document.getElementById("marketingToggle").checked =
+            localStorage.getItem("dve_marketing_updates") === "true";
+
+          document.getElementById("announcementsToggle").checked =
+            localStorage.getItem("dve_product_announcements") === "true";
+        } catch (error) {
+          console.warn("Browser preferences unavailable:", error);
+        }
+      }
+
+      function savePreference(key, value) {
+        try {
+          localStorage.setItem(key, String(value));
+          showMessage("Your preference has been saved on this device.", "success");
+        } catch (error) {
+          showMessage(
+            "Your browser could not save this preference. Check browser storage settings.",
+            "error"
+          );
+        }
+      }
+
+      async function init() {
+        try {
+          const { data, error } = await supabase.auth.getUser();
+
+          if (error || !data.user) {
+            window.location.replace("login.html");
+            return;
+          }
+
+          document.getElementById("accountEmail").textContent =
+            data.user.email || "No email available";
+
+          loadPreferences();
+          loading.hidden = true;
+          content.hidden = false;
+        } catch (error) {
+          console.error("Settings initialization failed:", error);
+          loading.textContent =
+            "Could not load settings. Check your internet connection and refresh.";
+        }
+      }
+
+      document.getElementById("marketingToggle").addEventListener("change", (event) => {
+        savePreference("dve_marketing_updates", event.target.checked);
+      });
+
+      document.getElementById("announcementsToggle").addEventListener("change", (event) => {
+        savePreference("dve_product_announcements", event.target.checked);
+      });
+
+      document.getElementById("resetPasswordButton").addEventListener("click", async (event) => {
+        const button = event.currentTarget;
+        button.disabled = true;
+        button.textContent = "Sending…";
+
+        try {
+          const { data, error: userError } = await supabase.auth.getUser();
+
+          if (userError || !data.user?.email) {
+            throw new Error("We could not find your account email. Please sign in again.");
+          }
+
+          const redirectUrl = new URL(
+            "forgot-password.html",
+            window.location.href
+          ).href;
+
+          const { error } = await supabase.auth.resetPasswordForEmail(
+            data.user.email,
+            { redirectTo: redirectUrl }
+          );
+
+          if (error) throw error;
+
+          showMessage(
+            "If an account exists for this email, a password-reset link has been sent. Check your inbox and spam folder.",
+            "success"
+          );
+        } catch (error) {
+          console.error("Password reset request failed:", error);
+          showMessage(
+            error.message || "Could not send the reset email. Please try again.",
+            "error"
+          );
+        } finally {
+          button.disabled = false;
+          button.textContent = "Send Password Reset Link";
+        }
+      });
+
+      document.getElementById("logoutButton").addEventListener("click", async (event) => {
+        const button = event.currentTarget;
+
+        if (!window.confirm("Are you sure you want to sign out?")) return;
+
+        button.disabled = true;
+        button.textContent = "Signing out…";
+
+        try {
+          const { error } = await supabase.auth.signOut();
+
+          if (error) throw error;
+
+          window.location.replace("login.html");
+        } catch (error) {
+          console.error("Sign out failed:", error);
+          showMessage("Could not sign out. Please try again.", "error");
+          button.disabled = false;
+          button.textContent = "Sign Out";
+        }
+      });
+
+      init();
+    })();
+  </script>
+</body>
+</html>
