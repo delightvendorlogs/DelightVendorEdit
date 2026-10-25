@@ -1,0 +1,1294 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080808">
+  <meta name="description" content="Welcome to DelightVendorEdit — buy digital services, explore independent sellers, and grow your business.">
+  <meta name="robots" content="index, follow">
+
+  <link rel="icon" type="image/png" href="assets/dv-logo.png">
+  <link rel="apple-touch-icon" href="assets/dv-logo.png">
+  <link rel="preload" as="image" href="assets/hero-image.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="DelightVendorEdit — Buy. Sell. Earn. Grow.">
+  <meta property="og:description" content="Your digital marketplace for services and independent sellers.">
+  <meta property="og:image" content="https://YOUR-DOMAIN/assets/hero-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DelightVendorEdit">
+  <meta name="twitter:description" content="Buy. Sell. Earn. Grow.">
+  <meta name="twitter:image" content="https://YOUR-DOMAIN/assets/hero-image.png">
+
+  <title>DelightVendorEdit — Your Digital Marketplace</title>
+
+  <style>
+    :root {
+      --bg: #080808;
+      --surface: #111111;
+      --surface2: #171717;
+      --gold: #f5bd32;
+      --gold-light: #ffe09a;
+      --text: #f7f7f7;
+      --muted: #aaa9a5;
+      --border: rgba(245,189,50,.2);
+      --radius: 16px;
+      --max: 1200px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 90px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    body, button, input { font-family: inherit; }
+
+    a { color: inherit; text-decoration: none; }
+
+    button { cursor: pointer; }
+
+    img { max-width: 100%; }
+
+    .container {
+      width: min(var(--max), calc(100% - 36px));
+      margin-inline: auto;
+    }
+
+    .gold { color: var(--gold); }
+
+    .section { padding: 76px 0; }
+
+    .section-heading {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 34px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h2 {
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      line-height: 1.2;
+      margin: 10px 0 14px;
+    }
+
+    .section-heading p,
+    .muted { color: var(--muted); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 46px;
+      padding: 11px 20px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-weight: 750;
+      font-size: .94rem;
+      transition: transform .2s, background .2s, border-color .2s;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      color: #171000;
+      background: linear-gradient(135deg, #ffe39a, #f5bd32 65%, #d99713);
+      border-color: var(--gold);
+    }
+
+    .btn-outline {
+      color: var(--text);
+      background: rgba(255,255,255,.025);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--gold);
+      background: rgba(245,189,50,.08);
+    }
+
+    .btn-small { min-height: 38px; padding: 7px 13px; }
+
+    /* Announcement */
+
+    .announcement {
+      background: #17130a;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      padding: 8px 12px;
+      font-size: .82rem;
+      color: var(--gold-light);
+    }
+
+    /* Header */
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8,8,8,.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .navbar {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: -.5px;
+    }
+
+    .brand img {
+      width: 43px;
+      height: 43px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .brand-name { white-space: nowrap; }
+    .brand-name span { color: var(--gold); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: .87rem;
+      font-weight: 650;
+    }
+
+    .nav-links > a:not(.btn):hover { color: var(--gold); }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 44px;
+      height: 44px;
+      color: var(--gold);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 1.4rem;
+    }
+
+    /* Hero */
+
+    .hero { padding: 24px 0 42px; }
+
+    .hero-frame {
+      position: relative;
+      overflow: hidden;
+      background: #100d06;
+      border: 1px solid rgba(245,189,50,.3);
+      border-radius: 22px;
+      box-shadow: 0 20px 80px rgba(0,0,0,.4);
+    }
+
+    .hero-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
+
+    .hero-under {
+      display: none;
+      padding: 24px;
+      background: radial-gradient(ellipse at top, #29200b, #0a0a0a 75%);
+    }
+
+    .hero-under h1 {
+      font-size: clamp(2rem, 6vw, 4rem);
+      line-height: 1.08;
+      margin: 0 0 16px;
+    }
+
+    .hero-under p {
+      color: #d0cec7;
+      max-width: 540px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .trust-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 66px;
+      padding: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-align: center;
+      font-size: .86rem;
+      font-weight: 700;
+    }
+
+    .trust-item span:first-child {
+      color: var(--gold);
+      font-size: 1.25rem;
+    }
+
+    /* Categories */
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .category-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-height: 205px;
+      padding: 22px 18px;
+      background: linear-gradient(145deg, #191919, #0e0e0e);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: transform .2s, border-color .2s;
+    }
+
+    .category-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--gold);
+    }
+
+    .category-icon {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      margin-bottom: 18px;
+      background: rgba(245,189,50,.09);
+      border: 1px solid rgba(245,189,50,.23);
+      border-radius: 14px;
+      color: var(--gold);
+      font-size: 1.55rem;
+    }
+
+    .category-card h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+    }
+
+    .category-card p {
+      color: var(--muted);
+      font-size: .82rem;
+      margin-bottom: 16px;
+    }
+
+    .category-link {
+      margin-top: auto;
+      color: var(--gold);
+      font-size: .84rem;
+      font-weight: 800;
+    }
+
+    /* Sellers */
+
+    .seller-area {
+      background: linear-gradient(180deg, #0d0d0d, #12100a, #0a0a0a);
+      border-block: 1px solid rgba(245,189,50,.1);
+    }
+
+    .seller-top {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 26px;
+    }
+
+    .seller-top h2 { margin-bottom: 8px; }
+
+    .empty-state {
+      text-align: center;
+      padding: 42px 20px;
+      background: rgba(255,255,255,.025);
+      border: 1px dashed rgba(245,189,50,.35);
+      border-radius: var(--radius);
+    }
+
+    .empty-icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .empty-state h3 { margin-bottom: 8px; }
+
+    .empty-state p {
+      color: var(--muted);
+      max-width: 500px;
+      margin: 0 auto 20px;
+    }
+
+    /* Selling */
+
+    .sell-panel {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      align-items: center;
+      gap: 32px;
+      padding: clamp(24px, 5vw, 48px);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background:
+        radial-gradient(ellipse at 90% 10%, rgba(245,189,50,.12), transparent 45%),
+        #111;
+    }
+
+    .sell-panel h2 { max-width: 580px; }
+
+    .sell-panel p { color: var(--muted); }
+
+    .commission-card {
+      padding: 24px;
+      border: 1px solid rgba(245,189,50,.35);
+      border-radius: 16px;
+      background: rgba(0,0,0,.28);
+    }
+
+    .commission-number {
+      color: var(--gold);
+      font-size: 2.8rem;
+      line-height: 1.1;
+      font-weight: 900;
+    }
+
+    /* Steps */
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .step-card {
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+    }
+
+    .step-number {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 18px;
+      background: var(--gold);
+      color: #151000;
+      border-radius: 12px;
+      font-weight: 900;
+    }
+
+    .step-card p {
+      color: var(--muted);
+      font-size: .9rem;
+      margin-bottom: 0;
+    }
+
+    /* FAQ */
+
+    .faq-list {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      margin-bottom: 11px;
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .faq-item summary {
+      padding: 18px 20px;
+      cursor: pointer;
+      font-weight: 750;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .faq-item summary::-webkit-details-marker { display: none; }
+
+    .faq-item summary::after {
+      content: "+";
+      color: var(--gold);
+      font-size: 1.3rem;
+    }
+
+    .faq-item[open] summary::after { content: "−"; }
+
+    .faq-answer {
+      padding: 0 20px 18px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .faq-answer p { margin-bottom: 0; }
+
+    /* Support */
+
+    .support-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .support-card {
+      padding: 25px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      text-align: center;
+    }
+
+    .support-symbol {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .support-card p {
+      color: var(--muted);
+      font-size: .87rem;
+      overflow-wrap: anywhere;
+    }
+
+    /* Footer */
+
+    .site-footer {
+      border-top: 1px solid var(--border);
+      background: #050505;
+      padding: 46px 0 22px;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 35px;
+      padding-bottom: 30px;
+    }
+
+    .footer-brand p {
+      color: var(--muted);
+      max-width: 350px;
+      margin-top: 15px;
+      font-size: .9rem;
+    }
+
+    .footer-column h3 {
+      color: var(--gold);
+      font-size: .95rem;
+      margin-bottom: 14px;
+    }
+
+    .footer-links {
+      display: grid;
+      gap: 9px;
+    }
+
+    .footer-links a {
+      color: #bdbbb5;
+      font-size: .87rem;
+    }
+
+    .footer-links a:hover { color: var(--gold); }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      color: #898781;
+      font-size: .8rem;
+    }
+
+    /* Support popup */
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0,0,0,.78);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-backdrop.show { display: flex; }
+
+    .support-modal {
+      position: relative;
+      width: min(100%, 430px);
+      padding: 28px;
+      background: #121212;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 20px 80px rgba(0,0,0,.55);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 38px;
+      height: 38px;
+      background: #222;
+      border: 1px solid #383838;
+      color: white;
+      border-radius: 10px;
+      font-size: 1.2rem;
+    }
+
+    .support-options {
+      display: grid;
+      gap: 11px;
+      margin-top: 20px;
+    }
+
+    .support-option {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 14px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+    }
+
+    .support-option:hover { border-color: var(--gold); }
+
+    .support-option .support-symbol {
+      margin: 0;
+      width: 38px;
+      flex-shrink: 0;
+    }
+
+    .support-option small {
+      display: block;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    /* Responsive */
+
+    @media (max-width: 1050px) {
+      .nav-links { gap: 12px; }
+      .nav-links .desktop-only { display: none; }
+      .category-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 760px) {
+      .container { width: min(100% - 24px, var(--max)); }
+
+      .navbar { min-height: 68px; gap: 10px; }
+
+      .brand { gap: 7px; font-size: 1rem; }
+
+      .brand img { width: 36px; height: 36px; }
+
+      .menu-toggle {
+        display: inline-grid;
+        place-items: center;
+        flex-shrink: 0;
+      }
+
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        padding: 16px 18px 20px;
+        background: #0b0b0b;
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        max-height: calc(100dvh - 80px);
+        overflow-y: auto;
+      }
+
+      .nav-links.open { display: flex; }
+
+      .nav-links > a:not(.btn) {
+        padding: 12px 5px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+      }
+
+      .nav-links .desktop-only { display: block; }
+
+      .nav-links .btn { margin-top: 10px; }
+
+      .nav-actions .btn-outline { display: none; }
+
+      .nav-actions .btn-primary {
+        min-height: 40px;
+        padding: 8px 11px;
+        font-size: .82rem;
+      }
+
+      .hero { padding-top: 12px; }
+
+      .hero-frame { border-radius: 13px; }
+
+      .hero-image {
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .hero-under {
+        display: block;
+        padding: 22px 18px;
+      }
+
+      .hero-under h1 { font-size: 2rem; }
+
+      .hero-buttons { display: grid; grid-template-columns: 1fr; }
+
+      .trust-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+      .trust-item { font-size: .77rem; padding: 10px 6px; }
+
+      .section { padding: 55px 0; }
+
+      .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+      .category-card { min-height: 190px; padding: 17px 13px; }
+
+      .category-icon { width: 45px; height: 45px; margin-bottom: 13px; }
+
+      .seller-top { align-items: flex-start; flex-direction: column; }
+
+      .sell-panel { grid-template-columns: 1fr; gap: 20px; }
+
+      .steps-grid, .support-grid { grid-template-columns: 1fr; }
+
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 25px; }
+
+      .footer-brand { grid-column: 1 / -1; }
+
+      .footer-bottom { flex-direction: column; }
+    }
+
+    @media (max-width: 360px) {
+      .brand { font-size: .86rem; }
+      .brand img { width: 31px; height: 31px; }
+      .nav-actions .btn-primary { font-size: .75rem; padding: 7px 8px; }
+      .category-card h3 { font-size: .92rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="announcement">
+    Welcome to <strong>DelightVendorEdit</strong> —
+    <span class="gold">Buy. Sell. Earn. Grow.</span>
+  </div>
+
+  <header class="site-header">
+    <div class="container navbar">
+
+      <a class="brand" href="index.html" aria-label="DelightVendorEdit home">
+        <img src="assets/dv-logo.png" alt="DV logo">
+        <span class="brand-name">Delight<span>Vendor</span>Edit</span>
+      </a>
+
+      <nav class="nav-links" id="mainNav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="#services">Services</a>
+        <a href="#other-sellers">Other Sellers</a>
+        <a href="sell.html">Sell on DelightVendorEdit</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#faq">FAQ</a>
+        <a href="#footer-policies">Policies</a>
+        <a href="#support" class="desktop-only">Support</a>
+        <a href="login.html" class="btn btn-outline">Login</a>
+        <a href="register.html" class="btn btn-primary">Create Account</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="btn btn-primary" href="register.html">Join Now</a>
+        <button class="menu-toggle" id="menuToggle"
+          type="button" aria-label="Open navigation menu"
+          aria-expanded="false" aria-controls="mainNav">☰</button>
+      </div>
+
+    </div>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-frame">
+          <img class="hero-image"
+            src="assets/hero-image.png"
+            alt="DelightVendorEdit digital marketplace promotional banner"
+            fetchpriority="high"
+            onerror="this.style.display='none';document.getElementById('heroFallback').style.display='block'">
+
+          <div class="hero-under" id="heroFallback">
+            <div class="eyebrow">Your Digital Marketplace</div>
+            <h1>Buy. Sell. <span class="gold">Earn.</span> Grow.</h1>
+            <p>
+              Discover digital services, shop from independent sellers,
+              and build your business with DelightVendorEdit.
+            </p>
+            <div class="hero-buttons">
+              <a href="#services" class="btn btn-primary">Explore Services →</a>
+              <a href="register.html" class="btn btn-outline">Create Account</a>
+              <a href="login.html" class="btn btn-outline">Login</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="trust-strip">
+          <div class="trust-item"><span>◆</span> Secure Accounts</div>
+          <div class="trust-item"><span>↗</span> Digital Services</div>
+          <div class="trust-item"><span>◉</span> Support Available</div>
+          <div class="trust-item"><span>✓</span> Seller Marketplace</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section" id="services">
+      <div class="container">
+        <div class="section-heading">
+          <div class="eyebrow">Explore Our Marketplace</div>
+          <h2>Services for <span class="gold">Your Next Move</span></h2>
+          <p>
+            Explore our service categories and find the option that suits
+            your needs. Available products and features will appear as
+            their services are connected.
+          </p>
+        </div>
+
+        <div class="category-grid">
+
+          <a class="category-card" href="tracking-number.html">
+            <div class="category-icon" aria-hidden="true">⌖</div>
+            <h3>Tracking Number</h3>
+            <p>Explore tracking-number services.</p>
+            <span class="category-link">Explore →</span>
+          </a>
+
+          <a class="category-card" href="flight-ticket.html">
+            <div class="category-icon" aria-hidden="true">✈</div>
+            <h3>Flight Ticket</h3>
+            <p>Explore flight-ticket services.</p>
+            <span class="category-link">Explore →</span>
+          </a>
+
+          <a class="category-card" href="services.html">
+            <div class="category-icon" aria-hidden="true">⚙</div>
+            <h3>Service</h3>
+            <p>Discover available services.</p>
+            <span class="category-link">Explore →</span>
+          </a>
+
+          <a class="category-card" href="working-profile.html">
+            <div class="category-icon" aria-hidden="true">♙</div>
+            <h3>Working Profile</h3>
+            <p>Explore working-profile options.</p>
+            <span class="category-link">Explore →</span>
+          </a>
+
+          <a class="category-card" href="ai-studio.html">
+            <div class="category-icon" aria-hidden="true">▶</div>
+            <h3>AI Studio</h3>
+            <p>Face swap, video face swap and lip-sync.</p>
+            <span class="category-link">Explore →</span>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- OTHER SELLERS -->
+    <section class="section seller-area" id="other-sellers">
+      <div class="container">
+
+        <div class="seller-top">
+          <div>
+            <div class="eyebrow">Independent Marketplace</div>
+            <h2>Explore Other <span class="gold">Sellers</span></h2>
+            <p class="muted" style="margin-bottom:0">
+              Discover products and services from approved sellers.
+            </p>
+          </div>
+          <a class="btn btn-outline" href="explore-sellers.html">
+            Explore All →
+          </a>
+        </div>
+
+        <!-- Approved products will be connected to Supabase later. -->
+        <div class="empty-state">
+          <div class="empty-icon" aria-hidden="true">🛍️</div>
+          <h3>Discover Independent Sellers</h3>
+          <p>
+            Seller products will appear here after approval.
+            Interested in selling your own products? You can start
+            by submitting a seller application.
+          </p>
+          <a href="sell.html" class="btn btn-primary">Become a Seller</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SELLER INVITATION -->
+    <section class="section">
+      <div class="container">
+        <div class="sell-panel">
+          <div>
+            <div class="eyebrow">Grow With Us</div>
+            <h2>Have something to sell? Make it part of <span class="gold">our marketplace.</span></h2>
+            <p>
+              Apply to become a seller, submit your product for review,
+              and manage your own listings after approval.
+            </p>
+            <p>
+              <strong class="gold">10% platform commission</strong>
+              applies to approved seller sales under the seller policy.
+              Review the rules before applying.
+            </p>
+            <a href="sell.html" class="btn btn-primary">Sell on DelightVendorEdit →</a>
+          </div>
+
+          <div class="commission-card">
+            <div class="eyebrow">Seller Commission Example</div>
+            <div class="commission-number">10%</div>
+            <p class="muted">Platform commission per eligible sale.</p>
+            <hr style="border:0;border-top:1px solid var(--border);margin:20px 0">
+            <p><strong>Example sale:</strong> ₦10,000</p>
+            <p><strong>Platform commission:</strong> ₦1,000</p>
+            <p style="margin-bottom:0"><strong>Seller net:</strong> <span class="gold">₦9,000</span></p>
+            <p class="muted" style="font-size:.77rem;margin-top:12px;margin-bottom:0">
+              Example only; payout is subject to order verification and the published policy.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section" id="how-it-works">
+      <div class="container">
+        <div class="section-heading">
+          <div class="eyebrow">Getting Started</div>
+          <h2>How It <span class="gold">Works</span></h2>
+          <p>Start exploring the marketplace in a few simple steps.</p>
+        </div>
+
+        <div class="steps-grid">
+          <article class="step-card">
+            <div class="step-number">01</div>
+            <h3>Create an Account</h3>
+            <p>
+              Register with your email and password to access
+              your customer account.
+            </p>
+            <a href="register.html" class="category-link">Create account →</a>
+          </article>
+
+          <article class="step-card">
+            <div class="step-number">02</div>
+            <h3>Explore and Choose</h3>
+            <p>
+              Browse service categories or explore approved
+              independent seller listings.
+            </p>
+            <a href="#services" class="category-link">Explore services →</a>
+          </article>
+
+          <article class="step-card">
+            <div class="step-number">03</div>
+            <h3>Buy or Start Selling</h3>
+            <p>
+              Follow the checkout process for available products,
+              or apply to become an approved seller.
+            </p>
+            <a href="sell.html" class="category-link">Seller information →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+      <div class="container">
+        <div class="section-heading">
+          <div class="eyebrow">Need Answers?</div>
+          <h2>Frequently Asked <span class="gold">Questions</span></h2>
+          <p>Quick answers about using the marketplace.</p>
+        </div>
+
+        <div class="faq-list">
+
+          <details class="faq-item">
+            <summary>How do I create an account?</summary>
+            <div class="faq-answer">
+              <p>
+                Select Create Account, enter the requested details,
+                and submit the form. The site is intended to use
+                password signup without email confirmation when the
+                Supabase Email provider is configured accordingly.
+              </p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>How can I buy a service?</summary>
+            <div class="faq-answer">
+              <p>
+                Sign in, choose an available service or approved
+                seller product, and follow its purchase instructions.
+                Checkout and delivery features will be enabled as
+                the backend is completed.
+              </p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>How can I become a seller?</summary>
+            <div class="faq-answer">
+              <p>
+                Open Sell on DelightVendorEdit and complete the
+                seller application. Your application and listing
+                must be reviewed and approved before products
+                are published.
+              </p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>What is the seller commission?</summary>
+            <div class="faq-answer">
+              <p>
+                The planned platform commission is 10% of an eligible
+                seller sale. The seller commission policy will explain
+                how commission, order status, and payouts work.
+              </p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>How do I contact support?</summary>
+            <div class="faq-answer">
+              <p>
+                You can contact support through WhatsApp, Telegram,
+                or email. Use the Support button on this page to
+                choose your preferred channel.
+              </p>
+              <a href="#support" class="category-link">View support options →</a>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>Where can I read the policies?</summary>
+            <div class="faq-answer">
+              <p>
+                The footer links to the terms, privacy, seller,
+                referral, withdrawal and payout, and refund policies.
+              </p>
+            </div>
+          </details>
+
+          <div style="text-align:center;margin-top:22px">
+            <a href="faq.html" class="btn btn-outline">View All FAQs →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUPPORT -->
+    <section class="section" id="support">
+      <div class="container">
+        <div class="section-heading">
+          <div class="eyebrow">We're Here to Help</div>
+          <h2>Contact <span class="gold">Support</span></h2>
+          <p>
+            Choose WhatsApp, Telegram, or email to contact the
+            existing Delight Vendor Logs support channels.
+          </p>
+        </div>
+
+        <div class="support-grid">
+
+          <article class="support-card">
+            <div class="support-symbol" aria-hidden="true">☏</div>
+            <h3>WhatsApp Support</h3>
+            <p>Chat with support on WhatsApp.</p>
+            <a class="btn btn-outline"
+              href="https://wa.me/2347015908401"
+              target="_blank" rel="noopener noreferrer">
+              Open WhatsApp
+            </a>
+          </article>
+
+          <article class="support-card">
+            <div class="support-symbol" aria-hidden="true">➤</div>
+            <h3>Telegram Support</h3>
+            <p>@DelightVendorLogsSupportBot</p>
+            <a class="btn btn-outline"
+              href="https://t.me/DelightVendorLogsSupportBot"
+              target="_blank" rel="noopener noreferrer">
+              Open Telegram
+            </a>
+          </article>
+
+          <article class="support-card">
+            <div class="support-symbol" aria-hidden="true">✉</div>
+            <h3>Email Support</h3>
+            <p>Send your question by email.</p>
+            <a class="btn btn-outline"
+              href="mailto:delightvendorlogs@gmail.com?subject=DelightVendorEdit%20Support">
+              Send Email
+            </a>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL CALL TO ACTION -->
+    <section class="section" style="padding-top:10px">
+      <div class="container">
+        <div class="sell-panel" style="grid-template-columns:1fr;text-align:center">
+          <div>
+            <div class="eyebrow">Your Next Step Starts Here</div>
+            <h2>Welcome to <span class="gold">DelightVendorEdit</span></h2>
+            <p style="margin-inline:auto;max-width:620px">
+              Create an account and get ready to explore services,
+              discover sellers, and grow with the marketplace.
+            </p>
+            <div class="hero-buttons" style="justify-content:center">
+              <a href="register.html" class="btn btn-primary">Create Account →</a>
+              <a href="login.html" class="btn btn-outline">Already a member? Login</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer" id="footer-policies">
+    <div class="container">
+
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a class="brand" href="index.html">
+            <img src="assets/dv-logo.png" alt="DV logo">
+            <span class="brand-name">Delight<span>Vendor</span>Edit</span>
+          </a>
+          <p>
+            Your digital marketplace for services and independent sellers.
+            Buy, sell, and grow with DelightVendorEdit.
+          </p>
+          <button class="btn btn-outline btn-small" type="button"
+            data-open-support>Contact Support</button>
+        </div>
+
+        <div class="footer-column">
+          <h3>Explore</h3>
+          <div class="footer-links">
+            <a href="#services">Our Services</a>
+            <a href="explore-sellers.html">Explore Other Sellers</a>
+            <a href="sell.html">Sell on DelightVendorEdit</a>
+            <a href="login.html">Login</a>
+            <a href="register.html">Create Account</a>
+            <a href="#faq">FAQ</a>
+          </div>
+        </div>
+
+        <div class="footer-column">
+          <h3>Policies & Help</h3>
+          <div class="footer-links">
+            <a href="terms.html">Terms &amp; Conditions</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="seller-policy.html">Seller Commission Policy</a>
+            <a href="referral-policy.html">Referral Policy</a>
+            <a href="withdrawal-policy.html">Withdrawals &amp; Payouts</a>
+            <a href="refund-policy.html">Refund Policy</a>
+            <a href="faq.html">All FAQs</a>
+            <a href="support.html">Support</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span id="currentYear"></span> DelightVendorEdit. All rights reserved.</span>
+        <span>Buy. Sell. Earn. Grow.</span>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- SUPPORT CHANNEL PICKER -->
+  <div class="modal-backdrop" id="supportModal"
+    role="dialog" aria-modal="true" aria-labelledby="supportModalTitle">
+    <div class="support-modal">
+      <button class="modal-close" type="button"
+        id="closeSupport" aria-label="Close support options">×</button>
+
+      <div class="eyebrow">DelightVendorEdit</div>
+      <h2 id="supportModalTitle" style="font-size:1.7rem;margin-top:8px">
+        How can we help?
+      </h2>
+      <p class="muted">Choose your preferred support channel.</p>
+
+      <div class="support-options">
+        <a class="support-option"
+          href="https://wa.me/2347015908401"
+          target="_blank" rel="noopener noreferrer">
+          <span class="support-symbol" aria-hidden="true">☏</span>
+          <span><strong>WhatsApp Support</strong><small>07015908401</small></span>
+        </a>
+
+        <a class="support-option"
+          href="https://t.me/DelightVendorLogsSupportBot"
+          target="_blank" rel="noopener noreferrer">
+          <span class="support-symbol" aria-hidden="true">➤</span>
+          <span><strong>Telegram Support</strong><small>@DelightVendorLogsSupportBot</small></span>
+        </a>
+
+        <a class="support-option"
+          href="mailto:delightvendorlogs@gmail.com?subject=DelightVendorEdit%20Support">
+          <span class="support-symbol" aria-hidden="true">✉</span>
+          <span><strong>Email Support</strong><small>delightvendorlogs@gmail.com</small></span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mobile navigation
+    const menuToggle = document.getElementById("menuToggle");
+    const mainNav = document.getElementById("mainNav");
+
+    menuToggle.addEventListener("click", () => {
+      const isOpen = mainNav.classList.toggle("open");
+      menuToggle.setAttribute("aria-expanded", String(isOpen));
+      menuToggle.setAttribute(
+        "aria-label",
+        isOpen ? "Close navigation menu" : "Open navigation menu"
+      );
+      menuToggle.textContent = isOpen ? "×" : "☰";
+    });
+
+    // Close the mobile menu after choosing a navigation link
+    mainNav.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        mainNav.classList.remove("open");
+        menuToggle.setAttribute("aria-expanded", "false");
+        menuToggle.setAttribute("aria-label", "Open navigation menu");
+        menuToggle.textContent = "☰";
+      });
+    });
+
+    // Support picker
+    const supportModal = document.getElementById("supportModal");
+    const closeSupport = document.getElementById("closeSupport");
+
+    function openSupport() {
+      supportModal.classList.add("show");
+      closeSupport.focus();
+    }
+
+    function hideSupport() {
+      supportModal.classList.remove("show");
+    }
+
+    document.querySelectorAll("[data-open-support]").forEach(button => {
+      button.addEventListener("click", openSupport);
+    });
+
+    closeSupport.addEventListener("click", hideSupport);
+
+    supportModal.addEventListener("click", event => {
+      if (event.target === supportModal) hideSupport();
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") hideSupport();
+    });
+
+    // Footer year
+    document.getElementById("currentYear").textContent =
+      new Date().getFullYear();
+  </script>
+</body>
+</html>
