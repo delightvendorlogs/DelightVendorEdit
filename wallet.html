@@ -1,0 +1,589 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<meta name="description" content="Fund your DelightVendorEdit wallet securely.">
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/delightvendorlogs/Delight-Vendor-Logs-/main/assets/dv-logo.png?v=3">
+<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/delightvendorlogs/Delight-Vendor-Logs-/main/assets/dv-logo.png?v=3">
+<title>My Wallet — DelightVendorEdit</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.paystack.co/v2/inline.js"></script>
+
+<style>
+:root {
+  --bg:#080808;
+  --card:#111111;
+  --gold:#f0cf68;
+  --gold-dark:#c49a24;
+  --muted:#a3a3a3;
+  --border:rgba(212,175,55,.2);
+  --danger:#ff7777;
+  --success:#6ee7a0;
+}
+* { box-sizing:border-box; }
+html { min-height:100%; }
+body {
+  margin:0;
+  min-height:100vh;
+  color:#fff;
+  background:radial-gradient(ellipse at top,#211b0b 0%,#0a0a0a 42%,#050505 100%);
+  font-family:Arial,Helvetica,sans-serif;
+}
+button,input { font:inherit; }
+button { -webkit-tap-highlight-color:transparent; }
+.topbar {
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:rgba(8,8,8,.94);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(14px);
+}
+.topbar-inner {
+  max-width:1100px;
+  margin:auto;
+  padding:15px 22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+}
+.brand {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+  color:var(--gold);
+  font-size:clamp(16px,2.5vw,21px);
+  font-weight:800;
+  text-decoration:none;
+}
+.brand img {
+  width:39px;
+  height:39px;
+  object-fit:contain;
+  flex-shrink:0;
+}
+.brand span { overflow-wrap:anywhere; }
+.top-actions { display:flex; gap:9px; }
+.small-link {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 13px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--gold);
+  text-decoration:none;
+  font-size:13px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.small-link:hover { background:#191509; }
+main {
+  width:min(100% - 32px,1000px);
+  margin:34px auto 55px;
+}
+.page-heading { margin-bottom:24px; }
+.eyebrow {
+  margin:0 0 8px;
+  color:var(--gold);
+  text-transform:uppercase;
+  letter-spacing:2px;
+  font-size:11px;
+  font-weight:800;
+}
+h1 { margin:0; font-size:clamp(27px,5vw,38px); }
+.subtitle {
+  margin:10px 0 0;
+  color:var(--muted);
+  line-height:1.65;
+  font-size:14px;
+}
+.layout {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:20px;
+  align-items:start;
+}
+.card {
+  min-width:0;
+  padding:25px;
+  border:1px solid var(--border);
+  border-radius:21px;
+  background:linear-gradient(145deg,rgba(25,25,25,.98),rgba(9,9,9,.98));
+  box-shadow:0 15px 40px rgba(0,0,0,.25);
+}
+.balance-card {
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 90% 8%,rgba(212,175,55,.19),transparent 38%),
+    linear-gradient(145deg,#1b1609,#0b0b0b);
+}
+.balance-top {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+.balance-label { color:#c0bba9; font-size:14px; margin:0; }
+.balance-icon {
+  display:grid;
+  place-items:center;
+  width:43px;
+  height:43px;
+  border-radius:14px;
+  color:var(--gold);
+  background:rgba(212,175,55,.1);
+  border:1px solid var(--border);
+  font-size:22px;
+}
+.balance-value {
+  position:relative;
+  overflow-wrap:anywhere;
+  margin:20px 0 10px;
+  color:var(--gold);
+  font-size:clamp(29px,4vw,39px);
+  font-weight:800;
+  letter-spacing:-.5px;
+}
+.balance-note { color:var(--muted); font-size:12px; line-height:1.6; }
+.card h2 { margin:0 0 8px; font-size:21px; }
+.card-description { margin:0 0 22px; color:var(--muted); font-size:13px; line-height:1.6; }
+.field-label {
+  display:block;
+  margin:0 0 9px;
+  font-size:13px;
+  font-weight:700;
+}
+.input-wrap { position:relative; }
+.currency {
+  position:absolute;
+  top:50%;
+  left:15px;
+  transform:translateY(-50%);
+  color:var(--gold);
+  font-weight:800;
+}
+#amount {
+  width:100%;
+  min-height:55px;
+  padding:15px 15px 15px 43px;
+  border:1px solid #333;
+  border-radius:13px;
+  outline:none;
+  background:#080808;
+  color:#fff;
+  font-size:19px;
+}
+#amount:focus {
+  border-color:var(--gold-dark);
+  box-shadow:0 0 0 3px rgba(212,175,55,.08);
+}
+.quick-select {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:9px;
+  margin-top:13px;
+}
+.quick-amount {
+  min-width:0;
+  padding:12px 3px;
+  border:1px solid #303030;
+  border-radius:10px;
+  background:#0b0b0b;
+  color:var(--gold);
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+}
+.quick-amount:hover,.quick-amount.active {
+  border-color:var(--gold-dark);
+  background:#1b1609;
+}
+.primary-btn {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  min-height:54px;
+  margin-top:19px;
+  padding:15px;
+  border:0;
+  border-radius:13px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-dark));
+  color:#090909;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 22px rgba(212,175,55,.12);
+}
+.primary-btn:hover { filter:brightness(1.06); }
+.primary-btn:disabled { opacity:.6; cursor:not-allowed; }
+#message {
+  min-height:24px;
+  margin:15px 0 0;
+  font-size:13px;
+  line-height:1.6;
+  overflow-wrap:anywhere;
+}
+.info-list { display:grid; gap:16px; margin-top:24px; }
+.info-item { display:flex; align-items:flex-start; gap:12px; }
+.info-icon {
+  flex-shrink:0;
+  display:grid;
+  place-items:center;
+  width:35px;
+  height:35px;
+  border-radius:11px;
+  background:rgba(212,175,55,.09);
+  color:var(--gold);
+}
+.info-item strong { display:block; margin-bottom:5px; font-size:13px; }
+.info-item p { margin:0; color:var(--muted); font-size:12px; line-height:1.6; }
+.security-note {
+  margin-top:20px;
+  padding:14px;
+  border:1px solid rgba(212,175,55,.13);
+  border-radius:12px;
+  color:#bdb7a6;
+  font-size:12px;
+  line-height:1.7;
+}
+footer {
+  padding:22px 15px;
+  text-align:center;
+  border-top:1px solid rgba(212,175,55,.12);
+  color:#777;
+  font-size:12px;
+}
+footer img {
+  width:22px;
+  height:22px;
+  vertical-align:middle;
+  object-fit:contain;
+  margin-right:6px;
+}
+@media(max-width:720px) {
+  .topbar-inner { padding:13px 15px; }
+  .brand { gap:8px; font-size:15px; }
+  .brand img { width:34px; height:34px; }
+  .small-link { padding:9px 10px; font-size:12px; }
+  main { width:calc(100% - 28px); margin:25px auto 38px; }
+  .layout { grid-template-columns:1fr; }
+  .card { padding:21px; border-radius:18px; }
+}
+@media(max-width:380px) {
+  .brand { font-size:13px; }
+  .top-actions { gap:5px; }
+  .small-link { padding:8px; font-size:11px; }
+  .quick-select { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="dashboard.html" aria-label="DelightVendorEdit dashboard">
+      <img src="https://raw.githubusercontent.com/delightvendorlogs/Delight-Vendor-Logs-/main/assets/dv-logo.png?v=3" alt="DV logo">
+      <span>DelightVendorEdit</span>
+    </a>
+    <nav class="top-actions" aria-label="Wallet navigation">
+      <a class="small-link" href="transactions.html">Transactions</a>
+      <a class="small-link" href="dashboard.html">Dashboard</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-heading">
+    <p class="eyebrow">Payments &amp; balance</p>
+    <h1>My Wallet</h1>
+    <p class="subtitle">Manage your funds and add money securely to your DelightVendorEdit account.</p>
+  </section>
+
+  <div class="layout">
+    <section>
+      <div class="card balance-card">
+        <div class="balance-top">
+          <p class="balance-label">Available balance</p>
+          <div class="balance-icon" aria-hidden="true">₦</div>
+        </div>
+        <p class="balance-value" id="walletBalance" aria-live="polite">Loading balance…</p>
+        <div class="balance-note">Your wallet balance is retrieved from your account.</div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h2>Wallet information</h2>
+        <div class="info-list">
+          <div class="info-item">
+            <div class="info-icon">₦</div>
+            <div>
+              <strong>Pay in Naira</strong>
+              <p>Enter the amount you want to add to your wallet.</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">✓</div>
+            <div>
+              <strong>Payment confirmation</strong>
+              <p>Your balance should update after the payment is verified by the server.</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">↗</div>
+            <div>
+              <strong>Transaction history</strong>
+              <p>Visit Transactions to view recorded wallet activity.</p>
+            </div>
+          </div>
+        </div>
+        <div class="security-note">
+          Never share your password, payment PIN, or secret keys with anyone. Complete payments only in the official Paystack checkout.
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Add money</h2>
+      <p class="card-description">Choose an amount or enter your own. Minimum funding amount: ₦100.</p>
+
+      <label class="field-label" for="amount">Amount (NGN)</label>
+      <div class="input-wrap">
+        <span class="currency">₦</span>
+        <input id="amount" type="number" min="100" max="1000000" step="1" inputmode="numeric" placeholder="Enter amount" autocomplete="off">
+      </div>
+
+      <div class="quick-select" aria-label="Choose a preset amount">
+        <button type="button" class="quick-amount" data-amount="100">₦100</button>
+        <button type="button" class="quick-amount" data-amount="200">₦200</button>
+        <button type="button" class="quick-amount" data-amount="500">₦500</button>
+        <button type="button" class="quick-amount" data-amount="1000">₦1,000</button>
+        <button type="button" class="quick-amount" data-amount="2000">₦2,000</button>
+        <button type="button" class="quick-amount" data-amount="5000">₦5,000</button>
+        <button type="button" class="quick-amount" data-amount="10000">₦10,000</button>
+        <button type="button" class="quick-amount" data-amount="20000">₦20,000</button>
+      </div>
+
+      <button type="button" class="primary-btn" id="continueButton">
+        Continue to Paystack <span aria-hidden="true">→</span>
+      </button>
+      <p id="message" role="status" aria-live="polite"></p>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <img src="https://raw.githubusercontent.com/delightvendorlogs/Delight-Vendor-Logs-/main/assets/dv-logo.png?v=3" alt="">
+  DelightVendorEdit · Secure wallet
+</footer>
+
+<script>
+"use strict";
+
+/* DelightVendorEdit Supabase project */
+const SUPABASE_URL = "https://genlmqzkjouinofkitqt.supabase.co";
+const SUPABASE_KEY = "sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
+
+/* Your existing Paystack public key */
+const PAYSTACK_PUBLIC_KEY = "pk_live_404fd9834a0f367328c2fb55a2256e406ed6b43f";
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const balanceElement = document.getElementById("walletBalance");
+const amountInput = document.getElementById("amount");
+const continueButton = document.getElementById("continueButton");
+
+let currentUser = null;
+let currentBalance = null;
+
+function showMessage(text, color = "#c9c9c9") {
+  const element = document.getElementById("message");
+  element.textContent = text;
+  element.style.color = color;
+}
+
+function formatNaira(amount) {
+  return "₦" + Number(amount).toLocaleString("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function setBusy(busy, text = "Continue to Paystack") {
+  continueButton.disabled = busy;
+  continueButton.textContent = busy ? text : "Continue to Paystack →";
+}
+
+document.querySelectorAll(".quick-amount").forEach(button => {
+  button.addEventListener("click", () => {
+    amountInput.value = button.dataset.amount;
+    document.querySelectorAll(".quick-amount").forEach(item => item.classList.remove("active"));
+    button.classList.add("active");
+  });
+});
+
+amountInput.addEventListener("input", () => {
+  document.querySelectorAll(".quick-amount").forEach(item => {
+    item.classList.toggle("active", item.dataset.amount === amountInput.value);
+  });
+});
+
+async function getSessionUser() {
+  const { data, error } = await supabaseClient.auth.getUser();
+  if (error || !data?.user) {
+    location.replace("login.html");
+    return null;
+  }
+  return data.user;
+}
+
+/*
+ * This matches the wallets table used by the new dashboard:
+ * wallets.balance, wallets.user_id.
+ * Confirm the table and its RLS policies exist in the new project.
+ */
+async function readWalletBalance() {
+  if (!currentUser) return null;
+
+  const { data, error } = await supabaseClient
+    .from("wallets")
+    .select("balance")
+    .eq("user_id", currentUser.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Wallet balance query failed:", error);
+    throw new Error("Could not load wallet balance. Please check the wallet table and permissions.");
+  }
+
+  if (!data) {
+    throw new Error("Your wallet record was not found. Please contact support before funding.");
+  }
+
+  const balance = Number(data.balance);
+  if (!Number.isFinite(balance)) {
+    throw new Error("The wallet balance returned by the server is invalid.");
+  }
+
+  currentBalance = balance;
+  balanceElement.textContent = formatNaira(balance);
+  return balance;
+}
+
+async function loadWallet() {
+  try {
+    currentUser = await getSessionUser();
+    if (!currentUser) return;
+    await readWalletBalance();
+  } catch (error) {
+    console.error(error);
+    balanceElement.textContent = "Unable to load balance";
+    showMessage(error.message || "Could not load wallet.", "#ff7777");
+  }
+}
+
+async function continuePayment() {
+  if (continueButton.disabled) return;
+
+  const amount = Number(amountInput.value);
+
+  if (!Number.isSafeInteger(amount) || amount < 100 || amount > 1000000) {
+    showMessage("Enter a whole amount between ₦100 and ₦1,000,000.", "#ff7777");
+    return;
+  }
+
+  try {
+    currentUser = await getSessionUser();
+    if (!currentUser) return;
+
+    if (!currentUser.email) {
+      showMessage("Your account does not have an email address. Update your account before paying.", "#ff7777");
+      return;
+    }
+
+    if (!window.PaystackPop) {
+      showMessage("Paystack could not load. Check your internet connection and try again.", "#ff7777");
+      return;
+    }
+
+    setBusy(true, "Preparing payment…");
+    showMessage("Checking your wallet…");
+
+    const oldBalance = await readWalletBalance();
+
+    /*
+     * This checkout sends user_id metadata, as expected by the webhook
+     * you supplied. The webhook must be updated to credit this project's
+     * wallets table before live funding can work end-to-end.
+     */
+    const paystack = new PaystackPop();
+
+    paystack.newTransaction({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: currentUser.email,
+      amount: amount * 100,
+      currency: "NGN",
+      metadata: {
+        user_id: currentUser.id,
+        purpose: "wallet_funding",
+        site: "DelightVendorEdit"
+      },
+
+      onSuccess: async transaction => {
+        showMessage("Payment submitted. Waiting for server confirmation…", "#f0cf68");
+        setBusy(true, "Confirming payment…");
+
+        /*
+         * A browser callback is not proof of payment. We only display
+         * confirmed success when the server-side webhook changes balance.
+         */
+        for (let i = 0; i < 12; i++) {
+          await new Promise(resolve => setTimeout(resolve, 3000));
+
+          try {
+            const newBalance = await readWalletBalance();
+
+            if (newBalance > oldBalance) {
+              showMessage("Your balance has increased. Check Transactions for the recorded payment.", "#6ee7a0");
+              amountInput.value = "";
+              document.querySelectorAll(".quick-amount").forEach(item => item.classList.remove("active"));
+              setBusy(false);
+              return;
+            }
+          } catch (error) {
+            console.error("Balance refresh failed:", error);
+          }
+        }
+
+        showMessage(
+          "Paystack returned a payment reference, but the wallet has not yet been confirmed. Do not pay again immediately; refresh later or contact support if needed.",
+          "#f0cf68"
+        );
+        setBusy(false);
+      },
+
+      onCancel: () => {
+        showMessage("You cancelled the payment. No wallet credit has been assumed.", "#f0cf68");
+        setBusy(false);
+      }
+    });
+
+  } catch (error) {
+    console.error("Payment initialization failed:", error);
+    showMessage(error.message || "Unable to start payment. Please try again.", "#ff7777");
+    setBusy(false);
+  }
+}
+
+continueButton.addEventListener("click", continuePayment);
+loadWallet();
+</script>
+</body>
+</html>
