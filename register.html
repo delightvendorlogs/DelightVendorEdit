@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<meta name="description" content="Create your DelightVendorEdit account to buy, sell, and explore services.">
+<title>Create Account — DelightVendorEdit</title>
+<link rel="icon" type="image/png" href="assets/dv-logo.png">
+<link rel="apple-touch-icon" href="assets/dv-logo.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--bg:#080808;--panel:#111;--gold:#d9ad45;--gold-light:#f2d27a;--text:#f7f4ec;--muted:#aaa69b;--border:rgba(217,173,69,.25);--danger:#ff7777;--success:#8ce0a8}
+*{box-sizing:border-box}html{min-height:100%;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(ellipse at 15% 0%,rgba(217,173,69,.12),transparent 38%),radial-gradient(ellipse at 100% 90%,rgba(217,173,69,.07),transparent 35%),var(--bg);display:flex;flex-direction:column}a{color:var(--gold-light)}
+.topbar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px clamp(16px,4vw,44px);border-bottom:1px solid rgba(255,255,255,.07)}
+.brand{display:inline-flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;font-weight:850;letter-spacing:-.035em;font-size:clamp(17px,2.5vw,22px)}.brand img{width:42px;height:42px;object-fit:contain;flex:0 0 auto}
+.top-link{text-decoration:none;border:1px solid var(--border);border-radius:999px;padding:10px 15px;font-weight:750;font-size:13px;white-space:nowrap}.top-link:hover{background:rgba(217,173,69,.1)}
+main{width:100%;flex:1;display:grid;place-items:center;padding:34px 16px 44px}.layout{width:min(100%,1040px);display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(22px,5vw,58px);align-items:center}
+.intro{padding:14px 0}.eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--gold-light);font-size:12px;font-weight:850;letter-spacing:.13em;text-transform:uppercase}.eyebrow:before{content:"";width:22px;height:2px;background:var(--gold);border-radius:2px}
+h1{margin:16px 0 14px;font-size:clamp(34px,5vw,56px);line-height:1.04;letter-spacing:-.055em}h1 span{background:linear-gradient(100deg,var(--gold-light),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}.intro p{color:var(--muted);line-height:1.75;max-width:430px;margin:0}
+.benefits{list-style:none;padding:0;margin:26px 0 0;display:grid;gap:13px}.benefits li{display:flex;gap:11px;align-items:flex-start;color:#ddd8ca;font-size:14px;line-height:1.5}.check{display:inline-grid;place-items:center;flex:0 0 23px;width:23px;height:23px;color:#080808;background:var(--gold);border-radius:50%;font-weight:950;font-size:12px;margin-top:1px}
+.card{width:100%;background:linear-gradient(155deg,rgba(255,255,255,.035),transparent 40%),var(--panel);border:1px solid var(--border);border-radius:20px;padding:clamp(22px,4vw,36px);box-shadow:0 24px 90px rgba(0,0,0,.4)}.card-head{margin-bottom:24px}.card-head h2{font-size:27px;letter-spacing:-.035em;margin:0 0 8px}.card-head p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
+.field{margin-top:17px}label{display:block;font-size:13px;font-weight:750;margin-bottom:8px;color:#e8e2d4}.input-wrap{position:relative}
+input{width:100%;min-height:49px;border:1px solid #34312a;background:#090909;border-radius:12px;color:var(--text);padding:13px 14px;font:inherit;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}input::placeholder{color:#777368}input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,173,69,.12)}.password-input{padding-right:76px}
+.toggle-password{position:absolute;top:50%;right:9px;transform:translateY(-50%);border:0;background:transparent;color:var(--gold-light);padding:8px;cursor:pointer;font:inherit;font-size:12px;font-weight:800}.hint{margin:7px 0 0;font-size:12px;line-height:1.5;color:var(--muted)}
+.submit{width:100%;min-height:51px;margin-top:23px;border:0;border-radius:12px;padding:13px 18px;background:linear-gradient(100deg,var(--gold-light),var(--gold));color:#171105;font:inherit;font-size:14px;font-weight:900;cursor:pointer;transition:transform .15s,filter .15s}.submit:hover{filter:brightness(1.06)}.submit:active{transform:scale(.99)}.submit:disabled{opacity:.65;cursor:wait}
+.message{display:none;margin-top:16px;border-radius:11px;padding:12px 13px;font-size:13px;line-height:1.55;overflow-wrap:anywhere}.message.error{display:block;color:#ffd2d2;border:1px solid rgba(255,119,119,.35);background:rgba(255,80,80,.08)}.message.success{display:block;color:#caffd8;border:1px solid rgba(140,224,168,.3);background:rgba(80,220,130,.08)}
+.signin{text-align:center;margin:21px 0 0;color:var(--muted);font-size:13px;line-height:1.7}.signin a{font-weight:850;text-decoration:none}.signin a:hover{text-decoration:underline}.terms{text-align:center;color:#888477;font-size:11px;line-height:1.6;margin:17px 0 0}.terms a{color:#c9a84e}footer{text-align:center;color:#777368;font-size:12px;padding:18px 16px 24px}
+@media(max-width:760px){.layout{grid-template-columns:1fr;max-width:500px;gap:20px}.intro{text-align:center;padding:8px 4px 0}.intro p{margin-inline:auto}.benefits{display:none}.eyebrow{justify-content:center}h1{font-size:clamp(32px,9vw,44px);margin-top:12px}main{padding-top:25px;padding-bottom:28px}.card{padding:24px 20px}}
+@media(max-width:380px){.topbar{padding:14px 12px}.brand{gap:7px;font-size:15px}.brand img{width:34px;height:34px}.top-link{padding:9px 11px;font-size:12px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+<a class="brand" href="index.html" aria-label="DelightVendorEdit home"><img src="assets/dv-logo.png" alt="DV Logo"><span>DelightVendorEdit</span></a>
+<a class="top-link" href="login.html">Sign in</a>
+</header>
+<main>
+<div class="layout">
+<section class="intro">
+<div class="eyebrow">Join the marketplace</div>
+<h1>Your next move starts <span>here.</span></h1>
+<p>Create your account to access DelightVendorEdit, discover services, manage purchases, and apply to sell when you're ready.</p>
+<ul class="benefits"><li><span class="check">✓</span><span>One account for your marketplace activity.</span></li><li><span class="check">✓</span><span>Track purchases and account activity from your dashboard.</span></li><li><span class="check">✓</span><span>Use a referral code during signup if you have one.</span></li></ul>
+</section>
+<section class="card" aria-labelledby="register-title">
+<div class="card-head"><h2 id="register-title">Create your account</h2><p>Enter your details below to get started.</p></div>
+<form id="register-form" novalidate>
+<div class="field"><label for="full-name">Full name</label><input id="full-name" name="full_name" type="text" autocomplete="name" placeholder="Enter your full name" maxlength="100" required></div>
+<div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" maxlength="254" required></div>
+<div class="field"><label for="password">Password</label><div class="input-wrap"><input class="password-input" id="password" name="password" type="password" autocomplete="new-password" placeholder="Create a strong password" minlength="8" required><button class="toggle-password" type="button" data-target="password" aria-label="Show password">Show</button></div><p class="hint">Use at least 8 characters.</p></div>
+<div class="field"><label for="confirm-password">Confirm password</label><div class="input-wrap"><input class="password-input" id="confirm-password" name="confirm_password" type="password" autocomplete="new-password" placeholder="Enter your password again" minlength="8" required><button class="toggle-password" type="button" data-target="confirm-password" aria-label="Show password">Show</button></div></div>
+<div class="field"><label for="referral-code">Referral code <span style="color:var(--muted);font-weight:500">(optional)</span></label><input id="referral-code" name="referral_code" type="text" autocomplete="off" placeholder="Enter a referral code if you have one" maxlength="50"><p class="hint">If someone invited you, enter their code here.</p></div>
+<button class="submit" id="submit-button" type="submit">Create account</button><div id="form-message" class="message" role="status" aria-live="polite"></div>
+</form>
+<p class="signin">Already have an account? <a href="login.html">Sign in</a></p>
+<p class="terms">By creating an account, you agree to our <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</p>
+</section>
+</div>
+</main>
+<footer>© <span id="year"></span> DelightVendorEdit. All rights reserved.</footer>
+<script>
+(() => {
+"use strict";
+const SUPABASE_URL = "https://genlmqzkjouinofkitqt.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
+const form = document.getElementById("register-form");
+const submitButton = document.getElementById("submit-button");
+const messageBox = document.getElementById("form-message");
+const fullNameInput = document.getElementById("full-name");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const confirmPasswordInput = document.getElementById("confirm-password");
+const referralInput = document.getElementById("referral-code");
+document.getElementById("year").textContent = new Date().getFullYear();
+
+document.querySelectorAll(".toggle-password").forEach(button => {
+  button.addEventListener("click", () => {
+    const input = document.getElementById(button.dataset.target);
+    const show = input.type === "password";
+    input.type = show ? "text" : "password";
+    button.textContent = show ? "Hide" : "Show";
+    button.setAttribute("aria-label", show ? "Hide password" : "Show password");
+  });
+});
+function showMessage(type, text) {
+  messageBox.className = "message " + type;
+  messageBox.textContent = text;
+}
+function setBusy(busy) {
+  submitButton.disabled = busy;
+  submitButton.textContent = busy ? "Creating account…" : "Create account";
+}
+const params = new URLSearchParams(window.location.search);
+const urlReferral = (params.get("ref") || params.get("referral") || "").trim().slice(0, 50);
+if (urlReferral) referralInput.value = urlReferral;
+
+if (!window.supabase || typeof window.supabase.createClient !== "function") {
+  showMessage("error", "The signup service could not load. Check your internet connection and reload this page.");
+  submitButton.disabled = true;
+  return;
+}
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
+});
+
+// The database's new-user trigger creates the profile. Never insert wallet
+// balances or privileged roles from public browser code.
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  messageBox.className = "message";
+  messageBox.textContent = "";
+  const fullName = fullNameInput.value.trim().replace(/\s+/g, " ");
+  const email = emailInput.value.trim().toLowerCase();
+  const password = passwordInput.value;
+  const confirmPassword = confirmPasswordInput.value;
+  const referralCode = referralInput.value.trim();
+
+  if (fullName.length < 2) { showMessage("error", "Please enter your full name."); fullNameInput.focus(); return; }
+  if (!emailInput.checkValidity() || !email) { showMessage("error", "Please enter a valid email address."); emailInput.focus(); return; }
+  if (password.length < 8) { showMessage("error", "Your password must contain at least 8 characters."); passwordInput.focus(); return; }
+  if (password !== confirmPassword) { showMessage("error", "Your passwords do not match. Please check them and try again."); confirmPasswordInput.focus(); return; }
+  if (referralCode && !/^[a-zA-Z0-9_-]{3,50}$/.test(referralCode)) { showMessage("error", "Please check the referral code. Use only letters, numbers, hyphens, or underscores."); referralInput.focus(); return; }
+
+  setBusy(true);
+  try {
+    const { data, error } = await client.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName, referral_code_entered: referralCode || null } }
+    });
+    if (error) throw error;
+    if (data && data.session) {
+      showMessage("success", "Your account has been created. Taking you to your dashboard…");
+      window.location.replace("dashboard.html");
+      return;
+    }
+    showMessage("success", "Supabase accepted the signup but did not sign you in automatically. In Supabase, open Authentication → Sign In / Providers → Email and turn OFF Confirm email, then try again.");
+    setBusy(false);
+  } catch (error) {
+    const raw = error && error.message ? error.message : "Something went wrong. Please try again.";
+    let friendly = raw;
+    if (/already registered|already exists/i.test(raw)) friendly = "An account with this email may already exist. Try signing in instead.";
+    else if (/password should be at least|weak password/i.test(raw)) friendly = "Please choose a stronger password with at least 8 characters.";
+    else if (/invalid api key|apikey/i.test(raw)) friendly = "Supabase rejected the public key. Check that the project URL and publishable key are correct.";
+    else if (/network|fetch/i.test(raw)) friendly = "Network error. Check your connection and try again.";
+    showMessage("error", friendly);
+    setBusy(false);
+  }
+});
+})();
+</script>
+</body>
+</html>
