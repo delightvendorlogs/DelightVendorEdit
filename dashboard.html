@@ -1734,45 +1734,49 @@
         }).format(number);
       }
 
-      async function loadWallet(userId) {
-        const balanceNode = document.getElementById("walletBalance");
-        const statusNode = document.getElementById("walletStatus");
+async function loadWallet(userId) {
+  const balanceNode = document.getElementById("walletBalance");
+  const statusNode = document.getElementById("walletStatus");
 
-        try {
-          const { data, error } = await client
-            .from("wallets")
-            .select("balance")
-            .eq("user_id", userId)
-            .maybeSingle();
+  try {
+    const { data, error } = await client
+      .from("wallets")
+      .select("available_balance")
+      .eq("user_id", userId)
+      .eq("wallet_type", "shopping")
+      .eq("currency", "NGN")
+      .maybeSingle();
 
-          if (error) throw error;
+    if (error) throw error;
 
-          if (!data) {
-            balanceNode.textContent = "Not set up yet";
-            balanceNode.style.fontSize = "clamp(19px,2.6vw,27px)";
-            statusNode.textContent = "Wallet setup is pending";
-            return;
-          }
+    if (!data) {
+      balanceNode.textContent = "Not set up yet";
+      balanceNode.style.fontSize = "clamp(19px,2.6vw,27px)";
+      statusNode.textContent = "Wallet setup is pending";
+      return;
+    }
 
-          const formatted = formatNaira(data.balance);
+    const formatted = formatNaira(data.available_balance);
 
-          if (formatted === null) {
-            throw new Error("Wallet balance is not numeric.");
-          }
+    if (formatted === null) {
+      throw new Error("Wallet balance is not numeric.");
+    }
 
-          balanceNode.textContent = formatted;
-          statusNode.textContent = "Updated from your account";
-        } catch (error) {
-          console.warn(
-            "Wallet balance could not be loaded:",
-            error?.message || error
-          );
+    balanceNode.textContent = formatted;
+    balanceNode.style.fontSize = "clamp(20px,2.8vw,28px)";
+    statusNode.textContent = "Updated from your account";
+  } catch (error) {
+    console.warn(
+      "Wallet balance could not be loaded:",
+      error?.message || error
+    );
 
-          balanceNode.textContent = "Unavailable";
-          balanceNode.style.fontSize = "clamp(20px,2.8vw,28px)";
-          statusNode.textContent = "Could not load balance";
-        }
-      }
+    balanceNode.textContent = "Unavailable";
+    balanceNode.style.fontSize = "clamp(20px,2.8vw,28px)";
+    statusNode.textContent = "Could not load balance";
+  }
+}
+
 
       async function loadApprovedListings() {
         // Product columns/status names are intentionally not guessed here.
