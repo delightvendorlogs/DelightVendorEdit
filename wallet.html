@@ -11,7 +11,6 @@
 <title>My Wallet — DelightVendorEdit</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://js.paystack.co/v2/inline.js"></script>
 
 <style>
 :root {
@@ -316,7 +315,7 @@ footer img {
           <div class="balance-icon" aria-hidden="true">₦</div>
         </div>
         <p class="balance-value" id="walletBalance" aria-live="polite">Loading balance…</p>
-        <div class="balance-note">Your wallet balance is retrieved from your account.</div>
+        <div class="balance-note">Your shopping wallet balance, updated from your account.</div>
       </div>
 
       <div class="card" style="margin-top:18px">
@@ -333,7 +332,7 @@ footer img {
             <div class="info-icon">✓</div>
             <div>
               <strong>Payment confirmation</strong>
-              <p>Your balance should update after the payment is verified by the server.</p>
+              <p>Your wallet is credited only after the server verifies your payment.</p>
             </div>
           </div>
           <div class="info-item">
@@ -391,22 +390,22 @@ footer img {
 const SUPABASE_URL = "https://genlmqzkjouinofkitqt.supabase.co";
 const SUPABASE_KEY = "sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
 
-/* Your existing Paystack public key */
-const PAYSTACK_PUBLIC_KEY = "pk_live_404fd9834a0f367328c2fb55a2256e406ed6b43f";
-
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 const balanceElement = document.getElementById("walletBalance");
 const amountInput = document.getElementById("amount");
 const continueButton = document.getElementById("continueButton");
+const messageElement = document.getElementById("message");
 
 let currentUser = null;
-let currentBalance = null;
+let paymentInProgress = false;
 
 function showMessage(text, color = "#c9c9c9") {
-  const element = document.getElementById("message");
-  element.textContent = text;
-  element.style.color = color;
+  messageElement.textContent = text;
+  messageElement.style.color = color;
 }
 
 function formatNaira(amount) {
@@ -416,16 +415,30 @@ function formatNaira(amount) {
   });
 }
 
-function setBusy(busy, text = "Continue to Paystack") {
+function setBusy(busy, text = "Continue to Paystack →") {
   continueButton.disabled = busy;
   continueButton.textContent = busy ? text : "Continue to Paystack →";
+}
+
+function getPaymentReference() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("reference") || params.get("trxref") || "";
+}
+
+function removePaymentReferenceFromUrl() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("reference");
+  url.searchParams.delete("trxref");
+  window.history.replaceState({}, document.title, url.toString());
 }
 
 document.querySelectorAll(".quick-amount").forEach(button => {
   button.addEventListener("click", () => {
     amountInput.value = button.dataset.amount;
-    document.querySelectorAll(".quick-amount").forEach(item => item.classList.remove("active"));
-    button.classList.add("active");
+
+    document.querySelectorAll(".quick-amount").forEach(item => {
+      item.classList.toggle("active", item === button);
+    });
   });
 });
 
@@ -437,148 +450,226 @@ amountInput.addEventListener("input", () => {
 
 async function getSessionUser() {
   const { data, error } = await supabaseClient.auth.getUser();
+
   if (error || !data?.user) {
-    location.replace("login.html");
+    window.location.replace("login.html");
     return null;
   }
+
   return data.user;
 }
 
-/*
- * This matches the wallets table used by the new dashboard:
- * wallets.balance, wallets.user_id.
- * Confirm the table and its RLS policies exist in the new project.
- */
 async function readWalletBalance() {
-  if (!currentUser) return null;
+  if (!currentUser) {
+    throw new Error("Please sign in to view your wallet.");
+  }
 
   const { data, error } = await supabaseClient
     .from("wallets")
-    .select("balance")
+    .select("available_balance")
     .eq("user_id", currentUser.id)
+    .eq("wallet_type", "shopping")
+    .eq("currency", "NGN")
     .maybeSingle();
 
   if (error) {
     console.error("Wallet balance query failed:", error);
-    throw new Error("Could not load wallet balance. Please check the wallet table and permissions.");
+    throw new Error("Could not load your balance. Please refresh and try again.");
   }
 
   if (!data) {
-    throw new Error("Your wallet record was not found. Please contact support before funding.");
+    throw new Error("Your shopping wallet was not found. Please contact support.");
   }
 
-  const balance = Number(data.balance);
+  const balance = Number(data.available_balance);
+
   if (!Number.isFinite(balance)) {
     throw new Error("The wallet balance returned by the server is invalid.");
   }
 
-  currentBalance = balance;
   balanceElement.textContent = formatNaira(balance);
   return balance;
+}
+
+/*
+ * Check the transaction row created by the verified server webhook.
+ * A Paystack redirect alone is not treated as proof of payment.
+ */
+async function findCompletedDeposit(reference) {
+  const { data, error } = await supabaseClient
+    .from("wallet_transactions")
+    .select("reference, status, amount, transaction_type")
+    .eq("user_id", currentUser.id)
+    .eq("reference", reference)
+    .eq("transaction_type", "deposit")
+    .maybeSingle();
+
+  if (error) {
+    console.error("Deposit status query failed:", error);
+    throw new Error("Could not check the payment status yet.");
+  }
+
+  return data;
+}
+
+async function checkReturnedPayment() {
+  const reference = getPaymentReference();
+  if (!reference) return;
+
+  // The reference comes from the URL, but the server-side transaction row
+  // is what determines whether the wallet deposit has been completed.
+  showMessage("Checking your payment with the server…", "#f0cf68");
+  setBusy(true, "Checking payment…");
+
+  try {
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const transaction = await findCompletedDeposit(reference);
+
+      if (transaction?.status === "completed") {
+        await readWalletBalance();
+
+        showMessage(
+          "Payment confirmed! Your shopping wallet has been credited.",
+          "#6ee7a0"
+        );
+
+        removePaymentReferenceFromUrl();
+        setBusy(false);
+        return;
+      }
+
+      if (
+        transaction &&
+        ["failed", "reversed", "rejected"].includes(transaction.status)
+      ) {
+        showMessage(
+          "This deposit was not completed. Check Transactions or contact support before trying again.",
+          "#ff7777"
+        );
+
+        removePaymentReferenceFromUrl();
+        setBusy(false);
+        return;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 3000));
+    }
+
+    showMessage(
+      "Your payment is still awaiting server confirmation. Do not pay again immediately. Refresh later and check Transactions.",
+      "#f0cf68"
+    );
+    setBusy(false);
+  } catch (error) {
+    console.error("Payment status check failed:", error);
+    showMessage(
+      "We could not confirm the payment status yet. Please refresh later and check Transactions before trying again.",
+      "#f0cf68"
+    );
+    setBusy(false);
+  }
 }
 
 async function loadWallet() {
   try {
     currentUser = await getSessionUser();
     if (!currentUser) return;
+
     await readWalletBalance();
+    await checkReturnedPayment();
   } catch (error) {
-    console.error(error);
+    console.error("Wallet loading failed:", error);
     balanceElement.textContent = "Unable to load balance";
-    showMessage(error.message || "Could not load wallet.", "#ff7777");
+    showMessage(
+      error.message || "Could not load your wallet.",
+      "#ff7777"
+    );
   }
 }
 
 async function continuePayment() {
-  if (continueButton.disabled) return;
+  if (paymentInProgress || continueButton.disabled) return;
 
   const amount = Number(amountInput.value);
 
-  if (!Number.isSafeInteger(amount) || amount < 100 || amount > 1000000) {
-    showMessage("Enter a whole amount between ₦100 and ₦1,000,000.", "#ff7777");
+  if (
+    !Number.isSafeInteger(amount) ||
+    amount < 100 ||
+    amount > 1000000
+  ) {
+    showMessage(
+      "Enter a whole amount between ₦100 and ₦1,000,000.",
+      "#ff7777"
+    );
     return;
   }
+
+  paymentInProgress = true;
+  setBusy(true, "Preparing payment…");
 
   try {
     currentUser = await getSessionUser();
     if (!currentUser) return;
 
     if (!currentUser.email) {
-      showMessage("Your account does not have an email address. Update your account before paying.", "#ff7777");
+      showMessage(
+        "Your account has no email address. Update your account before paying.",
+        "#ff7777"
+      );
       return;
     }
 
-    if (!window.PaystackPop) {
-      showMessage("Paystack could not load. Check your internet connection and try again.", "#ff7777");
-      return;
-    }
-
-    setBusy(true, "Preparing payment…");
-    showMessage("Checking your wallet…");
-
-    const oldBalance = await readWalletBalance();
+    showMessage("Securely preparing your Paystack checkout…");
 
     /*
-     * This checkout sends user_id metadata, as expected by the webhook
-     * you supplied. The webhook must be updated to credit this project's
-     * wallets table before live funding can work end-to-end.
+     * The Edge Function authenticates the signed-in user and initializes
+     * Paystack on the server. The secret key never enters this page.
      */
-    const paystack = new PaystackPop();
-
-    paystack.newTransaction({
-      key: PAYSTACK_PUBLIC_KEY,
-      email: currentUser.email,
-      amount: amount * 100,
-      currency: "NGN",
-      metadata: {
-        user_id: currentUser.id,
-        purpose: "wallet_funding",
-        site: "DelightVendorEdit"
-      },
-
-      onSuccess: async transaction => {
-        showMessage("Payment submitted. Waiting for server confirmation…", "#f0cf68");
-        setBusy(true, "Confirming payment…");
-
-        /*
-         * A browser callback is not proof of payment. We only display
-         * confirmed success when the server-side webhook changes balance.
-         */
-        for (let i = 0; i < 12; i++) {
-          await new Promise(resolve => setTimeout(resolve, 3000));
-
-          try {
-            const newBalance = await readWalletBalance();
-
-            if (newBalance > oldBalance) {
-              showMessage("Your balance has increased. Check Transactions for the recorded payment.", "#6ee7a0");
-              amountInput.value = "";
-              document.querySelectorAll(".quick-amount").forEach(item => item.classList.remove("active"));
-              setBusy(false);
-              return;
-            }
-          } catch (error) {
-            console.error("Balance refresh failed:", error);
-          }
-        }
-
-        showMessage(
-          "Paystack returned a payment reference, but the wallet has not yet been confirmed. Do not pay again immediately; refresh later or contact support if needed.",
-          "#f0cf68"
-        );
-        setBusy(false);
-      },
-
-      onCancel: () => {
-        showMessage("You cancelled the payment. No wallet credit has been assumed.", "#f0cf68");
-        setBusy(false);
+    const { data, error } = await supabaseClient.functions.invoke(
+      "paystack_init_payment",
+      {
+        body: { amount }
       }
-    });
+    );
 
+    if (error) {
+      console.error("Payment initialization function failed:", error);
+      throw new Error(
+        data?.error || "Could not start payment. Please try again."
+      );
+    }
+
+    if (
+      !data?.success ||
+      typeof data.authorization_url !== "string" ||
+      !data.authorization_url.startsWith("https://")
+    ) {
+      throw new Error(
+        data?.error || "The payment provider returned an invalid checkout link."
+      );
+    }
+
+    showMessage("Opening secure Paystack checkout…", "#f0cf68");
+
+    // The checkout URL is supplied by our server-side Paystack initialization.
+    window.location.assign(data.authorization_url);
   } catch (error) {
     console.error("Payment initialization failed:", error);
-    showMessage(error.message || "Unable to start payment. Please try again.", "#ff7777");
-    setBusy(false);
+    showMessage(
+      error.message || "Unable to start payment. Please try again.",
+      "#ff7777"
+    );
+  } finally {
+    paymentInProgress = false;
+
+    // If checkout navigation did not happen, re-enable the button.
+    if (window.location.href === window.location.href) {
+      setTimeout(() => {
+        if (document.visibilityState === "visible") {
+          setBusy(false);
+        }
+      }, 500);
+    }
   }
 }
 
