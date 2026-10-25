@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root {
       color-scheme: dark;
@@ -29,218 +30,1167 @@
       --shadow: 0 18px 50px rgba(0,0,0,.26);
       --radius: 20px;
     }
+
     * { box-sizing: border-box; }
+
     html { scroll-behavior: smooth; }
+
     body {
-      margin: 0; min-height: 100vh; background:
+      margin: 0;
+      min-height: 100vh;
+      background:
         radial-gradient(ellipse at 80% -15%, rgba(231,184,75,.11), transparent 35%),
         var(--bg);
-      color: var(--text); font-family: "DM Sans", sans-serif;
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
     }
-    body.drawer-open { overflow: hidden; }
+
+    body.drawer-open,
+    body.support-modal-open {
+      overflow: hidden;
+    }
+
     a { color: inherit; text-decoration: none; }
+
     button, input { font: inherit; }
+
     button { cursor: pointer; }
+
     .app-shell { min-height: 100vh; }
+
     .topbar {
-      position: sticky; top: 0; z-index: 30; height: 76px; display: flex; align-items: center;
-      justify-content: space-between; gap: 20px; padding: 0 clamp(16px, 3vw, 42px);
-      background: rgba(9,9,9,.88); border-bottom: 1px solid var(--line); backdrop-filter: blur(18px);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 clamp(16px, 3vw, 42px);
+      background: rgba(9,9,9,.88);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px);
     }
-    .brand { display: inline-flex; align-items: center; gap: 11px; min-width: 0; }
-    .brand img { width: 39px; height: 39px; object-fit: contain; flex: 0 0 auto; }
-    .brand-name { font: 800 17px/1.15 "Manrope", sans-serif; letter-spacing: -.55px; white-space: nowrap; }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    .brand img {
+      width: 39px;
+      height: 39px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .brand-name {
+      font: 800 17px/1.15 "Manrope", sans-serif;
+      letter-spacing: -.55px;
+      white-space: nowrap;
+    }
+
     .brand-name span { color: var(--gold); }
-    .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .icon-btn {
-      position: relative; width: 43px; height: 43px; border: 1px solid var(--line); border-radius: 14px;
-      display: inline-flex; align-items: center; justify-content: center; color: var(--text);
-      background: var(--panel); transition: .2s ease;
+      position: relative;
+      width: 43px;
+      height: 43px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      background: var(--panel);
+      transition: .2s ease;
     }
-    .icon-btn:hover { border-color: rgba(231,184,75,.6); transform: translateY(-1px); }
-    .hamburger { display: flex; flex-direction: column; gap: 5px; width: 18px; }
-    .hamburger i { height: 2px; width: 18px; display: block; border-radius: 9px; background: currentColor; }
-    .topbar-label { color: var(--muted); font-size: 12px; }
-    .avatar { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; color: #17130a; background: linear-gradient(135deg,var(--gold-2),#b98724); font-weight: 800; }
-    .layout { display: grid; grid-template-columns: 250px minmax(0,1fr); max-width: 1600px; margin: 0 auto; }
+
+    .icon-btn:hover {
+      border-color: rgba(231,184,75,.6);
+      transform: translateY(-1px);
+    }
+
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      width: 18px;
+    }
+
+    .hamburger i {
+      height: 2px;
+      width: 18px;
+      display: block;
+      border-radius: 9px;
+      background: currentColor;
+    }
+
+    .topbar-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #17130a;
+      background: linear-gradient(135deg,var(--gold-2),#b98724);
+      font-weight: 800;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 250px minmax(0,1fr);
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
     .sidebar {
-      position: sticky; top: 76px; align-self: start; height: calc(100vh - 76px); overflow-y: auto;
-      padding: 25px 17px 24px; border-right: 1px solid var(--line);
+      position: sticky;
+      top: 76px;
+      align-self: start;
+      height: calc(100vh - 76px);
+      overflow-y: auto;
+      padding: 25px 17px 24px;
+      border-right: 1px solid var(--line);
     }
-    .side-caption { padding: 8px 13px 12px; color: #77746c; font-size: 10px; letter-spacing: 1.7px; font-weight: 700; text-transform: uppercase; }
-    .nav-list { display: grid; gap: 5px; }
-    .nav-link, .support-toggle {
-      width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 13px;
-      border-radius: 12px; border: 1px solid transparent; color: #c4c1b9; background: transparent;
-      text-align: left; font-size: 13px; transition: .18s ease;
+
+    .side-caption {
+      padding: 8px 13px 12px;
+      color: #77746c;
+      font-size: 10px;
+      letter-spacing: 1.7px;
+      font-weight: 700;
+      text-transform: uppercase;
     }
-    .nav-link:hover, .support-toggle:hover { background: rgba(255,255,255,.045); color: var(--text); }
-    .nav-link.active { color: var(--gold-2); background: rgba(231,184,75,.10); border-color: rgba(231,184,75,.16); }
-    .nav-icon { width: 21px; text-align: center; color: var(--gold); font-size: 16px; flex: 0 0 auto; }
-    .nav-link .chevron { margin-left: auto; color: #777; }
-    .support-options { display: none; padding: 2px 0 7px 47px; gap: 4px; }
+
+    .nav-list {
+      display: grid;
+      gap: 5px;
+    }
+
+    .nav-link,
+    .support-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 13px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      color: #c4c1b9;
+      background: transparent;
+      text-align: left;
+      font-size: 13px;
+      transition: .18s ease;
+    }
+
+    .nav-link:hover,
+    .support-toggle:hover {
+      background: rgba(255,255,255,.045);
+      color: var(--text);
+    }
+
+    .nav-link.active {
+      color: var(--gold-2);
+      background: rgba(231,184,75,.10);
+      border-color: rgba(231,184,75,.16);
+    }
+
+    .nav-icon {
+      width: 21px;
+      text-align: center;
+      color: var(--gold);
+      font-size: 16px;
+      flex: 0 0 auto;
+    }
+
+    .nav-link .chevron {
+      margin-left: auto;
+      color: #777;
+    }
+
+    .support-options {
+      display: none;
+      padding: 2px 0 7px 47px;
+      gap: 4px;
+    }
+
     .support-options.open { display: grid; }
-    .support-options a { padding: 8px 0; color: var(--muted); font-size: 12px; }
+
+    .support-options a {
+      padding: 8px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
     .support-options a:hover { color: var(--gold-2); }
-    .sidebar-bottom { margin-top: 25px; padding: 17px 14px; border: 1px solid rgba(231,184,75,.16); border-radius: 16px; background: linear-gradient(145deg,rgba(231,184,75,.09),rgba(231,184,75,.02)); }
-    .sidebar-bottom strong { display: block; font: 700 13px "Manrope",sans-serif; margin-bottom: 6px; }
-    .sidebar-bottom p { color: var(--muted); font-size: 11px; line-height: 1.6; margin: 0 0 13px; }
-    .small-gold-link { color: var(--gold-2); font-size: 12px; font-weight: 700; }
-    .main { min-width: 0; padding: 31px clamp(16px, 3vw, 42px) 50px; }
-    .welcome-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 27px; }
-    .eyebrow { color: var(--gold); font-size: 10px; font-weight: 800; letter-spacing: 2.1px; text-transform: uppercase; margin-bottom: 10px; }
+
+    .sidebar-bottom {
+      margin-top: 25px;
+      padding: 17px 14px;
+      border: 1px solid rgba(231,184,75,.16);
+      border-radius: 16px;
+      background: linear-gradient(145deg,rgba(231,184,75,.09),rgba(231,184,75,.02));
+    }
+
+    .sidebar-bottom strong {
+      display: block;
+      font: 700 13px "Manrope",sans-serif;
+      margin-bottom: 6px;
+    }
+
+    .sidebar-bottom p {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+      margin: 0 0 13px;
+    }
+
+    .small-gold-link {
+      color: var(--gold-2);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* Contact support popup trigger buttons */
+    .support-contact-trigger {
+      display: inline-block;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold-2);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .support-contact-trigger:hover {
+      color: #fff0bd;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    /* Contact support modal */
+    .support-modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0,0,0,.78);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+
+    .support-modal-backdrop.open { display: flex; }
+
+    .support-modal {
+      width: 100%;
+      max-width: 420px;
+      max-height: calc(100vh - 36px);
+      overflow-y: auto;
+      padding: 23px;
+      color: var(--text);
+      background: #121212;
+      border: 1px solid rgba(231,184,75,.45);
+      border-radius: 20px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.6);
+      animation: supportModalIn .18s ease-out;
+    }
+
+    @keyframes supportModalIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .support-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .support-modal h2 {
+      margin: 0;
+      font: 800 20px/1.3 "Manrope",sans-serif;
+      color: var(--gold-2);
+    }
+
+    .support-modal-close {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #202020;
+      color: var(--text);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .support-modal-close:hover {
+      border-color: rgba(231,184,75,.6);
+      color: var(--gold-2);
+    }
+
+    .support-modal-copy {
+      margin: 12px 0 19px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .support-choice {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-top: 10px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #191919;
+      color: var(--text);
+      text-decoration: none;
+      transition: .2s ease;
+    }
+
+    .support-choice:hover,
+    .support-choice:focus-visible {
+      border-color: rgba(231,184,75,.65);
+      background: #211e14;
+      outline: none;
+    }
+
+    .support-choice-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      border-radius: 12px;
+      color: var(--gold-2);
+      background: rgba(231,184,75,.1);
+      font-size: 21px;
+    }
+
+    .support-choice-text {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .support-choice strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .support-choice small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .support-choice-arrow {
+      margin-left: auto;
+      color: var(--gold-2);
+      font-size: 16px;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 31px clamp(16px, 3vw, 42px) 50px;
+    }
+
+    .welcome-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 27px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 2.1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
     h1, h2, h3, p { margin-top: 0; }
-    h1 { font: 800 clamp(25px,3vw,35px)/1.2 "Manrope",sans-serif; letter-spacing: -1.2px; margin-bottom: 8px; }
-    .welcome-copy { color: var(--muted); font-size: 13px; line-height: 1.65; margin: 0; max-width: 560px; }
-    .date-pill { display: inline-flex; align-items: center; gap: 8px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 99px; color: #c9c5bc; background: rgba(255,255,255,.025); font-size: 11px; white-space: nowrap; }
-    .date-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; box-shadow: 0 0 0 4px rgba(126,214,164,.1); }
-    .overview-grid { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(240px,.75fr); gap: 17px; margin-bottom: 28px; }
+
+    h1 {
+      font: 800 clamp(25px,3vw,35px)/1.2 "Manrope",sans-serif;
+      letter-spacing: -1.2px;
+      margin-bottom: 8px;
+    }
+
+    .welcome-copy {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+      margin: 0;
+      max-width: 560px;
+    }
+
+    .date-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 13px;
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      color: #c9c5bc;
+      background: rgba(255,255,255,.025);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .date-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(126,214,164,.1);
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1.45fr) minmax(240px,.75fr);
+      gap: 17px;
+      margin-bottom: 28px;
+    }
+
     .wallet-card {
-      min-height: 205px; position: relative; overflow: hidden; padding: 25px 26px; border-radius: var(--radius);
+      min-height: 205px;
+      position: relative;
+      overflow: hidden;
+      padding: 25px 26px;
+      border-radius: var(--radius);
       border: 1px solid rgba(231,184,75,.28);
       background: linear-gradient(120deg,rgba(231,184,75,.16),rgba(231,184,75,.055) 55%,rgba(255,255,255,.025));
       box-shadow: var(--shadow);
     }
-    .wallet-card:after { content:""; position:absolute; width:220px; height:220px; border:1px solid rgba(231,184,75,.12); border-radius:50%; right:-65px; top:-95px; box-shadow:0 0 0 24px rgba(231,184,75,.025),0 0 0 50px rgba(231,184,75,.02); pointer-events:none; }
-    .wallet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; position: relative; z-index: 1; }
-    .wallet-label { color: #d1c5a6; font-size: 12px; }
-    .wallet-tag { padding: 6px 9px; border-radius: 99px; color: var(--gold-2); background: rgba(231,184,75,.1); border: 1px solid rgba(231,184,75,.17); font-size: 10px; }
-    .balance-line { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 19px 0 22px; position: relative; z-index: 1; }
-    .balance { font: 800 clamp(27px,3.6vw,38px)/1.1 "Manrope",sans-serif; letter-spacing: -1px; }
-    .balance-status { color: var(--muted); font-size: 11px; }
-    .wallet-actions { display: flex; gap: 10px; flex-wrap: wrap; position: relative; z-index: 1; }
-    .btn { display: inline-flex; justify-content: center; align-items: center; gap: 8px; border-radius: 11px; padding: 11px 15px; border: 1px solid transparent; font-weight: 700; font-size: 12px; transition: .2s ease; }
-    .btn-gold { background: linear-gradient(135deg,var(--gold-2),#d6a431); color: #17130a; }
-    .btn-gold:hover { filter: brightness(1.06); transform: translateY(-1px); }
-    .btn-ghost { background: rgba(9,9,9,.3); color: var(--text); border-color: rgba(255,255,255,.14); }
-    .btn-ghost:hover { border-color: rgba(231,184,75,.55); }
-    .quick-card { padding: 22px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(145deg,#151515,#101010); display: flex; flex-direction: column; justify-content: space-between; gap: 20px; }
-    .quick-top { display: flex; align-items: center; justify-content: space-between; }
-    .quick-icon { display: grid; place-items: center; width: 43px; height: 43px; border-radius: 14px; color: var(--gold); background: rgba(231,184,75,.1); font-size: 20px; }
-    .quick-card h3 { font: 700 15px "Manrope",sans-serif; margin: 0 0 6px; }
-    .quick-card p { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 0; }
-    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 14px; margin: 31px 0 15px; }
-    .section-head h2 { font: 800 19px "Manrope",sans-serif; letter-spacing: -.45px; margin: 0 0 5px; }
-    .section-head p { color: var(--muted); font-size: 12px; margin: 0; line-height: 1.5; }
-    .text-link { color: var(--gold-2); font-size: 12px; font-weight: 700; white-space: nowrap; }
-    .category-grid { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 13px; }
-    .category-card {
-      min-width: 0; min-height: 174px; display: flex; flex-direction: column; align-items: flex-start;
-      padding: 17px; border: 1px solid var(--line); border-radius: 17px; background: linear-gradient(145deg,#161616,#101010);
-      transition: .22s ease; position: relative; overflow: hidden;
+
+    .wallet-card:after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border: 1px solid rgba(231,184,75,.12);
+      border-radius: 50%;
+      right: -65px;
+      top: -95px;
+      box-shadow: 0 0 0 24px rgba(231,184,75,.025),0 0 0 50px rgba(231,184,75,.02);
+      pointer-events: none;
     }
-    .category-card:after { content:""; position:absolute; width:85px; height:85px; border:1px solid rgba(231,184,75,.08); border-radius:50%; right:-38px; top:-38px; }
-    .category-card:hover { transform: translateY(-4px); border-color: rgba(231,184,75,.45); background: linear-gradient(145deg,#1c1a15,#111); }
-    .category-icon { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: rgba(231,184,75,.10); color: var(--gold-2); font-size: 20px; margin-bottom: 19px; }
-    .category-card strong { font: 700 13px/1.4 "Manrope",sans-serif; margin-bottom: 7px; }
-    .category-card small { color: var(--muted); font-size: 10px; line-height: 1.5; }
-    .category-arrow { margin-top: auto; padding-top: 12px; color: var(--gold); font-size: 16px; }
-    .seller-panel { padding: 22px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.012)); }
-    .seller-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 18px; }
-    .searchbox { width: min(100%,320px); position: relative; }
-    .searchbox input { width: 100%; padding: 12px 14px 12px 39px; border-radius: 11px; outline: none; color: var(--text); border: 1px solid var(--line); background: #0c0c0c; font-size: 12px; }
+
+    .wallet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .wallet-label { color: #d1c5a6; font-size: 12px; }
+
+    .wallet-tag {
+      padding: 6px 9px;
+      border-radius: 99px;
+      color: var(--gold-2);
+      background: rgba(231,184,75,.1);
+      border: 1px solid rgba(231,184,75,.17);
+      font-size: 10px;
+    }
+
+    .balance-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 19px 0 22px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .balance {
+      font: 800 clamp(27px,3.6vw,38px)/1.1 "Manrope",sans-serif;
+      letter-spacing: -1px;
+    }
+
+    .balance-status { color: var(--muted); font-size: 11px; }
+
+    .wallet-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      border-radius: 11px;
+      padding: 11px 15px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      font-size: 12px;
+      transition: .2s ease;
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg,var(--gold-2),#d6a431);
+      color: #17130a;
+    }
+
+    .btn-gold:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: rgba(9,9,9,.3);
+      color: var(--text);
+      border-color: rgba(255,255,255,.14);
+    }
+
+    .btn-ghost:hover { border-color: rgba(231,184,75,.55); }
+
+    .quick-card {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg,#151515,#101010);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .quick-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .quick-icon {
+      display: grid;
+      place-items: center;
+      width: 43px;
+      height: 43px;
+      border-radius: 14px;
+      color: var(--gold);
+      background: rgba(231,184,75,.1);
+      font-size: 20px;
+    }
+
+    .quick-card h3 {
+      font: 700 15px "Manrope",sans-serif;
+      margin: 0 0 6px;
+    }
+
+    .quick-card p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 31px 0 15px;
+    }
+
+    .section-head h2 {
+      font: 800 19px "Manrope",sans-serif;
+      letter-spacing: -.45px;
+      margin: 0 0 5px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .text-link {
+      color: var(--gold-2);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(5,minmax(0,1fr));
+      gap: 13px;
+    }
+
+    .category-card {
+      min-width: 0;
+      min-height: 174px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: linear-gradient(145deg,#161616,#101010);
+      transition: .22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .category-card:after {
+      content: "";
+      position: absolute;
+      width: 85px;
+      height: 85px;
+      border: 1px solid rgba(231,184,75,.08);
+      border-radius: 50%;
+      right: -38px;
+      top: -38px;
+    }
+
+    .category-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(231,184,75,.45);
+      background: linear-gradient(145deg,#1c1a15,#111);
+    }
+
+    .category-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: rgba(231,184,75,.10);
+      color: var(--gold-2);
+      font-size: 20px;
+      margin-bottom: 19px;
+    }
+
+    .category-card strong {
+      font: 700 13px/1.4 "Manrope",sans-serif;
+      margin-bottom: 7px;
+    }
+
+    .category-card small {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .category-arrow {
+      margin-top: auto;
+      padding-top: 12px;
+      color: var(--gold);
+      font-size: 16px;
+    }
+
+    .seller-panel {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.012));
+    }
+
+    .seller-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .searchbox {
+      width: min(100%,320px);
+      position: relative;
+    }
+
+    .searchbox input {
+      width: 100%;
+      padding: 12px 14px 12px 39px;
+      border-radius: 11px;
+      outline: none;
+      color: var(--text);
+      border: 1px solid var(--line);
+      background: #0c0c0c;
+      font-size: 12px;
+    }
+
     .searchbox input:focus { border-color: rgba(231,184,75,.5); }
-    .searchbox span { position: absolute; left: 14px; top: 10px; color: var(--muted); }
-    .empty-state { padding: 32px 18px; text-align: center; border: 1px dashed rgba(255,255,255,.13); border-radius: 15px; }
-    .empty-icon { margin: 0 auto 12px; width: 47px; height: 47px; border-radius: 15px; display: grid; place-items: center; background: rgba(231,184,75,.09); color: var(--gold); font-size: 22px; }
-    .empty-state strong { display: block; font: 700 14px "Manrope",sans-serif; margin-bottom: 7px; }
-    .empty-state p { color: var(--muted); font-size: 12px; line-height: 1.65; margin: 0 auto; max-width: 390px; }
-    .product-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
-    .product-item { padding: 15px; border-radius: 14px; border: 1px solid var(--line); background: #111; }
-    .product-item h3 { font: 700 13px "Manrope",sans-serif; margin: 0 0 7px; }
-    .product-item p { font-size: 11px; color: var(--muted); line-height: 1.5; margin: 0 0 10px; }
-    .product-price { color: var(--gold-2); font-weight: 800; font-size: 13px; }
-    .lower-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 27px; }
-    .info-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 21px; background: var(--panel); }
-    .info-card h3 { font: 700 14px "Manrope",sans-serif; margin: 0 0 7px; }
-    .info-card > p { color: var(--muted); font-size: 12px; line-height: 1.6; margin-bottom: 16px; }
-    .info-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+
+    .searchbox span {
+      position: absolute;
+      left: 14px;
+      top: 10px;
+      color: var(--muted);
+    }
+
+    .empty-state {
+      padding: 32px 18px;
+      text-align: center;
+      border: 1px dashed rgba(255,255,255,.13);
+      border-radius: 15px;
+    }
+
+    .empty-icon {
+      margin: 0 auto 12px;
+      width: 47px;
+      height: 47px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      background: rgba(231,184,75,.09);
+      color: var(--gold);
+      font-size: 22px;
+    }
+
+    .empty-state strong {
+      display: block;
+      font: 700 14px "Manrope",sans-serif;
+      margin-bottom: 7px;
+    }
+
+    .empty-state p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+      margin: 0 auto;
+      max-width: 390px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3,minmax(0,1fr));
+      gap: 12px;
+    }
+
+    .product-item {
+      padding: 15px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #111;
+    }
+
+    .product-item h3 {
+      font: 700 13px "Manrope",sans-serif;
+      margin: 0 0 7px;
+    }
+
+    .product-item p {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 0 0 10px;
+    }
+
+    .product-price {
+      color: var(--gold-2);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .lower-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 27px;
+    }
+
+    .info-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 21px;
+      background: var(--panel);
+    }
+
+    .info-card h3 {
+      font: 700 14px "Manrope",sans-serif;
+      margin: 0 0 7px;
+    }
+
+    .info-card > p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-top: 1px solid var(--line);
+    }
+
     .info-row:first-of-type { border-top: 0; }
-    .info-row .mini-icon { width: 34px; height: 34px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 11px; background: rgba(231,184,75,.09); color: var(--gold); }
-    .info-row strong { display: block; font-size: 12px; margin-bottom: 4px; }
-    .info-row small { display: block; color: var(--muted); font-size: 10px; line-height: 1.5; }
+
+    .info-row .mini-icon {
+      width: 34px;
+      height: 34px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: rgba(231,184,75,.09);
+      color: var(--gold);
+    }
+
+    .info-row strong {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .info-row small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
     .info-row .text-link { margin-left: auto; }
-    .footer { border-top: 1px solid var(--line); margin-top: 35px; padding-top: 20px; color: #77746c; font-size: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-    .footer-links { display: flex; flex-wrap: wrap; gap: 15px; }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      margin-top: 35px;
+      padding-top: 20px;
+      color: #77746c;
+      font-size: 10px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
     .footer a:hover { color: var(--gold-2); }
-    .drawer-backdrop { display: none; position: fixed; inset: 0; z-index: 39; background: rgba(0,0,0,.65); backdrop-filter: blur(3px); }
+
+    .drawer-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 39;
+      background: rgba(0,0,0,.65);
+      backdrop-filter: blur(3px);
+    }
+
     .mobile-drawer { display: none; }
-    .toast { position: fixed; z-index: 80; bottom: 22px; left: 50%; transform: translate(-50%,18px); opacity: 0; pointer-events: none; padding: 12px 16px; border-radius: 12px; background: #242116; border: 1px solid rgba(231,184,75,.25); color: var(--text); font-size: 12px; max-width: calc(100vw - 30px); transition: .25s ease; box-shadow: var(--shadow); }
-    .toast.show { opacity: 1; transform: translate(-50%,0); }
-    .loading-screen { position: fixed; inset: 0; z-index: 100; background: var(--bg); display: grid; place-items: center; padding: 25px; }
+
+    .toast {
+      position: fixed;
+      z-index: 250;
+      bottom: 22px;
+      left: 50%;
+      transform: translate(-50%,18px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: #242116;
+      border: 1px solid rgba(231,184,75,.25);
+      color: var(--text);
+      font-size: 12px;
+      max-width: calc(100vw - 30px);
+      transition: .25s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%,0);
+    }
+
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 25px;
+    }
+
     .loading-box { text-align: center; }
-    .loading-box img { width: 54px; height: 54px; object-fit: contain; margin-bottom: 15px; }
-    .loading-box p { color: var(--muted); font-size: 12px; }
-    .spinner { width: 25px; height: 25px; border: 2px solid rgba(231,184,75,.2); border-top-color: var(--gold); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 15px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-box img {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      margin-bottom: 15px;
+    }
+
+    .loading-box p {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .spinner {
+      width: 25px;
+      height: 25px;
+      border: 2px solid rgba(231,184,75,.2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     @media (max-width: 1250px) {
       .layout { grid-template-columns: 220px minmax(0,1fr); }
       .category-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
       .category-card { min-height: 160px; }
     }
+
     @media (max-width: 900px) {
       .layout { display: block; }
       .sidebar { display: none; }
       .main { padding-top: 25px; }
-      .overview-grid { grid-template-columns: minmax(0,1.15fr) minmax(220px,.85fr); }
+
+      .overview-grid {
+        grid-template-columns: minmax(0,1.15fr) minmax(220px,.85fr);
+      }
+
       .category-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
-      .mobile-drawer { display: flex; position: fixed; z-index: 40; top: 0; bottom: 0; left: 0; width: min(310px,86vw); flex-direction: column; overflow-y: auto; padding: 22px 17px; background: #101010; border-right: 1px solid rgba(231,184,75,.2); transform: translateX(-105%); transition: transform .25s ease; }
+
+      .mobile-drawer {
+        display: flex;
+        position: fixed;
+        z-index: 40;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: min(310px,86vw);
+        flex-direction: column;
+        overflow-y: auto;
+        padding: 22px 17px;
+        background: #101010;
+        border-right: 1px solid rgba(231,184,75,.2);
+        transform: translateX(-105%);
+        transition: transform .25s ease;
+      }
+
       .mobile-drawer.open { transform: translateX(0); }
-      .drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 5px 22px; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
-      .drawer-head .brand img { width: 34px; height: 34px; }
+
+      .drawer-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 0 5px 22px;
+        border-bottom: 1px solid var(--line);
+        margin-bottom: 16px;
+      }
+
+      .drawer-head .brand img {
+        width: 34px;
+        height: 34px;
+      }
+
       .drawer-head .brand-name { font-size: 14px; }
-      .drawer-close { border: 0; background: transparent; color: var(--text); font-size: 25px; padding: 5px 8px; }
+
+      .drawer-close {
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        font-size: 25px;
+        padding: 5px 8px;
+      }
+
       .mobile-drawer .side-caption { padding-left: 12px; }
       .mobile-drawer .sidebar-bottom { margin-top: auto; }
       .drawer-backdrop.open { display: block; }
     }
+
     @media (max-width: 620px) {
-      .topbar { height: 66px; padding: 0 15px; gap: 10px; }
+      .topbar {
+        height: 66px;
+        padding: 0 15px;
+        gap: 10px;
+      }
+
       .brand { gap: 8px; }
-      .brand img { width: 34px; height: 34px; }
-      .brand-name { font-size: 14px; letter-spacing: -.45px; }
+
+      .brand img {
+        width: 34px;
+        height: 34px;
+      }
+
+      .brand-name {
+        font-size: 14px;
+        letter-spacing: -.45px;
+      }
+
       .topbar-right { gap: 7px; }
       .topbar-label { display: none; }
-      .icon-btn { width: 39px; height: 39px; border-radius: 12px; }
+
+      .icon-btn {
+        width: 39px;
+        height: 39px;
+        border-radius: 12px;
+      }
+
       .layout { display: block; }
+
       .main { padding: 23px 15px 35px; }
-      .welcome-row { flex-direction: column; gap: 13px; margin-bottom: 20px; }
+
+      .welcome-row {
+        flex-direction: column;
+        gap: 13px;
+        margin-bottom: 20px;
+      }
+
       h1 { font-size: 27px; }
       .date-pill { font-size: 10px; }
-      .overview-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 25px; }
-      .wallet-card { min-height: 195px; padding: 21px; }
+
+      .overview-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 25px;
+      }
+
+      .wallet-card {
+        min-height: 195px;
+        padding: 21px;
+      }
+
       .balance { font-size: 32px; }
-      .quick-card { padding: 19px; flex-direction: row; align-items: center; }
+
+      .quick-card {
+        padding: 19px;
+        flex-direction: row;
+        align-items: center;
+      }
+
       .quick-card .quick-top { align-self: flex-start; }
-      .quick-card .quick-top .quick-icon { width: 40px; height: 40px; }
-      .quick-card .btn { white-space: nowrap; padding: 10px 12px; }
-      .section-head { align-items: flex-start; margin-top: 27px; }
+
+      .quick-card .quick-top .quick-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .quick-card .btn {
+        white-space: nowrap;
+        padding: 10px 12px;
+      }
+
+      .section-head {
+        align-items: flex-start;
+        margin-top: 27px;
+      }
+
       .section-head h2 { font-size: 18px; }
-      .category-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
-      .category-card { min-height: 158px; padding: 14px; }
-      .category-icon { width: 40px; height: 40px; margin-bottom: 14px; }
+
+      .category-grid {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        gap: 10px;
+      }
+
+      .category-card {
+        min-height: 158px;
+        padding: 14px;
+      }
+
+      .category-icon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 14px;
+      }
+
       .category-card strong { font-size: 12px; }
       .seller-panel { padding: 15px; }
-      .seller-toolbar { flex-direction: column; align-items: stretch; }
+
+      .seller-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
       .searchbox { width: 100%; }
       .product-grid { grid-template-columns: 1fr; }
-      .lower-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
+
+      .lower-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
       .info-card { padding: 18px; }
       .footer { margin-top: 27px; }
+
+      .support-modal { padding: 19px; }
+      .support-modal h2 { font-size: 18px; }
     }
+
     @media (max-width: 360px) {
       .brand-name { font-size: 12px; }
       .topbar { padding: 0 10px; }
       .category-grid { gap: 8px; }
       .category-card { padding: 12px; }
       .balance { font-size: 28px; }
-      .wallet-actions .btn { flex: 1; padding: 10px; }
+
+      .wallet-actions .btn {
+        flex: 1;
+        padding: 10px;
+      }
     }
+
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="loading-screen" id="loadingScreen" aria-live="polite">
     <div class="loading-box">
@@ -255,13 +1205,16 @@
       <button class="icon-btn" id="menuButton" aria-label="Open navigation menu" aria-expanded="false">
         <span class="hamburger" aria-hidden="true"><i></i><i></i><i></i></span>
       </button>
+
       <a class="brand" href="dashboard.html" aria-label="DelightVendorEdit dashboard">
         <img src="assets/dv-logo.png" alt="DV logo">
         <span class="brand-name">DelightVendor<span>Edit</span></span>
       </a>
+
       <div class="topbar-right">
         <a class="icon-btn" href="notifications.html" aria-label="Notifications" title="Notifications">
-          <span aria-hidden="true">♧</span><span id="notificationDot" style="display:none;position:absolute;right:7px;top:7px;width:7px;height:7px;border-radius:50%;background:#e7b84b"></span>
+          <span aria-hidden="true">♧</span>
+          <span id="notificationDot" style="display:none;position:absolute;right:7px;top:7px;width:7px;height:7px;border-radius:50%;background:#e7b84b"></span>
         </a>
         <span class="topbar-label">Welcome back</span>
         <a class="avatar" id="profileAvatar" href="profile.html" aria-label="My profile">D</a>
@@ -272,10 +1225,13 @@
       <aside class="sidebar" aria-label="Main navigation">
         <div class="side-caption">Workspace</div>
         <nav class="nav-list" id="desktopNav"></nav>
+
         <div class="sidebar-bottom">
           <strong>Need a hand?</strong>
           <p>Our support channels are here if you need help with a purchase or your account.</p>
-          <a class="small-gold-link" href="https://wa.me/2347015908401" target="_blank" rel="noopener">Contact support ↗</a>
+          <button class="small-gold-link support-contact-trigger" type="button" data-open-support>
+            Contact support ↗
+          </button>
         </div>
       </aside>
 
@@ -286,7 +1242,10 @@
             <h1 id="welcomeTitle">Welcome back</h1>
             <p class="welcome-copy">Your digital marketplace, all in one place. Choose a category to get started, manage your wallet, or check your latest activity.</p>
           </div>
-          <div class="date-pill"><span class="date-dot"></span><span id="todayLabel">Your account is active</span></div>
+          <div class="date-pill">
+            <span class="date-dot"></span>
+            <span id="todayLabel">Your account is active</span>
+          </div>
         </section>
 
         <section class="overview-grid" aria-label="Wallet and quick actions">
@@ -295,17 +1254,22 @@
               <span class="wallet-label">Available wallet balance</span>
               <span class="wallet-tag">MY WALLET</span>
             </div>
+
             <div class="balance-line">
               <div class="balance" id="walletBalance">Checking…</div>
               <span class="balance-status" id="walletStatus">Secure balance lookup</span>
             </div>
+
             <div class="wallet-actions">
               <a class="btn btn-gold" href="wallet.html">＋ Fund wallet</a>
               <a class="btn btn-ghost" href="transactions.html">View transactions ↗</a>
             </div>
           </div>
+
           <div class="quick-card">
-            <div class="quick-top"><div class="quick-icon">▤</div></div>
+            <div class="quick-top">
+              <div class="quick-icon">▤</div>
+            </div>
             <div>
               <h3>Keep track of your orders</h3>
               <p>Review purchases and check order progress from one place.</p>
@@ -316,40 +1280,74 @@
 
         <section aria-labelledby="categoriesTitle">
           <div class="section-head">
-            <div><h2 id="categoriesTitle">Explore categories</h2><p>Choose what you need and continue to its dedicated page.</p></div>
+            <div>
+              <h2 id="categoriesTitle">Explore categories</h2>
+              <p>Choose what you need and continue to its dedicated page.</p>
+            </div>
           </div>
+
           <div class="category-grid">
             <a class="category-card" href="tracking-number.html">
-              <span class="category-icon">⌁</span><strong>Tracking Number</strong><small>Explore tracking-number services and options.</small><span class="category-arrow">↗</span>
+              <span class="category-icon">⌁</span>
+              <strong>Tracking Number</strong>
+              <small>Explore tracking-number services and options.</small>
+              <span class="category-arrow">↗</span>
             </a>
+
             <a class="category-card" href="flight-ticket.html">
-              <span class="category-icon">✈</span><strong>Flight Ticket</strong><small>Browse the available flight-ticket services.</small><span class="category-arrow">↗</span>
+              <span class="category-icon">✈</span>
+              <strong>Flight Ticket</strong>
+              <small>Browse the available flight-ticket services.</small>
+              <span class="category-arrow">↗</span>
             </a>
+
             <a class="category-card" href="services.html">
-              <span class="category-icon">▦</span><strong>Service</strong><small>Browse services and their subcategories.</small><span class="category-arrow">↗</span>
+              <span class="category-icon">▦</span>
+              <strong>Service</strong>
+              <small>Browse services and their subcategories.</small>
+              <span class="category-arrow">↗</span>
             </a>
+
             <a class="category-card" href="working-profile.html">
-              <span class="category-icon">◉</span><strong>Working Profile</strong><small>Find available working-profile listings.</small><span class="category-arrow">↗</span>
+              <span class="category-icon">◉</span>
+              <strong>Working Profile</strong>
+              <small>Find available working-profile listings.</small>
+              <span class="category-arrow">↗</span>
             </a>
+
             <a class="category-card" href="ai-studio.html">
-              <span class="category-icon">✧</span><strong>AI Studio</strong><small>Face swap, video face swap and lip-sync.</small><span class="category-arrow">↗</span>
+              <span class="category-icon">✧</span>
+              <strong>AI Studio</strong>
+              <small>Face swap, video face swap and lip-sync.</small>
+              <span class="category-arrow">↗</span>
             </a>
           </div>
         </section>
 
         <section aria-labelledby="sellersTitle">
           <div class="section-head">
-            <div><h2 id="sellersTitle">Explore other sellers</h2><p>Discover listings from approved sellers on the marketplace.</p></div>
+            <div>
+              <h2 id="sellersTitle">Explore other sellers</h2>
+              <p>Discover listings from approved sellers on the marketplace.</p>
+            </div>
             <a class="text-link" href="explore-sellers.html">Explore all ↗</a>
           </div>
+
           <div class="seller-panel">
             <div class="seller-toolbar">
               <div>
                 <strong style="font:700 13px Manrope,sans-serif">Seller marketplace</strong>
-                <div style="color:var(--muted);font-size:11px;margin-top:5px">Only approved and published listings belong here.</div>
+                <div style="color:var(--muted);font-size:11px;margin-top:5px">
+                  Only approved and published listings belong here.
+                </div>
               </div>
-              <label class="searchbox"><span aria-hidden="true">⌕</span><input id="sellerSearch" type="search" placeholder="Search seller listings…" aria-label="Search seller listings"></label>
+
+              <label class="searchbox">
+                <span aria-hidden="true">⌕</span>
+                <input id="sellerSearch" type="search" placeholder="Search seller listings…" aria-label="Search seller listings">
+              </label>
             </div>
+
             <div id="sellerResults">
               <div class="empty-state">
                 <div class="empty-icon">◇</div>
@@ -364,28 +1362,54 @@
           <section class="info-card">
             <h3>Sell on DelightVendorEdit</h3>
             <p>Have a product or digital service to offer? Apply to become a seller. Your application will be reviewed before your listings go live.</p>
+
             <div class="info-row">
-              <span class="mini-icon">＋</span><div><strong>Become a seller</strong><small>Submit your details and product information for review.</small></div>
+              <span class="mini-icon">＋</span>
+              <div>
+                <strong>Become a seller</strong>
+                <small>Submit your details and product information for review.</small>
+              </div>
               <a class="text-link" href="sell.html">Apply →</a>
             </div>
+
             <div class="info-row">
-              <span class="mini-icon">↗</span><div><strong>Refer &amp; earn</strong><small>Share your referral code and track eligible rewards.</small></div>
+              <span class="mini-icon">↗</span>
+              <div>
+                <strong>Refer &amp; earn</strong>
+                <small>Share your referral code and track eligible rewards.</small>
+              </div>
               <a class="text-link" href="refer-and-earn.html">Open →</a>
             </div>
           </section>
+
           <section class="info-card">
             <h3>Need help?</h3>
             <p>Choose a support channel. Never send your password or one-time verification codes to anyone.</p>
+
             <div class="info-row">
-              <span class="mini-icon">◉</span><div><strong>WhatsApp support</strong><small>Chat with the support team.</small></div>
+              <span class="mini-icon">◉</span>
+              <div>
+                <strong>WhatsApp support</strong>
+                <small>Chat with the support team.</small>
+              </div>
               <a class="text-link" href="https://wa.me/2347015908401" target="_blank" rel="noopener">Chat →</a>
             </div>
+
             <div class="info-row">
-              <span class="mini-icon">➤</span><div><strong>Telegram support</strong><small>@DelightVendorLogsSupportBot</small></div>
+              <span class="mini-icon">➤</span>
+              <div>
+                <strong>Telegram support</strong>
+                <small>@DelightVendorLogsSupportBot</small>
+              </div>
               <a class="text-link" href="https://t.me/DelightVendorLogsSupportBot" target="_blank" rel="noopener">Open →</a>
             </div>
+
             <div class="info-row">
-              <span class="mini-icon">✉</span><div><strong>Email support</strong><small>delightvendorlogs@gmail.com</small></div>
+              <span class="mini-icon">✉</span>
+              <div>
+                <strong>Email support</strong>
+                <small>delightvendorlogs@gmail.com</small>
+              </div>
               <a class="text-link" href="mailto:delightvendorlogs@gmail.com">Email →</a>
             </div>
           </section>
@@ -393,25 +1417,104 @@
 
         <footer class="footer">
           <span>© <span id="yearNow"></span> DelightVendorEdit. All rights reserved.</span>
-          <div class="footer-links"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="settings.html">Settings</a></div>
+          <div class="footer-links">
+            <a href="terms.html">Terms</a>
+            <a href="privacy.html">Privacy</a>
+            <a href="settings.html">Settings</a>
+          </div>
         </footer>
       </main>
     </div>
   </div>
 
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
   <aside class="mobile-drawer" id="mobileDrawer" aria-label="Mobile navigation" aria-hidden="true">
     <div class="drawer-head">
-      <a class="brand" href="dashboard.html"><img src="assets/dv-logo.png" alt="DV logo"><span class="brand-name">DelightVendor<span>Edit</span></span></a>
-      <button class="drawer-close" id="closeDrawer" aria-label="Close navigation">×</button>
+      <a class="brand" href="dashboard.html">
+        <img src="assets/dv-logo.png" alt="DV logo">
+        <span class="brand-name">DelightVendor<span>Edit</span></span>
+      </a>
+      <button class="drawer-close" id="closeDrawer" type="button" aria-label="Close navigation">×</button>
     </div>
+
     <div class="side-caption">Workspace</div>
     <nav class="nav-list" id="mobileNav"></nav>
+
     <div class="sidebar-bottom">
-      <strong>Need a hand?</strong><p>Get help with your account or a purchase.</p>
-      <a class="small-gold-link" href="https://wa.me/2347015908401" target="_blank" rel="noopener">Contact support ↗</a>
+      <strong>Need a hand?</strong>
+      <p>Get help with your account or a purchase.</p>
+      <button class="small-gold-link support-contact-trigger" type="button" data-open-support>
+        Contact support ↗
+      </button>
     </div>
   </aside>
+
+  <!-- Contact support popup -->
+  <div class="support-modal-backdrop" id="supportModalBackdrop" role="presentation">
+    <section
+      class="support-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="supportModalTitle"
+      aria-describedby="supportModalCopy"
+    >
+      <div class="support-modal-head">
+        <h2 id="supportModalTitle">Need help? Contact us</h2>
+        <button
+          class="support-modal-close"
+          id="closeSupportModal"
+          type="button"
+          aria-label="Close support options"
+        >×</button>
+      </div>
+
+      <p class="support-modal-copy" id="supportModalCopy">
+        Choose your preferred support channel and our team will help you.
+      </p>
+
+      <a
+        class="support-choice"
+        href="https://wa.me/2347015908401"
+        target="_blank"
+        rel="noopener"
+      >
+        <span class="support-choice-icon" aria-hidden="true">◉</span>
+        <span class="support-choice-text">
+          <strong>WhatsApp</strong>
+          <small>Chat with our support team</small>
+        </span>
+        <span class="support-choice-arrow" aria-hidden="true">↗</span>
+      </a>
+
+      <a
+        class="support-choice"
+        href="https://t.me/DelightVendorLogsSupportBot"
+        target="_blank"
+        rel="noopener"
+      >
+        <span class="support-choice-icon" aria-hidden="true">➤</span>
+        <span class="support-choice-text">
+          <strong>Telegram</strong>
+          <small>@DelightVendorLogsSupportBot</small>
+        </span>
+        <span class="support-choice-arrow" aria-hidden="true">↗</span>
+      </a>
+
+      <a
+        class="support-choice"
+        href="mailto:delightvendorlogs@gmail.com"
+      >
+        <span class="support-choice-icon" aria-hidden="true">✉</span>
+        <span class="support-choice-text">
+          <strong>Email</strong>
+          <small>delightvendorlogs@gmail.com</small>
+        </span>
+        <span class="support-choice-arrow" aria-hidden="true">↗</span>
+      </a>
+    </section>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
@@ -421,7 +1524,10 @@
       // Browser-safe publishable key only. Keep service-role keys on the server.
       const SUPABASE_URL = "https://genlmqzkjouinofkitqt.supabase.co";
       const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
-      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      const client = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
 
       const navItems = [
         { label: "Dashboard", href: "dashboard.html", icon: "⌂", active: true },
@@ -436,77 +1542,155 @@
       ];
 
       const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
       })[ch]);
 
       function navMarkup() {
         const links = navItems.map(item =>
           `<a class="nav-link${item.active ? " active" : ""}" href="${item.href}"><span class="nav-icon">${item.icon}</span><span>${item.label}</span></a>`
         ).join("");
+
         return links + `
           <button class="support-toggle" type="button" data-support-toggle aria-expanded="false">
-            <span class="nav-icon">♡</span><span>Support</span><span class="chevron">⌄</span>
+            <span class="nav-icon">♡</span>
+            <span>Support</span>
+            <span class="chevron">⌄</span>
           </button>
+
           <div class="support-options">
             <a href="https://wa.me/2347015908401" target="_blank" rel="noopener">WhatsApp support ↗</a>
             <a href="https://t.me/DelightVendorLogsSupportBot" target="_blank" rel="noopener">Telegram support ↗</a>
             <a href="mailto:delightvendorlogs@gmail.com">Email support ↗</a>
           </div>
+
           <button class="nav-link" type="button" data-logout>
-            <span class="nav-icon">↪</span><span>Log out</span>
+            <span class="nav-icon">↪</span>
+            <span>Log out</span>
           </button>`;
       }
 
       document.getElementById("desktopNav").innerHTML = navMarkup();
       document.getElementById("mobileNav").innerHTML = navMarkup();
+
       document.getElementById("yearNow").textContent = new Date().getFullYear();
-      document.getElementById("todayLabel").textContent = new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" }).format(new Date());
+
+      document.getElementById("todayLabel").textContent =
+        new Intl.DateTimeFormat(undefined, {
+          weekday: "short",
+          month: "short",
+          day: "numeric"
+        }).format(new Date());
 
       const menuButton = document.getElementById("menuButton");
       const drawer = document.getElementById("mobileDrawer");
-      const backdrop = document.getElementById("drawerBackdrop");
+      const drawerBackdrop = document.getElementById("drawerBackdrop");
 
       function openDrawer() {
         drawer.classList.add("open");
-        backdrop.classList.add("open");
+        drawerBackdrop.classList.add("open");
         document.body.classList.add("drawer-open");
         drawer.setAttribute("aria-hidden", "false");
         menuButton.setAttribute("aria-expanded", "true");
       }
+
       function closeDrawer() {
         drawer.classList.remove("open");
-        backdrop.classList.remove("open");
+        drawerBackdrop.classList.remove("open");
         document.body.classList.remove("drawer-open");
         drawer.setAttribute("aria-hidden", "true");
         menuButton.setAttribute("aria-expanded", "false");
       }
+
       menuButton.addEventListener("click", openDrawer);
+
       document.getElementById("closeDrawer").addEventListener("click", closeDrawer);
-      backdrop.addEventListener("click", closeDrawer);
-      document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+
+      drawerBackdrop.addEventListener("click", closeDrawer);
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") closeDrawer();
+      });
+
+      // Contact support popup behaviour for desktop and mobile buttons.
+      const supportModalBackdrop = document.getElementById("supportModalBackdrop");
+      const closeSupportModalButton = document.getElementById("closeSupportModal");
+      let lastSupportTrigger = null;
+
+      function openSupportModal(trigger) {
+        lastSupportTrigger = trigger;
+        supportModalBackdrop.classList.add("open");
+        document.body.classList.add("support-modal-open");
+        closeSupportModalButton.focus();
+      }
+
+      function closeSupportModal() {
+        supportModalBackdrop.classList.remove("open");
+        document.body.classList.remove("support-modal-open");
+
+        if (lastSupportTrigger && document.contains(lastSupportTrigger)) {
+          lastSupportTrigger.focus();
+        }
+      }
+
+      document.querySelectorAll("[data-open-support]").forEach(button => {
+        button.addEventListener("click", () => {
+          closeDrawer();
+          openSupportModal(button);
+        });
+      });
+
+      closeSupportModalButton.addEventListener("click", closeSupportModal);
+
+      supportModalBackdrop.addEventListener("click", event => {
+        if (event.target === supportModalBackdrop) {
+          closeSupportModal();
+        }
+      });
+
+      document.addEventListener("keydown", event => {
+        if (
+          event.key === "Escape" &&
+          supportModalBackdrop.classList.contains("open")
+        ) {
+          closeSupportModal();
+        }
+      });
 
       document.addEventListener("click", async event => {
         const supportButton = event.target.closest("[data-support-toggle]");
+
         if (supportButton) {
           const nav = supportButton.parentElement;
           const panel = nav.nextElementSibling;
           const open = panel.classList.toggle("open");
+
           supportButton.setAttribute("aria-expanded", String(open));
+
           const chevron = supportButton.querySelector(".chevron");
           if (chevron) chevron.textContent = open ? "⌃" : "⌄";
+
           return;
         }
+
         const logoutButton = event.target.closest("[data-logout]");
+
         if (logoutButton) {
           logoutButton.disabled = true;
           logoutButton.style.opacity = ".6";
+
           const { error } = await client.auth.signOut();
+
           if (error) {
             showToast("Could not log out right now. Please try again.");
             logoutButton.disabled = false;
             logoutButton.style.opacity = "";
             return;
           }
+
           window.location.replace("login.html");
         }
       });
@@ -515,24 +1699,45 @@
         const toast = document.getElementById("toast");
         toast.textContent = message;
         toast.classList.add("show");
-        window.setTimeout(() => toast.classList.remove("show"), 3000);
+
+        window.setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
       }
 
       function initials(user) {
-        const name = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || "D";
+        const name =
+          user?.user_metadata?.full_name ||
+          user?.user_metadata?.name ||
+          user?.email ||
+          "D";
+
         const parts = name.trim().split(/\s+/).filter(Boolean);
-        return (parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : parts[0]?.slice(0, 2) || "D").toUpperCase();
+
+        return (
+          parts.length > 1
+            ? parts[0][0] + parts[parts.length - 1][0]
+            : parts[0]?.slice(0, 2) || "D"
+        ).toUpperCase();
       }
 
       function formatNaira(amount) {
         const number = Number(amount);
+
         if (!Number.isFinite(number)) return null;
-        return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
+
+        return new Intl.NumberFormat("en-NG", {
+          style: "currency",
+          currency: "NGN",
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(number);
       }
 
       async function loadWallet(userId) {
         const balanceNode = document.getElementById("walletBalance");
         const statusNode = document.getElementById("walletStatus");
+
         try {
           const { data, error } = await client
             .from("wallets")
@@ -541,18 +1746,28 @@
             .maybeSingle();
 
           if (error) throw error;
+
           if (!data) {
             balanceNode.textContent = "Not set up yet";
             balanceNode.style.fontSize = "clamp(19px,2.6vw,27px)";
             statusNode.textContent = "Wallet setup is pending";
             return;
           }
+
           const formatted = formatNaira(data.balance);
-          if (formatted === null) throw new Error("Wallet balance is not numeric.");
+
+          if (formatted === null) {
+            throw new Error("Wallet balance is not numeric.");
+          }
+
           balanceNode.textContent = formatted;
           statusNode.textContent = "Updated from your account";
         } catch (error) {
-          console.warn("Wallet balance could not be loaded:", error?.message || error);
+          console.warn(
+            "Wallet balance could not be loaded:",
+            error?.message || error
+          );
+
           balanceNode.textContent = "Unavailable";
           balanceNode.style.fontSize = "clamp(20px,2.8vw,28px)";
           statusNode.textContent = "Could not load balance";
@@ -564,10 +1779,15 @@
         // Once the final products schema is confirmed, connect this panel to its approved-public listing query.
         const resultNode = document.getElementById("sellerResults");
         const search = document.getElementById("sellerSearch");
+
         search.addEventListener("input", () => {
           if (!search.value.trim()) return;
-          showToast("Seller search will work when the approved listings catalogue is connected.");
+
+          showToast(
+            "Seller search will work when the approved listings catalogue is connected."
+          );
         }, { once: true });
+
         resultNode.innerHTML = `
           <div class="empty-state">
             <div class="empty-icon">◇</div>
@@ -579,17 +1799,29 @@
       async function start() {
         try {
           const { data, error } = await client.auth.getSession();
+
           if (error) throw error;
+
           const session = data?.session;
+
           if (!session?.user) {
             window.location.replace("login.html");
             return;
           }
 
           const user = session.user;
-          const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split("@")[0] || "there";
-          document.getElementById("welcomeTitle").textContent = `Welcome back, ${displayName}`;
+
+          const displayName =
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            user.email?.split("@")[0] ||
+            "there";
+
+          document.getElementById("welcomeTitle").textContent =
+            `Welcome back, ${displayName}`;
+
           document.getElementById("profileAvatar").textContent = initials(user);
+
           document.getElementById("loadingScreen").style.display = "none";
           document.getElementById("appShell").hidden = false;
 
