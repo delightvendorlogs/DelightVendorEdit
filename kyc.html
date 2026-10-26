@@ -175,5 +175,101 @@
     </div>
 
     <!-- STEP 4: Processing Animation -->
-    <div
+    <div id="stepProcessing" class="p-10 text-center space-y-6 hidden">
+      <div class="relative w-20 h-20 mx-auto">
+        <div class="w-20 h-20 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-lg font-bold text-white">Analyzing Verification Data</h3>
+        <p class="text-xs text-slate-400 mt-1">Extracting document details & matching biometrics...</p>
+      </div>
+    </div>
+
+    <!-- STEP 5: Verification Results Output -->
+    <div id="stepResults" class="p-6 space-y-6 hidden">
+      <div class="text-center space-y-2">
+        <div class="w-14 h-14 bg-emerald-500/20 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-emerald-400">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h2 class="text-xl font-bold text-white">Verification Approved</h2>
+        <p class="text-xs text-slate-400">Identity successfully verified in sandbox mode.</p>
+      </div>
+
+      <!-- Payload JSON output view -->
+      <div class="bg-slate-950 p-4 rounded-xl border border-slate-700 font-mono text-xs text-slate-300 space-y-2">
+        <div class="flex justify-between border-b border-slate-800 pb-2">
+          <span class="text-slate-500">Status:</span>
+          <span class="text-emerald-400 font-bold">APPROVED</span>
+        </div>
+        <div class="flex justify-between border-b border-slate-800 pb-2">
+          <span class="text-slate-500">Doc Type:</span>
+          <span id="resDocType" class="text-white">Passport</span>
+        </div>
+        <div class="flex justify-between border-b border-slate-800 pb-2">
+          <span class="text-slate-500">Country:</span>
+          <span id="resCountry" class="text-white">US</span>
+        </div>
+        <div class="flex justify-between border-b border-slate-800 pb-2">
+          <span class="text-slate-500">Face Match Score:</span>
+          <span class="text-blue-400 font-bold">98.4%</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Session ID:</span>
+          <span class="text-slate-400">mock_sess_89127391</span>
+        </div>
+      </div>
+
+      <button onclick="goToStep(1)" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-colors">
+        Restart Demo Session
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    function goToStep(stepNumber) {
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step3').classList.add('hidden');
+      document.getElementById('stepProcessing').classList.add('hidden');
+      document.getElementById('stepResults').classList.add('hidden');
+
+      document.getElementById(`step${stepNumber}`).classList.remove('hidden');
+
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+
+      if (stepNumber === 1) {
+        progressBar.style.width = '33%';
+        progressText.innerHTML = '<span>Step 1 of 3</span><span>Document Type</span>';
+      } else if (stepNumber === 2) {
+        progressBar.style.width = '66%';
+        progressText.innerHTML = '<span>Step 2 of 3</span><span>Passport Capture</span>';
+      } else if (stepNumber === 3) {
+        progressBar.style.width = '100%';
+        progressText.innerHTML = '<span>Step 3 of 3</span><span>Face Biometrics</span>';
+      }
+    }
+
+    function processVerification() {
+      document.getElementById('step3').classList.add('hidden');
+      document.getElementById('stepProcessing').classList.remove('hidden');
+
+      setTimeout(() => {
+        const country = document.getElementById('countrySelect').value;
+        const docType = document.querySelector('input[name="docType"]:checked').value;
+
+        document.getElementById('resCountry').innerText = country;
+        document.getElementById('resDocType').innerText = docType.toUpperCase();
+
+        document.getElementById('stepProcessing').classList.add('hidden');
+        document.getElementById('stepResults').classList.remove('hidden');
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
 ```
