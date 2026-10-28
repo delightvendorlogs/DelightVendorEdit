@@ -20,6 +20,18 @@ main{width:min(900px,94%);margin:28px auto 50px}.heading{display:flex;align-item
 .status{min-height:20px;color:var(--muted);font-size:12px;margin:12px 0}.status.error{color:var(--red)}.status.success{color:#8ce5a8}
 .list{display:grid;gap:12px}.item{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:13px;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:15px}.item.unread{border-color:#5b481d;background:linear-gradient(110deg,#19160e,#111)}.item-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:#211b0e;color:var(--gold2);font-size:20px}.content{min-width:0}.item h2{font-size:15px;line-height:1.5;margin:0 0 7px;overflow-wrap:anywhere}.item p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;font-size:13px;color:#c8c8c8;margin:0 0 10px}.item time{font-size:11px;color:#888}.item-image{display:block;max-width:min(100%,420px);max-height:320px;object-fit:contain;border-radius:10px;border:1px solid var(--line);margin:10px 0}.actions{display:flex;flex-direction:column;gap:7px}.small{padding:7px 9px;border:1px solid #383838;border-radius:8px;background:#191919;color:#ddd;font-size:11px;white-space:nowrap}.empty{padding:45px 20px;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:15px;color:var(--muted)}footer{text-align:center;color:#777;font-size:12px;padding:22px}
 @media(max-width:600px){header{padding:12px}.brand img{width:34px;height:34px}main{margin-top:22px}.item{grid-template-columns:36px minmax(0,1fr);gap:10px;padding:14px}.item-icon{width:36px;height:36px}.actions{grid-column:2;flex-direction:row;flex-wrap:wrap}.toolbar .btn{flex:1}.heading{gap:8px}}
+.dialog-backdrop{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;padding:14px}
+.dialog-backdrop.open{display:flex}
+.dialog{width:min(720px,100%);max-height:90vh;overflow:auto;background:#111;border:1px solid #6a521c;border-radius:18px;box-shadow:0 24px 80px #000;padding:clamp(17px,4vw,28px)}
+.dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.dialog h2{font-size:clamp(20px,4vw,28px);line-height:1.35;margin:0 0 10px;overflow-wrap:anywhere}
+.dialog-message{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;font-size:15px;color:#eee;margin:16px 0}
+.dialog-image{display:block;width:auto;max-width:100%;max-height:55vh;object-fit:contain;border-radius:12px;border:1px solid var(--line);margin:14px auto}
+.dialog-close{border:1px solid #444;background:#202020;color:#fff;border-radius:10px;padding:9px 12px;flex-shrink:0}
+.open-hint{font-size:11px;color:var(--gold2);margin-top:7px}
+.item-click{cursor:pointer}
+.item-click:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
 </style>
 </head>
 <body>
@@ -33,6 +45,12 @@ main{width:min(900px,94%);margin:28px auto 50px}.heading{display:flex;align-item
 <div class="filters" role="group" aria-label="Notification filter"><button class="filter active" data-filter="all" type="button">All notifications</button><button class="filter" data-filter="unread" type="button">Unread</button><button class="filter" data-filter="read" type="button">Read</button></div>
 <div id="status" class="status" role="status" aria-live="polite">Checking your session…</div><div id="notificationList" class="list"><div class="empty">Loading notifications…</div></div>
 </main>
+<div id="detailBackdrop" class="dialog-backdrop" role="presentation">
+<section class="dialog" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+<div class="dialog-head"><div><div id="detailCategory" class="muted"></div><h2 id="detailTitle">Notification</h2></div><button id="closeDetail" class="dialog-close" type="button" aria-label="Close notification">Close ✕</button></div>
+<div id="detailDate" class="muted"></div><p id="detailMessage" class="dialog-message"></p><img id="detailImage" class="dialog-image" alt="Image attached to notification" hidden>
+<div class="toolbar"><button id="detailCloseBottom" class="btn" type="button">Close</button></div>
+</section></div>
 <footer>© <span id="year"></span> DelightVendorEdit</footer>
 <script>
 (() => {
@@ -61,21 +79,46 @@ function render(){
  const list=$("notificationList");list.replaceChildren();
  if(!visible.length){const empty=document.createElement("div");empty.className="empty";empty.textContent=filter==="unread"?"You're all caught up.":filter==="read"?"No read notifications.":"No notifications yet. Messages from the DelightVendorEdit team will appear here.";list.append(empty);return;}
  visible.forEach(n=>{
-  const card=document.createElement("article");card.className="item"+(!n.is_read?" unread":"");
-  const ico=document.createElement("div");ico.className="item-icon";ico.textContent="♧";ico.setAttribute("aria-hidden","true");
+  const card=document.createElement("article");card.className="item item-click"+(!n.is_read?" unread":"");card.tabIndex=0;card.setAttribute("role","button");card.setAttribute("aria-label","Open notification: "+(n.title||"Notification"));
+  const ico=document.createElement("div");ico.className="item-icon";ico.setAttribute("aria-hidden","true");
+  ico.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>';
   const content=document.createElement("div");content.className="content";
   const h=document.createElement("h2");h.textContent=n.title||"Notification";
-  const p=document.createElement("p");p.textContent=n.message||"";
+  const p=document.createElement("p");const full=String(n.message||"");p.textContent=full.length>150?full.slice(0,150).trimEnd()+"…":full;
   content.append(h,p);
-  if(n.image_url){const img=document.createElement("img");img.className="item-image";img.src=n.image_url;img.alt="Image attached to notification";img.loading="lazy";img.referrerPolicy="no-referrer";content.append(img);}
+  if(n.image_url){const hint=document.createElement("div");hint.className="open-hint";hint.textContent="📷 Image attached · Click to view";content.append(hint);}
   const time=document.createElement("time");time.dateTime=n.created_at||"";time.textContent=date(n.created_at);
   const category=document.createElement("div");category.style.cssText="font-size:11px;color:#d8b75f;margin-top:7px";category.textContent=String(n.category||"general").replace(/[_-]/g," ");content.append(category,time);
   const actions=document.createElement("div");actions.className="actions";
-  if(!n.is_read){const b=document.createElement("button");b.className="small";b.textContent="Mark as read";b.addEventListener("click",()=>markOne(n.id));actions.append(b);}
-  const del=document.createElement("button");del.className="small";del.textContent="Delete";del.addEventListener("click",()=>deleteOne(n.id));actions.append(del);
+  const open=document.createElement("button");open.className="small";open.type="button";open.textContent="View full";open.addEventListener("click",e=>{e.stopPropagation();openDetail(n.id);});actions.append(open);
+  if(!n.is_read){const b=document.createElement("button");b.className="small";b.textContent="Mark as read";b.addEventListener("click",e=>{e.stopPropagation();markOne(n.id);});actions.append(b);}
+  const del=document.createElement("button");del.className="small";del.textContent="Delete";del.addEventListener("click",e=>{e.stopPropagation();deleteOne(n.id);});actions.append(del);
+  card.addEventListener("click",()=>openDetail(n.id));
+  card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openDetail(n.id);}});
   card.append(ico,content,actions);list.append(card);
  });
 }
+function closeDetail(){
+ $("detailBackdrop").classList.remove("open");
+ $("detailBackdrop").setAttribute("aria-hidden","true");
+}
+async function openDetail(id){
+ const n=items.find(x=>String(x.id)===String(id));if(!n)return;
+ $("detailTitle").textContent=n.title||"Notification";
+ $("detailCategory").textContent=String(n.category||"general").replace(/[_-]/g," ");
+ $("detailDate").textContent=date(n.created_at);
+ $("detailMessage").textContent=n.message||"";
+ const image=$("detailImage");
+ if(n.image_url){image.src=n.image_url;image.hidden=false;}else{image.removeAttribute("src");image.hidden=true;}
+ $("detailBackdrop").classList.add("open");$("detailBackdrop").setAttribute("aria-hidden","false");
+ $("closeDetail").focus();
+ if(!n.is_read) await markOne(id);
+}
+$("closeDetail").addEventListener("click",closeDetail);
+$("detailCloseBottom").addEventListener("click",closeDetail);
+$("detailBackdrop").addEventListener("click",e=>{if(e.target===$("detailBackdrop"))closeDetail();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDetail();});
+
 async function markOne(id){
  if(busy)return;setBusy(true);const {error}=await db.from("notifications").update({is_read:true,read_at:new Date().toISOString()}).eq("id",id).eq("recipient_user_id",userId);
  setBusy(false);if(error){console.error(error);status("Could not mark notification as read.","error");return;}await load(false);status("Notification marked as read.","success");
