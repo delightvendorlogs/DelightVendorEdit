@@ -96,7 +96,13 @@ if (!window.supabase || typeof window.supabase.createClient !== "function") {
   return;
 }
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
+  auth: {
+    storage: window.localStorage,
+    storageKey: "delightvendoredit-auth",
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
 });
 form.addEventListener("submit", async event => {
   event.preventDefault();
