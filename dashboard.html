@@ -1552,18 +1552,23 @@
       // Browser-safe publishable key only. Keep service-role keys on the server.
       const SUPABASE_URL = "https://genlmqzkjouinofkitqt.supabase.co";
       const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
+      // Migrate the previous custom session key to Supabase's standard project key.
+// Other DelightVendorEdit pages use the standard key, so every page must share it.
+try {
+  const standardKey = "sb-genlmqzkjouinofkitqt-auth-token";
+  const previousKey = "delightvendoredit-auth";
+  if (!window.localStorage.getItem(standardKey)) {
+    const previousSession = window.localStorage.getItem(previousKey);
+    if (previousSession) window.localStorage.setItem(standardKey, previousSession);
+  }
+} catch (storageError) {
+  console.warn("Could not migrate the previous login session:", storageError);
+}
+
       const client = window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_PUBLISHABLE_KEY,
-        {
-          auth: {
-            storage: window.localStorage,
-            storageKey: "delightvendoredit-auth",
-            autoRefreshToken: true,
-            persistSession: true,
-            detectSessionInUrl: true
-          }
-        }
+        { auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true } }
       );
 
       const navItems = [
