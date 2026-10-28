@@ -123,8 +123,14 @@ form.addEventListener("submit", async event => {
       setBusy(false);
       return;
     }
+    // Confirm the browser can read the persisted session before navigating.
+    const { data: persisted, error: sessionError } = await client.auth.getSession();
+    if (sessionError) throw sessionError;
+    if (!persisted?.session?.user) {
+      throw new Error("Sign-in succeeded but the browser could not restore the session. Please allow site data/cookies for this site, then try again.");
+    }
     showMessage("success", "Signed in successfully. Opening your dashboard…");
-    window.location.replace("dashboard.html");
+    window.location.replace(new URL("dashboard.html", window.location.href).href);
   } catch (error) {
     const raw = error && error.message ? error.message : "";
     let friendly = "We couldn't sign you in. Please check your details and try again.";
@@ -133,6 +139,9 @@ form.addEventListener("submit", async event => {
     else if (/too many requests|rate limit/i.test(raw)) friendly = "Too many attempts. Please wait a little and try again.";
     else if (/network|fetch/i.test(raw)) friendly = "Network error. Check your internet connection and try again.";
     else if (/invalid api key|apikey/i.test(raw)) friendly = "Supabase rejected the public key. Check the project URL and publishable key.";
+    if (friendly === "We couldn't sign you in. Please check your details and try again." && raw) {
+      friendly += " Details: " + raw;
+    }
     showMessage("error", friendly);
     setBusy(false);
   }
