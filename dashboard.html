@@ -120,12 +120,21 @@
       transform: translateY(-1px);
     }
 
+    .notification-button { color: var(--gold-2); }
+    .notification-bell { display:block; width:23px; height:23px; }
+    .notification-button:hover .notification-bell { animation: bell-ring .35s ease-in-out; }
+    @keyframes bell-ring {
+      0%,100% { transform: rotate(0); }
+      25% { transform: rotate(10deg); }
+      75% { transform: rotate(-10deg); }
+    }
     .notification-badge {
       position:absolute; right:-5px; top:-5px; min-width:19px; height:19px;
       padding:0 5px; border-radius:20px; display:flex; align-items:center;
       justify-content:center; background:#e7b84b; color:#171107;
       border:2px solid #090909; font-size:10px; line-height:1; font-weight:900;
     }
+    .notification-badge[data-count="9+"] { min-width:23px; }
     .nav-unread-badge {
       margin-left:auto; min-width:18px; height:18px; padding:0 5px;
       border-radius:20px; display:inline-flex; align-items:center; justify-content:center;
@@ -228,7 +237,11 @@
       color: var(--gold);
       font-size: 16px;
       flex: 0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
+    .nav-bell { display:block; }
 
     .nav-link .chevron {
       margin-left: auto;
@@ -1224,8 +1237,11 @@
       </a>
 
       <div class="topbar-right">
-        <a class="icon-btn" href="notifications.html" aria-label="Notifications" title="Notifications">
-          <span aria-hidden="true">♧</span>
+        <a class="icon-btn notification-button" id="notificationLink" href="notifications.html" aria-label="Notifications" title="Notifications">
+          <svg class="notification-bell" viewBox="0 0 24 24" width="23" height="23" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+            <path d="M10 21h4"/>
+          </svg>
           <span id="notificationBadge" class="notification-badge" style="display:none">0</span>
         </a>
         <span class="topbar-label">Welcome back</span>
@@ -1548,7 +1564,7 @@
         { label: "Transactions", href: "transactions.html", icon: "↔" },
         { label: "Sell on DelightVendorEdit", href: "sell.html", icon: "◇" },
         { label: "Refer & Earn", href: "refer-and-earn.html", icon: "↗" },
-        { label: "Notifications", href: "notifications.html", icon: "♧" },
+        { label: "Notifications", href: "notifications.html", icon: '<svg class="nav-bell" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>' },
         { label: "My Profile", href: "profile.html", icon: "◉" },
         { label: "Settings", href: "settings.html", icon: "⚙" }
       ];
@@ -1746,6 +1762,63 @@
         }).format(number);
       }
 
+async function loadUnreadNotifications(userId) {
+  const badge = document.getElementById("notificationBadge");
+  const navBadges = document.querySelectorAll("[data-nav-unread-badge]");
+
+  try {
+    const { count, error } = await client
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("recipient_user_id", userId)
+      .eq("is_read", false);
+
+    if (error) throw error;
+
+    const unread = Number(count || 0);
+    const label = unread > 9 ? "9+" : String(unread);
+
+    if (badge) {
+      badge.textContent = label;
+      badge.dataset.count = label;
+      badge.style.display = unread > 0 ? "flex" : "none";
+      badge.setAttribute("aria-label", unread + " unread notifications");
+    }
+
+    navBadges.forEach(node => {
+      node.textContent = label;
+      node.style.display = unread > 0 ? "inline-flex" : "none";
+      node.setAttribute("aria-label", unread + " unread notifications");
+    });
+  } catch (error) {
+    // Notification loading must never prevent the customer from opening the dashboard.
+    console.warn("Unread notification count unavailable:", error?.message || error);
+    if (badge) badge.style.display = "none";
+    navBadges.forEach(node => { node.style.display = "none"; });
+  }
+}
+
+function watchUnreadNotifications(userId) {
+  // Refresh the count whenever this customer's notification rows change.
+  client
+    .channel("dashboard-unread-" + userId)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "notifications",
+        filter: "recipient_user_id=eq." + userId
+      },
+      () => loadUnreadNotifications(userId)
+    )
+    .subscribe(status => {
+      if (status === "CHANNEL_ERROR") {
+        console.warn("Notification live updates unavailable; count will refresh on page load.");
+      }
+    });
+}
+
 async function loadWallet(userId) {
   const balanceNode = document.getElementById("walletBalance");
   const statusNode = document.getElementById("walletStatus");
@@ -1848,13 +1921,16 @@ async function loadWallet(userId) {
             loadApprovedListings()
           ]);
         } catch (error) {
-          console.error("Dashboard session check failed:", error);
-          window.location.replace("login.html");
+          console.error("Dashboard initialization failed:", error);
+          const loadingText = document.querySelector("#loadingScreen p");
+          if (loadingText) {
+            loadingText.textContent = "We couldn't load part of your dashboard. Please refresh the page. If the problem continues, check your connection.";
+          }
         }
       }
 
       client.auth.onAuthStateChange((event, session) => {
-        if (event === "SIGNED_OUT" || !session) {
+        if (event === "SIGNED_OUT") {
           window.location.replace("login.html");
         }
       });
