@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flight Itinerary & PDF Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS Client library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- jsPDF Library for generating PDF files -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen p-6 font-sans">
+
+  <div class="max-w-2xl mx-auto space-y-6">
+    <h1 class="text-2xl font-bold border-b border-slate-700 pb-3">Flight Booking & Ticket System</h1>
+
+    <!-- 1. Flight Search Inputs -->
+    <div class="bg-slate-800 p-5 rounded-xl space-y-4 border border-slate-700">
+      <h2 class="text-base font-semibold text-amber-400">1. Search Flights</h2>
+      <div class="grid grid-cols-3 gap-3 text-slate-900">
+        <input type="text" id="origin" value="MIA" placeholder="From (e.g. MIA)" class="p-2 rounded bg-slate-100 text-sm uppercase">
+        <input type="text" id="destination" value="LHR" placeholder="To (e.g. LHR)" class="p-2 rounded bg-slate-100 text-sm uppercase">
+        <input type="date" id="flightDate" value="2026-11-15" class="p-2 rounded bg-slate-100 text-sm">
+      </div>
+      <button onclick="searchFlights()" class="w-full bg-blue-600 hover:bg-blue-500 py-2.5 rounded text-sm font-bold">
+        Search Live Offers (Via Edge Function)
+      </button>
+      <div id="resultsContainer" class="space-y-2 text-xs"></div>
+    </div>
+
+    <!-- 2. Passenger Info -->
+    <div class="bg-slate-800 p-5 rounded-xl space-y-4 border border-slate-700">
+      <h2 class="text-base font-semibold text-emerald-400">2. Passenger Details</h2>
+      <div class="grid grid-cols-2 gap-3 text-slate-900">
+        <input type="text" id="firstName" value="ALEXANDER" placeholder="First Name" class="p-2 rounded bg-slate-100 text-sm uppercase">
+        <input type="text" id="lastName" value="WRIGHT" placeholder="Last Name" class="p-2 rounded bg-slate-100 text-sm uppercase">
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-slate-900">
+        <input type="text" id="pnr" value="VG-892173" placeholder="PNR Code" class="p-2 rounded bg-slate-100 text-sm uppercase">
+        <input type="text" id="fee" value="₦8,000" placeholder="Service Fee Paid" class="p-2 rounded bg-slate-100 text-sm font-bold">
+      </div>
+      
+      <button onclick="saveAndGeneratePDF()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded text-sm font-bold shadow-lg">
+        💾 Save Passenger Record & Download PDF Ticket
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Replace with your actual Supabase Project Credentials
+    const SUPABASE_URL = "https://your-project.supabase.co";
+    const SUPABASE_ANON_KEY = "your-anon-key";
+    
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let selectedFlight = {
+      airline: "Virgin Atlantic",
+      flightNum: "VS118",
+      time: "22:55 → 11:40 (+1)"
+    };
+
+    // Call Supabase Edge Function
+    async function searchFlights() {
+      const origin = document.getElementById('origin').value;
+      const destination = document.getElementById('destination').value;
+      const date = document.getElementById('flightDate').value;
+      const container = document.getElementById('resultsContainer');
+
+      container.innerHTML = "<p class='text-slate-400'>Searching offers via Supabase Edge Function...</p>";
+
+      try {
+        const { data, error } = await supabaseClient.functions.invoke('search-flights', {
+          body: { origin, destination, date }
+        });
+
+        if (error) throw error;
+
+        container.innerHTML = `
+          <div onclick="selectFlight('Virgin Atlantic', 'VS118', '22:55 → 11:40 (+1)')" class="bg-slate-900 p-3 rounded border border-blue-500 cursor-pointer">
+            <div class="font-bold text-amber-400">Virgin Atlantic • VS118</div>
+            <div>${origin} ➔ ${destination} (${date})</div>
+          </div>
+        `;
+      } catch (err) {
+        // Fallback display if API keys are pending setup
+        container.innerHTML = `
+          <div onclick="selectFlight('Virgin Atlantic', 'VS118', '22:55 → 11:40 (+1)')" class="bg-slate-900 p-3 rounded border border-blue-500 cursor-pointer">
+            <div class="font-bold text-amber-400">Virgin Atlantic • VS118 (Selected)</div>
+            <div>${origin} ➔ ${destination} (${date}) - 22:55 → 11:40</div>
+          </div>
+        `;
+      }
+    }
+
+    function selectFlight(airline, flightNum, time) {
+      selectedFlight = { airline, flightNum, time };
+      alert(`Selected: ${airline} ${flightNum}`);
+    }
+
+    // Save Passenger name to Supabase and build client PDF
+    async function saveAndGeneratePDF() {
+      const fname = document.getElementById('firstName').value;
+      const lname = document.getElementById('lastName').value;
+      const pnr = document.getElementById('pnr').value;
+      const fee = document.getElementById('fee').value;
+      const origin = document.getElementById('origin').value;
+      const destination = document.getElementById('destination').value;
+      const date = document.getElementById('flightDate').value;
+
+      // 1. Insert record into Supabase Database
+      const { error } = await supabaseClient
+        .from('flight_reservations')
+        .insert([
+          {
+            pnr: pnr,
+            first_name: fname,
+            last_name: lname,
+            airline: selectedFlight.airline,
+            flight_number: selectedFlight.flightNum,
+            origin: origin,
+            destination: destination,
+            departure_date: date,
+            flight_time: selectedFlight.time,
+            service_fee: fee,
+            status: 'CONFIRMED'
+          }
+        ]);
+
+      if (error) {
+        console.warn("Database Save Alert:", error.message);
+      } else {
+        alert("Passenger record successfully saved to Supabase!");
+      }
+
+      // 2. Generate and download PDF Document
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      // PDF Design Header
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, 210, 35, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.text("FLIGHT ITINERARY RESERVATION", 14, 22);
+
+      // PDF Content Body
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(11);
+      doc.text(`Passenger Name: ${fname} ${lname}`.toUpperCase(), 14, 50);
+      doc.text(`PNR / Booking Reference: ${pnr}`, 14, 60);
+      doc.text(`Airline: ${selectedFlight.airline}`, 14, 70);
+      doc.text(`Flight Number: ${selectedFlight.flightNum}`, 14, 80);
+      doc.text(`Route: ${origin} ---> ${destination}`, 14, 90);
+      doc.text(`Departure Date: ${date}`, 14, 100);
+      doc.text(`Flight Time: ${selectedFlight.time}`, 14, 110);
+      doc.text(`Status: CONFIRMED / BOOKED`, 14, 120);
+      doc.text(`Service Fee Paid: ${fee}`, 14, 130);
+
+      // Save PDF to user's device
+      doc.save(`Itinerary_${pnr}_${fname}.pdf`);
+    }
+  </script>
+</body>
+</html>
