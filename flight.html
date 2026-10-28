@@ -1,165 +1,514 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flight Itinerary & PDF Generator</title>
+  <title>TheGiftUnc - Flight Engine & Identity Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS Client library -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- jsPDF Library for generating PDF files -->
+  <!-- jsPDF for rendering client-side PDF itineraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    .glass-card {
+      background: rgba(30, 41, 59, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen p-6 font-sans">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans pb-12">
 
-  <div class="max-w-2xl mx-auto space-y-6">
-    <h1 class="text-2xl font-bold border-b border-slate-700 pb-3">Flight Booking & Ticket System</h1>
-
-    <!-- 1. Flight Search Inputs -->
-    <div class="bg-slate-800 p-5 rounded-xl space-y-4 border border-slate-700">
-      <h2 class="text-base font-semibold text-amber-400">1. Search Flights</h2>
-      <div class="grid grid-cols-3 gap-3 text-slate-900">
-        <input type="text" id="origin" value="MIA" placeholder="From (e.g. MIA)" class="p-2 rounded bg-slate-100 text-sm uppercase">
-        <input type="text" id="destination" value="LHR" placeholder="To (e.g. LHR)" class="p-2 rounded bg-slate-100 text-sm uppercase">
-        <input type="date" id="flightDate" value="2026-11-15" class="p-2 rounded bg-slate-100 text-sm">
+  <!-- Header Navigation -->
+  <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-600/30">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-wide text-white">TheGiftUnc Travel Engine</h1>
+          <p class="text-xs text-slate-400">Live Duffel Flight Search, Ticket Generator & Didit Identity Pass</p>
+        </div>
       </div>
-      <button onclick="searchFlights()" class="w-full bg-blue-600 hover:bg-blue-500 py-2.5 rounded text-sm font-bold">
-        Search Live Offers (Via Edge Function)
-      </button>
-      <div id="resultsContainer" class="space-y-2 text-xs"></div>
+      <div class="flex gap-2">
+        <button onclick="switchTab('tab-flights')" id="btn-tab-flights" class="px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 text-white transition-all">✈️ Flight Generator</button>
+        <button onclick="switchTab('tab-kyc')" id="btn-tab-kyc" class="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all">🛡️ Didit Identity Pass</button>
+      </div>
     </div>
+  </header>
 
-    <!-- 2. Passenger Info -->
-    <div class="bg-slate-800 p-5 rounded-xl space-y-4 border border-slate-700">
-      <h2 class="text-base font-semibold text-emerald-400">2. Passenger Details</h2>
-      <div class="grid grid-cols-2 gap-3 text-slate-900">
-        <input type="text" id="firstName" value="ALEXANDER" placeholder="First Name" class="p-2 rounded bg-slate-100 text-sm uppercase">
-        <input type="text" id="lastName" value="WRIGHT" placeholder="Last Name" class="p-2 rounded bg-slate-100 text-sm uppercase">
-      </div>
-      <div class="grid grid-cols-2 gap-3 text-slate-900">
-        <input type="text" id="pnr" value="VG-892173" placeholder="PNR Code" class="p-2 rounded bg-slate-100 text-sm uppercase">
-        <input type="text" id="fee" value="₦8,000" placeholder="Service Fee Paid" class="p-2 rounded bg-slate-100 text-sm font-bold">
-      </div>
+  <main class="max-w-6xl mx-auto px-4 mt-8">
+
+    <!-- TAB 1: FLIGHT SEARCH & TICKET GENERATOR -->
+    <div id="tab-flights" class="space-y-6">
       
-      <button onclick="saveAndGeneratePDF()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded text-sm font-bold shadow-lg">
-        💾 Save Passenger Record & Download PDF Ticket
-      </button>
+      <!-- API Mode Config -->
+      <div class="glass-card p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4 text-xs border border-blue-500/30">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="font-bold text-slate-300">Edge Function Endpoint:</span>
+          <input type="text" id="edgeEndpointUrl" placeholder="https://<your-supabase-id>.supabase.co/functions/v1/duffel_didit" class="w-80 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 text-[11px] font-mono focus:outline-none focus:border-blue-500">
+        </div>
+        <div class="flex items-center space-x-3">
+          <label class="text-slate-400">Search Mode:</label>
+          <select id="searchModeSelect" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 focus:outline-none">
+            <option value="simulated">Simulated Live Search (Instant)</option>
+            <option value="edge">Live Edge Function (Duffel API)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: Search & Customization Panel -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="glass-card p-6 rounded-2xl space-y-4">
+            <h2 class="text-base font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+              <span>1. Search Flight Offers</span>
+            </h2>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Origin (IATA)</label>
+                <input type="text" id="flightFrom" value="MIA" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-amber-400 font-mono focus:outline-none focus:border-blue-500 uppercase">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Destination (IATA)</label>
+                <input type="text" id="flightTo" value="LHR" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-amber-400 font-mono focus:outline-none focus:border-blue-500 uppercase">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Departure Date</label>
+                <input type="date" id="flightDate" value="2026-11-15" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Passengers</label>
+                <input type="number" id="flightPassengers" value="1" min="1" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+              </div>
+            </div>
+
+            <button onclick="executeFlightSearch()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-xl transition-all shadow-lg shadow-blue-600/30 text-xs flex items-center justify-center gap-2">
+              <span id="searchBtnText">🔍 Fetch Flight Offers</span>
+            </button>
+          </div>
+
+          <!-- Passenger Details Customization -->
+          <div class="glass-card p-6 rounded-2xl space-y-4">
+            <h2 class="text-base font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+              <span>2. Passenger & Ticket Customizer</span>
+            </h2>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">First Name</label>
+                <input type="text" id="custFname" value="ALEXANDER" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 uppercase">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Last Name</label>
+                <input type="text" id="custLname" value="WRIGHT" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 uppercase">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">PNR / Booking Code</label>
+                <input type="text" id="custPnr" value="VG-892173" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-amber-400 font-mono uppercase">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Service Fee Charged</label>
+                <input type="text" id="custFee" value="₦8,000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-emerald-400 font-bold">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Reservation Status</label>
+              <select id="custStatus" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+                <option value="CONFIRMED / BOOKED">CONFIRMED / BOOKED</option>
+                <option value="ON HOLD (PENDING PAYMENT)">ON HOLD (PENDING PAYMENT)</option>
+                <option value="RESERVED">RESERVED</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Flight Results & Ticket Preview -->
+        <div class="lg:col-span-7 space-y-6">
+          
+          <!-- Flight Search Results List -->
+          <div class="glass-card p-6 rounded-2xl space-y-3">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Available Flight Schedules</h3>
+            
+            <div id="searchResultsContainer" class="space-y-3 max-h-56 overflow-y-auto pr-1">
+              <!-- Flight Card 1 -->
+              <div onclick="selectFlightOffer('Virgin Atlantic', 'VS118', '22:55 → 11:40 (+1)', '$713.96')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
+                <div>
+                  <div class="text-sm font-bold text-amber-400">Virgin Atlantic • VS118</div>
+                  <div class="text-xs text-slate-300 mt-0.5">22:55 (MIA) ➔ 11:40 (LHR)</div>
+                  <span class="text-[10px] text-emerald-400 font-mono">Direct Flight • Boeing 787</span>
+                </div>
+                <div class="text-right">
+                  <div class="text-sm font-extrabold text-white">$713.96</div>
+                  <span class="text-[10px] bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded font-mono">Select</span>
+                </div>
+              </div>
+
+              <!-- Flight Card 2 -->
+              <div onclick="selectFlightOffer('British Airways', 'BA208', '17:20 → 06:15 (+1)', '$742.10')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
+                <div>
+                  <div class="text-sm font-bold text-blue-400">British Airways • BA208</div>
+                  <div class="text-xs text-slate-300 mt-0.5">17:20 (MIA) ➔ 06:15 (LHR)</div>
+                  <span class="text-[10px] text-emerald-400 font-mono">Direct Flight • Airbus A350</span>
+                </div>
+                <div class="text-right">
+                  <div class="text-sm font-extrabold text-white">$742.10</div>
+                  <span class="text-[10px] bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded font-mono">Select</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Printable Ticket Output Box -->
+          <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Document Output Preview</h3>
+              <button onclick="downloadPdfTicket()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg transition-all shadow-md flex items-center gap-1">
+                <span>📄 Save PDF Document</span>
+              </button>
+            </div>
+
+            <!-- The Ticket Container -->
+            <div id="ticketContainer" class="bg-white text-slate-900 rounded-xl p-6 space-y-4 font-sans shadow-inner border border-slate-200">
+              <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                <div>
+                  <div class="text-xl font-black text-slate-900 tracking-wider">FLIGHT ITINERARY</div>
+                  <div class="text-[10px] font-bold text-slate-400 tracking-widest">ELECTRONIC TICKET CONFIRMATION</div>
+                </div>
+                <div class="text-right">
+                  <div id="outAirline" class="text-sm font-bold text-blue-700">VIRGIN ATLANTIC</div>
+                  <div class="text-[10px] text-slate-500">BOOKING REF / PNR: <span id="outPnr" class="font-mono font-bold text-slate-900">VG-892173</span></div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4 text-xs">
+                <div>
+                  <span class="text-[10px] text-slate-400 uppercase font-bold block">Passenger Name</span>
+                  <span id="outPassenger" class="font-bold text-slate-900">ALEXANDER WRIGHT</span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400 uppercase font-bold block">Status</span>
+                  <span id="outStatus" class="font-bold text-emerald-600">CONFIRMED / BOOKED</span>
+                </div>
+              </div>
+
+              <!-- Flight Detail Box -->
+              <div class="bg-slate-50 rounded-lg p-3.5 border border-slate-200 text-xs space-y-2">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <span class="text-[10px] text-slate-400 block font-bold">DEPARTURE</span>
+                    <span id="outFrom" class="font-bold text-slate-900">MIA Airport</span>
+                    <div id="outDepartDate" class="text-[10px] text-slate-500">2026-11-15</div>
+                  </div>
+                  <div class="text-center">
+                    <span class="text-blue-600 font-bold">✈</span>
+                    <div id="outFlightNum" class="text-[9px] text-slate-400 font-mono">VS118</div>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 block font-bold">ARRIVAL</span>
+                    <span id="outTo" class="font-bold text-slate-900">LHR Airport</span>
+                    <div id="outTime" class="text-[10px] text-slate-500">22:55 → 11:40 (+1)</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex justify-between items-center border-t border-slate-200 pt-3 text-xs">
+                <span class="text-slate-500 text-[11px]">Issuing Agent / Service Fee Paid:</span>
+                <span id="outFee" class="font-extrabold text-slate-900 text-sm">₦8,000</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
     </div>
-  </div>
+
+    <!-- TAB 2: DIDIT IDENTITY VERIFICATION -->
+    <div id="tab-kyc" class="space-y-6 hidden">
+      <div class="glass-card p-6 rounded-2xl space-y-6">
+        <div class="border-b border-slate-800 pb-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>🛡️ Didit Protocol Verification Link Generator</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">Generate automated identity verification sessions connected to your Edge Function.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">User Reference ID (Vendor ID)</label>
+              <input type="text" id="diditUserRef" value="usr_thegiftunc_1092" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono">
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Callback / Redirect URL</label>
+              <input type="text" id="diditCallback" value="https://yourwebsite.com/verification-complete" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300">
+            </div>
+
+            <button onclick="createDiditSession()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-purple-600/30 text-xs flex items-center justify-center gap-2">
+              <span>🚀 Call Didit API & Generate Session</span>
+            </button>
+          </div>
+
+          <!-- Session Response Box -->
+          <div class="bg-slate-900/90 border border-slate-700 rounded-xl p-4 space-y-3 font-mono">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">API Live Response</span>
+            
+            <div id="diditSessionOutput" class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-emerald-400 text-[11px] overflow-x-auto min-h-36">
+              // Click the button to request a session...
+            </div>
+
+            <div id="diditLinkBtnContainer" class="hidden">
+              <a id="diditVerificationUrl" href="#" target="_blank" class="block text-center bg-blue-600 hover:bg-blue-500 text-white font-sans text-xs font-bold py-2.5 rounded-lg transition-colors">
+                🔗 Launch Didit Verification Modal / Link →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
 
   <script>
-    // Replace with your actual Supabase Project Credentials
-    const SUPABASE_URL = "https://your-project.supabase.co";
-    const SUPABASE_ANON_KEY = "your-anon-key";
-    
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Tab Switcher
+    function switchTab(tabId) {
+      document.getElementById('tab-flights').classList.add('hidden');
+      document.getElementById('tab-kyc').classList.add('hidden');
 
-    let selectedFlight = {
-      airline: "Virgin Atlantic",
+      document.getElementById('btn-tab-flights').className = "px-4 py-2 text-xs font-semibold rounded-xl bg-slate-800 text-slate-300";
+      document.getElementById('btn-tab-kyc').className = "px-4 py-2 text-xs font-semibold rounded-xl bg-slate-800 text-slate-300";
+
+      document.getElementById(tabId).classList.remove('hidden');
+
+      if (tabId === 'tab-flights') document.getElementById('btn-tab-flights').className = "px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 text-white";
+      if (tabId === 'tab-kyc') document.getElementById('btn-tab-kyc').className = "px-4 py-2 text-xs font-semibold rounded-xl bg-purple-600 text-white";
+    }
+
+    let currentOffer = {
+      airline: "VIRGIN ATLANTIC",
       flightNum: "VS118",
-      time: "22:55 → 11:40 (+1)"
+      time: "22:55 → 11:40 (+1)",
+      price: "$713.96"
     };
 
-    // Call Supabase Edge Function
-    async function searchFlights() {
-      const origin = document.getElementById('origin').value;
-      const destination = document.getElementById('destination').value;
-      const date = document.getElementById('flightDate').value;
-      const container = document.getElementById('resultsContainer');
+    // Execute Search (Supports both Simulated and Live Edge Calls)
+    async function executeFlightSearch() {
+      const origin = document.getElementById('flightFrom').value.toUpperCase();
+      const destination = document.getElementById('flightTo').value.toUpperCase();
+      const departureDate = document.getElementById('flightDate').value;
+      const passengers = parseInt(document.getElementById('flightPassengers').value) || 1;
+      const searchMode = document.getElementById('searchModeSelect').value;
+      const endpointUrl = document.getElementById('edgeEndpointUrl').value;
+      const btnText = document.getElementById('searchBtnText');
 
-      container.innerHTML = "<p class='text-slate-400'>Searching offers via Supabase Edge Function...</p>";
+      btnText.innerText = "⏳ Requesting Flight Data...";
 
-      try {
-        const { data, error } = await supabaseClient.functions.invoke('search-flights', {
-          body: { origin, destination, date }
-        });
+      if (searchMode === 'edge' && endpointUrl) {
+        try {
+          const res = await fetch(`${endpointUrl}?action=search_flights`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ origin, destination, departureDate, passengers })
+          });
 
-        if (error) throw error;
-
-        container.innerHTML = `
-          <div onclick="selectFlight('Virgin Atlantic', 'VS118', '22:55 → 11:40 (+1)')" class="bg-slate-900 p-3 rounded border border-blue-500 cursor-pointer">
-            <div class="font-bold text-amber-400">Virgin Atlantic • VS118</div>
-            <div>${origin} ➔ ${destination} (${date})</div>
-          </div>
-        `;
-      } catch (err) {
-        // Fallback display if API keys are pending setup
-        container.innerHTML = `
-          <div onclick="selectFlight('Virgin Atlantic', 'VS118', '22:55 → 11:40 (+1)')" class="bg-slate-900 p-3 rounded border border-blue-500 cursor-pointer">
-            <div class="font-bold text-amber-400">Virgin Atlantic • VS118 (Selected)</div>
-            <div>${origin} ➔ ${destination} (${date}) - 22:55 → 11:40</div>
-          </div>
-        `;
-      }
-    }
-
-    function selectFlight(airline, flightNum, time) {
-      selectedFlight = { airline, flightNum, time };
-      alert(`Selected: ${airline} ${flightNum}`);
-    }
-
-    // Save Passenger name to Supabase and build client PDF
-    async function saveAndGeneratePDF() {
-      const fname = document.getElementById('firstName').value;
-      const lname = document.getElementById('lastName').value;
-      const pnr = document.getElementById('pnr').value;
-      const fee = document.getElementById('fee').value;
-      const origin = document.getElementById('origin').value;
-      const destination = document.getElementById('destination').value;
-      const date = document.getElementById('flightDate').value;
-
-      // 1. Insert record into Supabase Database
-      const { error } = await supabaseClient
-        .from('flight_reservations')
-        .insert([
-          {
-            pnr: pnr,
-            first_name: fname,
-            last_name: lname,
-            airline: selectedFlight.airline,
-            flight_number: selectedFlight.flightNum,
-            origin: origin,
-            destination: destination,
-            departure_date: date,
-            flight_time: selectedFlight.time,
-            service_fee: fee,
-            status: 'CONFIRMED'
-          }
-        ]);
-
-      if (error) {
-        console.warn("Database Save Alert:", error.message);
+          const data = await res.json();
+          renderDuffelResults(data, origin, destination);
+        } catch (err) {
+          alert("Error calling Edge Function: " + err.message);
+        } finally {
+          btnText.innerText = "🔍 Fetch Flight Offers";
+        }
       } else {
-        alert("Passenger record successfully saved to Supabase!");
+        // Simulated fallback
+        setTimeout(() => {
+          btnText.innerText = "🔍 Fetch Flight Offers";
+          const container = document.getElementById('searchResultsContainer');
+          container.innerHTML = `
+            <div onclick="selectFlightOffer('Virgin Atlantic', 'VS118', '22:55 → 11:40 (+1)', '$713.96')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
+              <div>
+                <div class="text-sm font-bold text-amber-400">Virgin Atlantic • VS118</div>
+                <div class="text-xs text-slate-300 mt-0.5">22:55 (${origin}) ➔ 11:40 (${destination})</div>
+                <span class="text-[10px] text-emerald-400 font-mono">Direct Flight • Scheduled</span>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-extrabold text-white">$713.96</div>
+                <span class="text-[10px] bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded font-mono">Select</span>
+              </div>
+            </div>
+
+            <div onclick="selectFlightOffer('Delta Air Lines', 'DL402', '18:10 → 07:20 (+1)', '$755.00')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
+              <div>
+                <div class="text-sm font-bold text-red-400">Delta Air Lines • DL402</div>
+                <div class="text-xs text-slate-300 mt-0.5">18:10 (${origin}) ➔ 07:20 (${destination})</div>
+                <span class="text-[10px] text-emerald-400 font-mono">Direct Flight • Scheduled</span>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-extrabold text-white">$755.00</div>
+                <span class="text-[10px] bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded font-mono">Select</span>
+              </div>
+            </div>
+          `;
+          updateTicketPreview();
+        }, 800);
+      }
+    }
+
+    function renderDuffelResults(data, origin, destination) {
+      const container = document.getElementById('searchResultsContainer');
+      const offers = data?.data?.offers || [];
+
+      if (!offers.length) {
+        container.innerHTML = `<div class="text-xs text-slate-400">No live offers returned for this route/date.</div>`;
+        return;
       }
 
-      // 2. Generate and download PDF Document
+      container.innerHTML = offers.slice(0, 5).map(offer => {
+        const slice = offer.slices?.[0];
+        const segment = slice?.segments?.[0];
+        const airline = segment?.operating_carrier?.name || "Airline";
+        const flightNum = (segment?.operating_carrier?.iata_code || "") + (segment?.operating_carrier_flight_number || "");
+        const departTime = segment?.departing_at ? new Date(segment.departing_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "12:00";
+        const arriveTime = segment?.arriving_at ? new Date(segment.arriving_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "18:00";
+        const price = `${offer.total_currency} ${offer.total_amount}`;
+        const timeStr = `${departTime} → ${arriveTime}`;
+
+        return `
+          <div onclick="selectFlightOffer('${airline}', '${flightNum}', '${timeStr}', '${price}')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
+            <div>
+              <div class="text-sm font-bold text-amber-400">${airline} • ${flightNum}</div>
+              <div class="text-xs text-slate-300 mt-0.5">${departTime} (${origin}) ➔ ${arriveTime} (${destination})</div>
+              <span class="text-[10px] text-emerald-400 font-mono">Live Duffel Offer</span>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-extrabold text-white">${price}</div>
+              <span class="text-[10px] bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded font-mono">Select</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectFlightOffer(airline, flightNum, time, price) {
+      currentOffer = { airline: airline.toUpperCase(), flightNum, time, price };
+      updateTicketPreview();
+    }
+
+    function updateTicketPreview() {
+      const fname = document.getElementById('custFname').value;
+      const lname = document.getElementById('custLname').value;
+      const from = document.getElementById('flightFrom').value.toUpperCase();
+      const to = document.getElementById('flightTo').value.toUpperCase();
+      const date = document.getElementById('flightDate').value;
+      const pnr = document.getElementById('custPnr').value;
+      const fee = document.getElementById('custFee').value;
+      const status = document.getElementById('custStatus').value;
+
+      document.getElementById('outPassenger').innerText = `${fname} ${lname}`.toUpperCase();
+      document.getElementById('outAirline').innerText = currentOffer.airline;
+      document.getElementById('outPnr').innerText = pnr || 'VG-892173';
+      document.getElementById('outFrom').innerText = `${from} Airport`;
+      document.getElementById('outTo').innerText = `${to} Airport`;
+      document.getElementById('outDepartDate').innerText = date;
+      document.getElementById('outTime').innerText = currentOffer.time;
+      document.getElementById('outFlightNum').innerText = currentOffer.flightNum;
+      document.getElementById('outStatus').innerText = status;
+      document.getElementById('outFee').innerText = fee;
+    }
+
+    document.querySelectorAll('#custFname, #custLname, #custPnr, #custFee, #custStatus, #flightFrom, #flightTo, #flightDate').forEach(el => {
+      el.addEventListener('input', updateTicketPreview);
+    });
+
+    // Client-side PDF Generation Function
+    function downloadPdfTicket() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
-      // PDF Design Header
+      const fname = document.getElementById('custFname').value;
+      const lname = document.getElementById('custLname').value;
+      const pnr = document.getElementById('custPnr').value;
+      const from = document.getElementById('flightFrom').value;
+      const to = document.getElementById('flightTo').value;
+      const date = document.getElementById('flightDate').value;
+      const fee = document.getElementById('custFee').value;
+
       doc.setFillColor(15, 23, 42);
-      doc.rect(0, 0, 210, 35, 'F');
+      doc.rect(0, 0, 210, 40, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(18);
-      doc.text("FLIGHT ITINERARY RESERVATION", 14, 22);
+      doc.text("FLIGHT ITINERARY RESERVATION", 15, 22);
+      doc.setFontSize(9);
+      doc.text("ELECTRONIC TICKET CONFIRMATION", 15, 30);
 
-      // PDF Content Body
       doc.setTextColor(30, 41, 59);
       doc.setFontSize(11);
-      doc.text(`Passenger Name: ${fname} ${lname}`.toUpperCase(), 14, 50);
-      doc.text(`PNR / Booking Reference: ${pnr}`, 14, 60);
-      doc.text(`Airline: ${selectedFlight.airline}`, 14, 70);
-      doc.text(`Flight Number: ${selectedFlight.flightNum}`, 14, 80);
-      doc.text(`Route: ${origin} ---> ${destination}`, 14, 90);
-      doc.text(`Departure Date: ${date}`, 14, 100);
-      doc.text(`Flight Time: ${selectedFlight.time}`, 14, 110);
-      doc.text(`Status: CONFIRMED / BOOKED`, 14, 120);
-      doc.text(`Service Fee Paid: ${fee}`, 14, 130);
+      doc.text(`Passenger Name: ${fname} ${lname}`.toUpperCase(), 15, 55);
+      doc.text(`Booking Reference (PNR): ${pnr}`, 15, 65);
+      doc.text(`Airline: ${currentOffer.airline}`, 15, 75);
+      doc.text(`Flight Number: ${currentOffer.flightNum}`, 15, 85);
+      doc.text(`Route: ${from} ---> ${to}`, 15, 95);
+      doc.text(`Departure Date: ${date}`, 15, 105);
+      doc.text(`Flight Time: ${currentOffer.time}`, 15, 115);
+      doc.text(`Status: CONFIRMED / BOOKED`, 15, 125);
+      doc.text(`Service Fee Paid: ${fee}`, 15, 135);
 
-      // Save PDF to user's device
-      doc.save(`Itinerary_${pnr}_${fname}.pdf`);
+      doc.save(`Flight_Itinerary_${pnr}.pdf`);
+    }
+
+    // Didit Session Trigger
+    async function createDiditSession() {
+      const vendorRef = document.getElementById('diditUserRef').value;
+      const callback = document.getElementById('diditCallback').value;
+      const endpointUrl = document.getElementById('edgeEndpointUrl').value;
+      const output = document.getElementById('diditSessionOutput');
+      const btnContainer = document.getElementById('diditLinkBtnContainer');
+
+      output.innerText = "// Sending request...";
+
+      if (endpointUrl) {
+        try {
+          const res = await fetch(`${endpointUrl}?action=create_didit_session`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ vendor_data: vendorRef, callback_url: callback })
+          });
+          const data = await res.json();
+          output.innerText = JSON.stringify(data, null, 2);
+          if (data?.url) {
+            document.getElementById('diditVerificationUrl').href = data.url;
+            btnContainer.classList.remove('hidden');
+          }
+        } catch (err) {
+          output.innerText = "// Error: " + err.message;
+        }
+      } else {
+        setTimeout(() => {
+          const mockResponse = {
+            status: "success",
+            session_id: "sess_" + Math.floor(Math.random() * 90000000 + 10000000),
+            url: "https://verify.didit.me/session/demo_session_link_10293",
+            vendor_data: vendorRef,
+            expires_in: 3600
+          };
+          output.innerText = JSON.stringify(mockResponse, null, 2);
+          document.getElementById('diditVerificationUrl').href = mockResponse.url;
+          btnContainer.classList.remove('hidden');
+        }, 600);
+      }
     }
   </script>
 </body>
 </html>
+```
