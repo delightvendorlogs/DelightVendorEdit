@@ -1554,7 +1554,16 @@
       const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
       const client = window.supabase.createClient(
         SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
+        SUPABASE_PUBLISHABLE_KEY,
+        {
+          auth: {
+            storage: window.localStorage,
+            storageKey: "delightvendoredit-auth",
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: true
+          }
+        }
       );
 
       const navItems = [
