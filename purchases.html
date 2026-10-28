@@ -89,27 +89,29 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
     const query=normal($("searchInput").value);
     const filter=$("statusFilter").value;
     const filtered=allOrders.filter(row=>{
-      const status=normal(pick(row,["status","order_status","payment_status","state"],"pending"));
-      const name=String(pick(row,["product_name","service_name","item_name","name","title","product","service"],"Purchase"));
-      const id=String(pick(row,["id","order_id","reference","order_reference"],""));
+      const status=normal(pick(row,["order_status","payment_status"],"pending_payment"));
+      const items=Array.isArray(row.order_items)?row.order_items:[];
+      const name=String(items.map(item=>item.item_title_snapshot).filter(Boolean).join(", ") || "Marketplace order");
+      const id=String(pick(row,["order_number","id"],""));
       const matchesQuery=!query || normal(name+" "+id+" "+status).includes(query);
       const matchesStatus=filter==="all" || (filter==="completed" ? /complete/.test(status) : filter==="failed" ? /fail/.test(status) : filter==="cancelled" ? /cancel/.test(status) : filter==="refunded" ? /refund/.test(status) : filter==="pending_payment" ? /pending_payment/.test(status) : status.includes(filter));
       return matchesQuery && matchesStatus;
     });
     $("totalCount").textContent=allOrders.length;
-    $("progressCount").textContent=allOrders.filter(r=>/pending|processing|progress|initiated|paid/.test(normal(pick(r,["status","order_status","payment_status","state"],"pending")))).length;
-    $("completedCount").textContent=allOrders.filter(r=>/complete|success|deliver/.test(normal(pick(r,["status","order_status","payment_status","state"],"")))).length;
+    $("progressCount").textContent=allOrders.filter(r=>/pending_payment|paid|processing/.test(normal(pick(r,["order_status"],"pending_payment")))).length;
+    $("completedCount").textContent=allOrders.filter(r=>/completed/.test(normal(pick(r,["order_status"],"")))).length;
     if (!filtered.length) {
       empty(allOrders.length ? "No matching orders" : "No purchases yet",allOrders.length ? "Try another search or status filter." : "When you place an order, it will appear here with its status and details.",!allOrders.length);
       return;
     }
     $("ordersList").innerHTML=filtered.map(row=>{
-      const name=pick(row,["product_name","service_name","item_name","name","title","product","service"],"Purchase");
-      const id=pick(row,["id","order_id","reference","order_reference"],"");
-      const status=pick(row,["status","order_status","payment_status","state"],"Pending");
-      const date=pick(row,["created_at","createdAt","ordered_at","purchase_date","date"],"");
-      const amount=pick(row,["amount","total_amount","price","price_ngn","total","cost"],null);
-      const extra=pick(row,["category","service_type","type"],"");
+      const items=Array.isArray(row.order_items)?row.order_items:[];
+      const name=items.map(item=>item.item_title_snapshot).filter(Boolean).join(", ") || "Marketplace order";
+      const id=pick(row,["order_number","id"],"");
+      const status=pick(row,["order_status","payment_status"],"Pending");
+      const date=pick(row,["created_at"],"");
+      const amount=pick(row,["total"],null);
+      const extra=items.length ? items.length+" item"+(items.length===1?"":"s") : "";
       return '<article class="order"><div><div class="order-title">'+escapeHTML(name)+'</div><div class="order-id">'+(id ? "Order #"+escapeHTML(id) : "Order reference unavailable")+'</div><div class="order-meta"><span>🗓 '+escapeHTML(dateText(date))+'</span>'+(extra?'<span>'+escapeHTML(extra)+'</span>':"")+'</div></div><div class="order-side"><div class="amount">'+escapeHTML(money(amount))+'</div><span class="badge '+statusClass(status)+'">'+escapeHTML(status)+'</span></div></article>';
     }).join("");
   }
@@ -123,23 +125,16 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
         location.replace("login.html?redirect="+encodeURIComponent("purchases.html"));
         return;
       }
-      // The order table may have a different name in an existing deployment.
-      // Try known conventional names, always scoped to the signed-in user.
-      const candidates=["orders","purchases","user_orders"];
-      let lastError=null, found=false;
-      for(const table of candidates) {
-        const result=await db.from(table).select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(100);
-        if(!result.error) { allOrders=result.data||[]; found=true; break; }
-        lastError=result.error;
+      const result = await db.from("orders")
+        .select("*, order_items(item_title_snapshot, fulfillment_status, quantity, unit_price)")
+        .eq("customer_user_id", currentUser.id)
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (result.error) {
+        console.error("Could not load order history:", result.error);
+        throw result.error;
       }
-      if(!found) {
-        console.error("Could not load order history:",lastError);
-        allOrders=[];
-        empty("Order history isn’t connected yet","The page is ready, but the database order table or its user ownership column needs to be matched to your actual Supabase schema.");
-        showStatus("We couldn’t read purchase records from the expected orders tables. No order or payment has been created by this page.", "info");
-        $("totalCount").textContent="—";$("progressCount").textContent="—";$("completedCount").textContent="—";
-        return;
-      }
+      allOrders = result.data || [];
       if(allOrders.length) showStatus("Your purchase history is up to date.","ok");
       else showStatus("You’re signed in. No purchase records were found for this account yet.","info");
       render();
