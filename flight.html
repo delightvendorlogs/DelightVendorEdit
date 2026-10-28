@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TheGiftUnc - Flight Engine & Identity Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- jsPDF for rendering client-side PDF itineraries -->
+  <!-- jsPDF & JsBarcode for rendering client-side PDF itineraries with barcodes -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
   <style>
     .glass-card {
       background: rgba(30, 41, 59, 0.75);
@@ -27,7 +27,7 @@
         </div>
         <div>
           <h1 class="text-lg font-bold tracking-wide text-white">TheGiftUnc Travel Engine</h1>
-          <p class="text-xs text-slate-400">Live Duffel Flight Search, Ticket Generator & Didit Identity Pass</p>
+          <p class="text-xs text-slate-400">Live Duffel Flight Search, e-Ticket Generator & Didit Identity Pass</p>
         </div>
       </div>
       <div class="flex gap-2">
@@ -44,16 +44,16 @@
       
       <!-- API Mode Config -->
       <div class="glass-card p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4 text-xs border border-blue-500/30">
-        <div class="flex items-center space-x-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="font-bold text-slate-300">Edge Function Endpoint:</span>
-          <input type="text" id="edgeEndpointUrl" placeholder="https://<your-supabase-id>.supabase.co/functions/v1/duffel_didit" class="w-80 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 text-[11px] font-mono focus:outline-none focus:border-blue-500">
+        <div class="flex items-center space-x-2 w-full md:w-auto">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
+          <span class="font-bold text-slate-300 flex-shrink-0">Edge Endpoint:</span>
+          <input type="text" id="edgeEndpointUrl" value="https://genlmqzkjouinofkitqt.supabase.co/functions/v1/Didit-api" class="w-full md:w-96 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 text-[11px] font-mono focus:outline-none focus:border-blue-500">
         </div>
         <div class="flex items-center space-x-3">
           <label class="text-slate-400">Search Mode:</label>
           <select id="searchModeSelect" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 focus:outline-none">
-            <option value="simulated">Simulated Live Search (Instant)</option>
             <option value="edge">Live Edge Function (Duffel API)</option>
+            <option value="simulated">Simulated Live Search (Offline Demo)</option>
           </select>
         </div>
       </div>
@@ -97,7 +97,7 @@
           <!-- Passenger Details Customization -->
           <div class="glass-card p-6 rounded-2xl space-y-4">
             <h2 class="text-base font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
-              <span>2. Passenger & Ticket Customizer</span>
+              <span>2. Official e-Ticket Customizer</span>
             </h2>
 
             <div class="grid grid-cols-2 gap-3">
@@ -117,18 +117,40 @@
                 <input type="text" id="custPnr" value="VG-892173" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-amber-400 font-mono uppercase">
               </div>
               <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Service Fee Charged</label>
-                <input type="text" id="custFee" value="₦8,000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-emerald-400 font-bold">
+                <label class="block text-xs font-medium text-slate-400 mb-1">13-Digit e-Ticket No.</label>
+                <input type="text" id="custTicketNo" value="125-8910293841" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono">
               </div>
             </div>
 
-            <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">Reservation Status</label>
-              <select id="custStatus" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
-                <option value="CONFIRMED / BOOKED">CONFIRMED / BOOKED</option>
-                <option value="ON HOLD (PENDING PAYMENT)">ON HOLD (PENDING PAYMENT)</option>
-                <option value="RESERVED">RESERVED</option>
-              </select>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Cabin Class</label>
+                <select id="custClass" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+                  <option value="Economy (V)">Economy (V)</option>
+                  <option value="Premium Economy (W)">Premium Economy (W)</option>
+                  <option value="Business Class (J)">Business Class (J)</option>
+                  <option value="First Class (F)">First Class (F)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Baggage Allowance</label>
+                <input type="text" id="custBaggage" value="1 PC (23kg)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Reservation Status</label>
+                <select id="custStatus" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+                  <option value="CONFIRMED / BOOKED">CONFIRMED / BOOKED</option>
+                  <option value="ON HOLD (PENDING PAYMENT)">ON HOLD (PENDING PAYMENT)</option>
+                  <option value="RESERVED">RESERVED</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Service Fee Charged</label>
+                <input type="text" id="custFee" value="₦8,000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-emerald-400 font-bold">
+              </div>
             </div>
           </div>
         </div>
@@ -142,23 +164,10 @@
             
             <div id="searchResultsContainer" class="space-y-3 max-h-56 overflow-y-auto pr-1">
               <!-- Flight Card 1 -->
-              <div onclick="selectFlightOffer('Virgin Atlantic', 'VS118', '22:55 → 11:40 (+1)', '$713.96')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
-                <div>
-                  <div class="text-sm font-bold text-amber-400">Virgin Atlantic • VS118</div>
-                  <div class="text-xs text-slate-300 mt-0.5">22:55 (MIA) ➔ 11:40 (LHR)</div>
-                  <span class="text-[10px] text-emerald-400 font-mono">Direct Flight • Boeing 787</span>
-                </div>
-                <div class="text-right">
-                  <div class="text-sm font-extrabold text-white">$713.96</div>
-                  <span class="text-[10px] bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded font-mono">Select</span>
-                </div>
-              </div>
-
-              <!-- Flight Card 2 -->
-              <div onclick="selectFlightOffer('British Airways', 'BA208', '17:20 → 06:15 (+1)', '$742.10')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
+              <div onclick="selectFlightOffer('British Airways', 'BA208', '17:20 → 06:15 (+1)', 'Terminal South', 'Terminal 5', '$742.10')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
                 <div>
                   <div class="text-sm font-bold text-blue-400">British Airways • BA208</div>
-                  <div class="text-xs text-slate-300 mt-0.5">17:20 (MIA) ➔ 06:15 (LHR)</div>
+                  <div class="text-xs text-slate-300 mt-0.5">17:20 (MIA T-South) ➔ 06:15 (LHR T5)</div>
                   <span class="text-[10px] text-emerald-400 font-mono">Direct Flight • Airbus A350</span>
                 </div>
                 <div class="text-right">
@@ -166,13 +175,26 @@
                   <span class="text-[10px] bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded font-mono">Select</span>
                 </div>
               </div>
+
+              <!-- Flight Card 2 -->
+              <div onclick="selectFlightOffer('Virgin Atlantic', 'VS118', '22:55 → 11:40 (+1)', 'Terminal South', 'Terminal 3', '$713.96')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
+                <div>
+                  <div class="text-sm font-bold text-amber-400">Virgin Atlantic • VS118</div>
+                  <div class="text-xs text-slate-300 mt-0.5">22:55 (MIA T-South) ➔ 11:40 (LHR T3)</div>
+                  <span class="text-[10px] text-emerald-400 font-mono">Direct Flight • Boeing 787</span>
+                </div>
+                <div class="text-right">
+                  <div class="text-sm font-extrabold text-white">$713.96</div>
+                  <span class="text-[10px] bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded font-mono">Select</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Printable Ticket Output Box -->
+          <!-- Printable e-Ticket Output Box -->
           <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center">
-              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Document Output Preview</h3>
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Official e-Ticket Output</h3>
               <button onclick="downloadPdfTicket()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg transition-all shadow-md flex items-center gap-1">
                 <span>📄 Save PDF Document</span>
               </button>
@@ -182,19 +204,24 @@
             <div id="ticketContainer" class="bg-white text-slate-900 rounded-xl p-6 space-y-4 font-sans shadow-inner border border-slate-200">
               <div class="flex justify-between items-center border-b border-slate-200 pb-3">
                 <div>
-                  <div class="text-xl font-black text-slate-900 tracking-wider">FLIGHT ITINERARY</div>
-                  <div class="text-[10px] font-bold text-slate-400 tracking-widest">ELECTRONIC TICKET CONFIRMATION</div>
+                  <div class="text-xl font-black text-slate-900 tracking-wider">ELECTRONIC TICKET</div>
+                  <div class="text-[10px] font-bold text-slate-400 tracking-widest">PASSENGER ITINERARY & RECEIPT</div>
                 </div>
                 <div class="text-right">
-                  <div id="outAirline" class="text-sm font-bold text-blue-700">VIRGIN ATLANTIC</div>
+                  <div id="outAirline" class="text-sm font-bold text-blue-700">BRITISH AIRWAYS</div>
                   <div class="text-[10px] text-slate-500">BOOKING REF / PNR: <span id="outPnr" class="font-mono font-bold text-slate-900">VG-892173</span></div>
+                  <div class="text-[9px] text-slate-400">e-Ticket: <span id="outTicketNo" class="font-mono">125-8910293841</span></div>
                 </div>
               </div>
 
-              <div class="grid grid-cols-2 gap-4 text-xs">
+              <div class="grid grid-cols-3 gap-3 text-xs">
                 <div>
                   <span class="text-[10px] text-slate-400 uppercase font-bold block">Passenger Name</span>
                   <span id="outPassenger" class="font-bold text-slate-900">ALEXANDER WRIGHT</span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400 uppercase font-bold block">Class / Baggage</span>
+                  <span id="outClassBag" class="font-bold text-slate-800">Economy (V) • 1 PC</span>
                 </div>
                 <div>
                   <span class="text-[10px] text-slate-400 uppercase font-bold block">Status</span>
@@ -208,23 +235,31 @@
                   <div>
                     <span class="text-[10px] text-slate-400 block font-bold">DEPARTURE</span>
                     <span id="outFrom" class="font-bold text-slate-900">MIA Airport</span>
+                    <div id="outDepartTerm" class="text-[10px] text-slate-600 font-medium">Terminal South</div>
                     <div id="outDepartDate" class="text-[10px] text-slate-500">2026-11-15</div>
                   </div>
                   <div class="text-center">
-                    <span class="text-blue-600 font-bold">✈</span>
-                    <div id="outFlightNum" class="text-[9px] text-slate-400 font-mono">VS118</div>
+                    <span class="text-blue-600 font-bold text-lg">✈</span>
+                    <div id="outFlightNum" class="text-[10px] text-slate-500 font-mono font-bold">BA208</div>
                   </div>
                   <div class="text-right">
                     <span class="text-[10px] text-slate-400 block font-bold">ARRIVAL</span>
                     <span id="outTo" class="font-bold text-slate-900">LHR Airport</span>
-                    <div id="outTime" class="text-[10px] text-slate-500">22:55 → 11:40 (+1)</div>
+                    <div id="outArriveTerm" class="text-[10px] text-slate-600 font-medium">Terminal 5</div>
+                    <div id="outTime" class="text-[10px] text-slate-500">17:20 → 06:15 (+1)</div>
                   </div>
                 </div>
               </div>
 
               <div class="flex justify-between items-center border-t border-slate-200 pt-3 text-xs">
-                <span class="text-slate-500 text-[11px]">Issuing Agent / Service Fee Paid:</span>
-                <span id="outFee" class="font-extrabold text-slate-900 text-sm">₦8,000</span>
+                <div>
+                  <!-- Barcode Visual element -->
+                  <svg id="ticketBarcode" class="h-10 w-44"></svg>
+                </div>
+                <div class="text-right">
+                  <span class="text-slate-500 text-[10px] block">Service Fee Paid:</span>
+                  <span id="outFee" class="font-extrabold text-slate-900 text-base">₦8,000</span>
+                </div>
               </div>
             </div>
           </div>
@@ -241,7 +276,7 @@
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
             <span>🛡️ Didit Protocol Verification Link Generator</span>
           </h2>
-          <p class="text-xs text-slate-400 mt-1">Generate automated identity verification sessions connected to your Edge Function.</p>
+          <p class="text-xs text-slate-400 mt-1">Generate automated identity verification sessions connected directly to your Edge Function.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -253,7 +288,7 @@
 
             <div>
               <label class="block text-xs font-medium text-slate-400 mb-1">Callback / Redirect URL</label>
-              <input type="text" id="diditCallback" value="https://yourwebsite.com/verification-complete" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300">
+              <input type="text" id="diditCallback" value="https://example.com/callback" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300">
             </div>
 
             <button onclick="createDiditSession()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-purple-600/30 text-xs flex items-center justify-center gap-2">
@@ -297,13 +332,37 @@
     }
 
     let currentOffer = {
-      airline: "VIRGIN ATLANTIC",
-      flightNum: "VS118",
-      time: "22:55 → 11:40 (+1)",
-      price: "$713.96"
+      airline: "BRITISH AIRWAYS",
+      flightNum: "BA208",
+      time: "17:20 → 06:15 (+1)",
+      departTerm: "Terminal South",
+      arriveTerm: "Terminal 5",
+      price: "$742.10"
     };
 
-    // Execute Search (Supports both Simulated and Live Edge Calls)
+    // Render initial Barcode
+    window.addEventListener('DOMContentLoaded', () => {
+      generateBarcode();
+      updateTicketPreview();
+    });
+
+    function generateBarcode() {
+      try {
+        const pnr = document.getElementById('custPnr').value || "VG-892173";
+        JsBarcode("#ticketBarcode", pnr, {
+          format: "CODE128",
+          lineColor: "#1e293b",
+          width: 1.5,
+          height: 35,
+          displayValue: true,
+          fontSize: 10
+        });
+      } catch (e) {
+        console.log("Barcode render error", e);
+      }
+    }
+
+    // Execute Search (Connected directly to your Supabase Edge Function URL)
     async function executeFlightSearch() {
       const origin = document.getElementById('flightFrom').value.toUpperCase();
       const destination = document.getElementById('flightTo').value.toUpperCase();
@@ -336,26 +395,26 @@
           btnText.innerText = "🔍 Fetch Flight Offers";
           const container = document.getElementById('searchResultsContainer');
           container.innerHTML = `
-            <div onclick="selectFlightOffer('Virgin Atlantic', 'VS118', '22:55 → 11:40 (+1)', '$713.96')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
+            <div onclick="selectFlightOffer('British Airways', 'BA208', '17:20 → 06:15 (+1)', 'Terminal South', 'Terminal 5', '$742.10')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
               <div>
-                <div class="text-sm font-bold text-amber-400">Virgin Atlantic • VS118</div>
-                <div class="text-xs text-slate-300 mt-0.5">22:55 (${origin}) ➔ 11:40 (${destination})</div>
+                <div class="text-sm font-bold text-blue-400">British Airways • BA208</div>
+                <div class="text-xs text-slate-300 mt-0.5">17:20 (${origin} T-South) ➔ 06:15 (${destination} T5)</div>
                 <span class="text-[10px] text-emerald-400 font-mono">Direct Flight • Scheduled</span>
               </div>
               <div class="text-right">
-                <div class="text-sm font-extrabold text-white">$713.96</div>
+                <div class="text-sm font-extrabold text-white">$742.10</div>
                 <span class="text-[10px] bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded font-mono">Select</span>
               </div>
             </div>
 
-            <div onclick="selectFlightOffer('Delta Air Lines', 'DL402', '18:10 → 07:20 (+1)', '$755.00')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
+            <div onclick="selectFlightOffer('Virgin Atlantic', 'VS118', '22:55 → 11:40 (+1)', 'Terminal South', 'Terminal 3', '$713.96')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
               <div>
-                <div class="text-sm font-bold text-red-400">Delta Air Lines • DL402</div>
-                <div class="text-xs text-slate-300 mt-0.5">18:10 (${origin}) ➔ 07:20 (${destination})</div>
+                <div class="text-sm font-bold text-amber-400">Virgin Atlantic • VS118</div>
+                <div class="text-xs text-slate-300 mt-0.5">22:55 (${origin} T-South) ➔ 11:40 (${destination} T3)</div>
                 <span class="text-[10px] text-emerald-400 font-mono">Direct Flight • Scheduled</span>
               </div>
               <div class="text-right">
-                <div class="text-sm font-extrabold text-white">$755.00</div>
+                <div class="text-sm font-extrabold text-white">$713.96</div>
                 <span class="text-[10px] bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded font-mono">Select</span>
               </div>
             </div>
@@ -385,7 +444,7 @@
         const timeStr = `${departTime} → ${arriveTime}`;
 
         return `
-          <div onclick="selectFlightOffer('${airline}', '${flightNum}', '${timeStr}', '${price}')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
+          <div onclick="selectFlightOffer('${airline}', '${flightNum}', '${timeStr}', 'Main Terminal', 'Main Terminal', '${price}')" class="bg-slate-900/80 border border-slate-700 hover:border-blue-500 rounded-xl p-3.5 cursor-pointer transition-all flex justify-between items-center">
             <div>
               <div class="text-sm font-bold text-amber-400">${airline} • ${flightNum}</div>
               <div class="text-xs text-slate-300 mt-0.5">${departTime} (${origin}) ➔ ${arriveTime} (${destination})</div>
@@ -400,8 +459,8 @@
       }).join('');
     }
 
-    function selectFlightOffer(airline, flightNum, time, price) {
-      currentOffer = { airline: airline.toUpperCase(), flightNum, time, price };
+    function selectFlightOffer(airline, flightNum, time, departTerm, arriveTerm, price) {
+      currentOffer = { airline: airline.toUpperCase(), flightNum, time, departTerm, arriveTerm, price };
       updateTicketPreview();
     }
 
@@ -412,26 +471,35 @@
       const to = document.getElementById('flightTo').value.toUpperCase();
       const date = document.getElementById('flightDate').value;
       const pnr = document.getElementById('custPnr').value;
+      const ticketNo = document.getElementById('custTicketNo').value;
+      const cabinClass = document.getElementById('custClass').value;
+      const baggage = document.getElementById('custBaggage').value;
       const fee = document.getElementById('custFee').value;
       const status = document.getElementById('custStatus').value;
 
       document.getElementById('outPassenger').innerText = `${fname} ${lname}`.toUpperCase();
       document.getElementById('outAirline').innerText = currentOffer.airline;
       document.getElementById('outPnr').innerText = pnr || 'VG-892173';
+      document.getElementById('outTicketNo').innerText = ticketNo || '125-8910293841';
+      document.getElementById('outClassBag').innerText = `${cabinClass} • ${baggage}`;
       document.getElementById('outFrom').innerText = `${from} Airport`;
       document.getElementById('outTo').innerText = `${to} Airport`;
+      document.getElementById('outDepartTerm').innerText = currentOffer.departTerm || 'Main Terminal';
+      document.getElementById('outArriveTerm').innerText = currentOffer.arriveTerm || 'Main Terminal';
       document.getElementById('outDepartDate').innerText = date;
       document.getElementById('outTime').innerText = currentOffer.time;
       document.getElementById('outFlightNum').innerText = currentOffer.flightNum;
       document.getElementById('outStatus').innerText = status;
       document.getElementById('outFee').innerText = fee;
+
+      generateBarcode();
     }
 
-    document.querySelectorAll('#custFname, #custLname, #custPnr, #custFee, #custStatus, #flightFrom, #flightTo, #flightDate').forEach(el => {
+    document.querySelectorAll('#custFname, #custLname, #custPnr, #custTicketNo, #custClass, #custBaggage, #custFee, #custStatus, #flightFrom, #flightTo, #flightDate').forEach(el => {
       el.addEventListener('input', updateTicketPreview);
     });
 
-    // Client-side PDF Generation Function
+    // Client-side PDF Generation Function with Official e-Ticket Styling
     function downloadPdfTicket() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
@@ -439,35 +507,85 @@
       const fname = document.getElementById('custFname').value;
       const lname = document.getElementById('custLname').value;
       const pnr = document.getElementById('custPnr').value;
+      const ticketNo = document.getElementById('custTicketNo').value;
+      const cabinClass = document.getElementById('custClass').value;
+      const baggage = document.getElementById('custBaggage').value;
       const from = document.getElementById('flightFrom').value;
       const to = document.getElementById('flightTo').value;
       const date = document.getElementById('flightDate').value;
       const fee = document.getElementById('custFee').value;
+      const status = document.getElementById('custStatus').value;
 
+      // Top Header
       doc.setFillColor(15, 23, 42);
-      doc.rect(0, 0, 210, 40, 'F');
+      doc.rect(0, 0, 210, 38, 'F');
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(18);
-      doc.text("FLIGHT ITINERARY RESERVATION", 15, 22);
+      doc.setFontSize(16);
+      doc.text("ELECTRONIC TICKET PASSENGER ITINERARY", 15, 20);
       doc.setFontSize(9);
-      doc.text("ELECTRONIC TICKET CONFIRMATION", 15, 30);
+      doc.text("ISSUED IN ACCORDANCE WITH IATA PASSENGER REGULATIONS", 15, 28);
 
+      // Main Ticket Body
       doc.setTextColor(30, 41, 59);
-      doc.setFontSize(11);
-      doc.text(`Passenger Name: ${fname} ${lname}`.toUpperCase(), 15, 55);
-      doc.text(`Booking Reference (PNR): ${pnr}`, 15, 65);
-      doc.text(`Airline: ${currentOffer.airline}`, 15, 75);
-      doc.text(`Flight Number: ${currentOffer.flightNum}`, 15, 85);
-      doc.text(`Route: ${from} ---> ${to}`, 15, 95);
-      doc.text(`Departure Date: ${date}`, 15, 105);
-      doc.text(`Flight Time: ${currentOffer.time}`, 15, 115);
-      doc.text(`Status: CONFIRMED / BOOKED`, 15, 125);
-      doc.text(`Service Fee Paid: ${fee}`, 15, 135);
+      doc.setFontSize(10);
+      
+      doc.setFont(undefined, 'bold');
+      doc.text(`PASSENGER NAME:`, 15, 52);
+      doc.setFont(undefined, 'normal');
+      doc.text(`${fname} ${lname}`.toUpperCase(), 65, 52);
 
-      doc.save(`Flight_Itinerary_${pnr}.pdf`);
+      doc.setFont(undefined, 'bold');
+      doc.text(`BOOKING REF (PNR):`, 15, 62);
+      doc.setFont(undefined, 'normal');
+      doc.text(`${pnr}`, 65, 62);
+
+      doc.setFont(undefined, 'bold');
+      doc.text(`e-TICKET NUMBER:`, 15, 72);
+      doc.setFont(undefined, 'normal');
+      doc.text(`${ticketNo}`, 65, 72);
+
+      doc.setFont(undefined, 'bold');
+      doc.text(`AIRLINE:`, 15, 82);
+      doc.setFont(undefined, 'normal');
+      doc.text(`${currentOffer.airline} (${currentOffer.flightNum})`, 65, 82);
+
+      doc.setFont(undefined, 'bold');
+      doc.text(`ROUTE:`, 15, 92);
+      doc.setFont(undefined, 'normal');
+      doc.text(`${from} (${currentOffer.departTerm}) ---> ${to} (${currentOffer.arriveTerm})`, 65, 92);
+
+      doc.setFont(undefined, 'bold');
+      doc.text(`DEPARTURE DATE / TIME:`, 15, 102);
+      doc.setFont(undefined, 'normal');
+      doc.text(`${date} | ${currentOffer.time}`, 65, 102);
+
+      doc.setFont(undefined, 'bold');
+      doc.text(`CABIN / BAGGAGE:`, 15, 112);
+      doc.setFont(undefined, 'normal');
+      doc.text(`${cabinClass} | Allowance: ${baggage}`, 65, 112);
+
+      doc.setFont(undefined, 'bold');
+      doc.text(`RESERVATION STATUS:`, 15, 122);
+      doc.setFont(undefined, 'normal');
+      doc.text(`${status}`, 65, 122);
+
+      doc.setFont(undefined, 'bold');
+      doc.text(`SERVICE FEE PAID:`, 15, 132);
+      doc.setFont(undefined, 'normal');
+      doc.text(`${fee}`, 65, 132);
+
+      // Divider
+      doc.setDrawColor(203, 213, 225);
+      doc.line(15, 142, 195, 142);
+
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text("Notice: Please present this electronic ticket receipt along with a valid passport at airport check-in.", 15, 152);
+
+      doc.save(`eTicket_${pnr}.pdf`);
     }
 
-    // Didit Session Trigger
+    // Didit Session Trigger (Directly hitting your Edge Function)
     async function createDiditSession() {
       const vendorRef = document.getElementById('diditUserRef').value;
       const callback = document.getElementById('diditCallback').value;
@@ -475,40 +593,24 @@
       const output = document.getElementById('diditSessionOutput');
       const btnContainer = document.getElementById('diditLinkBtnContainer');
 
-      output.innerText = "// Sending request...";
+      output.innerText = "// Calling Edge Function...";
 
-      if (endpointUrl) {
-        try {
-          const res = await fetch(`${endpointUrl}?action=create_didit_session`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ vendor_data: vendorRef, callback_url: callback })
-          });
-          const data = await res.json();
-          output.innerText = JSON.stringify(data, null, 2);
-          if (data?.url) {
-            document.getElementById('diditVerificationUrl').href = data.url;
-            btnContainer.classList.remove('hidden');
-          }
-        } catch (err) {
-          output.innerText = "// Error: " + err.message;
-        }
-      } else {
-        setTimeout(() => {
-          const mockResponse = {
-            status: "success",
-            session_id: "sess_" + Math.floor(Math.random() * 90000000 + 10000000),
-            url: "https://verify.didit.me/session/demo_session_link_10293",
-            vendor_data: vendorRef,
-            expires_in: 3600
-          };
-          output.innerText = JSON.stringify(mockResponse, null, 2);
-          document.getElementById('diditVerificationUrl').href = mockResponse.url;
+      try {
+        const res = await fetch(`${endpointUrl}?action=create_didit_session`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vendor_data: vendorRef, callback_url: callback })
+        });
+        const data = await res.json();
+        output.innerText = JSON.stringify(data, null, 2);
+        if (data?.url) {
+          document.getElementById('diditVerificationUrl').href = data.url;
           btnContainer.classList.remove('hidden');
-        }, 600);
+        }
+      } catch (err) {
+        output.innerText = "// Error: " + err.message;
       }
     }
   </script>
 </body>
 </html>
-```
