@@ -1,156 +1,66 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#080808">
-<meta name="description" content="View and manage your DelightVendorEdit notifications.">
-<title>Notifications — DelightVendorEdit</title>
-<link rel="icon" type="image/png" href="assets/dv-logo.png">
-<link rel="apple-touch-icon" href="assets/dv-logo.png">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080808">
+<meta name="description" content="Your DelightVendorEdit notifications."><title>Notifications — DelightVendorEdit</title>
+<link rel="icon" type="image/png" href="assets/dv-logo.png"><link rel="apple-touch-icon" href="assets/dv-logo.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{color-scheme:dark;--bg:#080808;--panel:#121212;--panel2:#191919;--gold:#e7b84b;--gold2:#f5d47e;--text:#f5f3ed;--muted:#a6a39b;--line:#303030;--red:#ff9292}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#211b0c,transparent 48%),var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}button{font:inherit;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}a{color:inherit;text-decoration:none}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px clamp(13px,4vw,42px);border-bottom:1px solid var(--line);background:#0c0c0c}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:clamp(15px,2.6vw,21px)}.brand img{width:39px;height:39px;object-fit:contain}
-main{width:min(900px,94%);margin:28px auto 50px}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}h1{font-size:clamp(25px,5vw,35px);margin:0 0 8px}.muted{color:var(--muted);font-size:13px;line-height:1.6;margin:0}
-.count{white-space:nowrap;border:1px solid #5b481d;background:#211b0e;color:var(--gold2);padding:8px 11px;border-radius:30px;font-size:12px;font-weight:800}
-.toolbar,.filters{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 14px}.btn,.filter{border:1px solid #393939;border-radius:10px;padding:10px 13px;background:var(--panel2);color:var(--text);font-size:12px;font-weight:700}.primary{background:var(--gold);color:#171107;border-color:var(--gold)}.danger{color:#ffb1b1;border-color:#643131;background:#251313}.filter{border-radius:30px;color:#c9c9c9}.filter.active{color:var(--gold2);border-color:#70551b;background:#211b0e}
-.status{min-height:20px;color:var(--muted);font-size:12px;margin:12px 0}.status.error{color:var(--red)}.status.success{color:#8ce5a8}
-.list{display:grid;gap:12px}.item{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:13px;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:15px}.item.unread{border-color:#5b481d;background:linear-gradient(110deg,#19160e,#111)}.item-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:#211b0e;color:var(--gold2);font-size:20px}.content{min-width:0}.item h2{font-size:15px;line-height:1.5;margin:0 0 7px;overflow-wrap:anywhere}.item p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;font-size:13px;color:#c8c8c8;margin:0 0 10px}.item time{font-size:11px;color:#888}.item-image{display:block;max-width:min(100%,420px);max-height:320px;object-fit:contain;border-radius:10px;border:1px solid var(--line);margin:10px 0}.actions{display:flex;flex-direction:column;gap:7px}.small{padding:7px 9px;border:1px solid #383838;border-radius:8px;background:#191919;color:#ddd;font-size:11px;white-space:nowrap}.empty{padding:45px 20px;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:15px;color:var(--muted)}footer{text-align:center;color:#777;font-size:12px;padding:22px}
-@media(max-width:600px){header{padding:12px}.brand img{width:34px;height:34px}main{margin-top:22px}.item{grid-template-columns:36px minmax(0,1fr);gap:10px;padding:14px}.item-icon{width:36px;height:36px}.actions{grid-column:2;flex-direction:row;flex-wrap:wrap}.toolbar .btn{flex:1}.heading{gap:8px}}
-.dialog-backdrop{position:fixed;inset:0;z-index:20;background:#080808;display:none;align-items:stretch;justify-content:stretch;padding:0}
-.dialog-backdrop.open{display:flex}
-.dialog{width:100%;height:100%;max-height:100dvh;overflow:auto;background:#101010;border:0;border-radius:0;box-shadow:none;padding:clamp(17px,4vw,30px);padding-bottom:max(24px,env(safe-area-inset-bottom))}
-.dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.dialog h2{font-size:clamp(20px,4vw,28px);line-height:1.35;margin:0 0 10px;overflow-wrap:anywhere}
-.dialog-message{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;font-size:15px;color:#eee;margin:16px 0}
-.dialog-image{display:block;width:auto;max-width:100%;max-height:68vh;object-fit:contain;border-radius:12px;border:1px solid var(--line);margin:18px auto}
-.dialog-close{border:1px solid #444;background:#202020;color:#fff;border-radius:10px;padding:9px 12px;flex-shrink:0}
-.open-hint{font-size:11px;color:var(--gold2);margin-top:7px}
-.item-click{cursor:pointer}
-.item-click:focus-visible{outline:2px solid var(--gold);outline-offset:3px}\n.item-thumb{display:block;width:76px;height:60px;object-fit:cover;border-radius:9px;border:1px solid var(--line);margin:2px 0 10px}\n@media(min-width:700px){.dialog{width:min(900px,100%);margin:0 auto}}
-
+:root{--gold:#d4af37;--muted:#b8ad8d;--line:#493b1c;--text:#f5f0df}
+*{box-sizing:border-box}body{margin:0;background:#080808;color:var(--text);font-family:Arial,Helvetica,sans-serif}
+.top{display:flex;align-items:center;gap:18px;padding:18px 20px;background:#0c0c0c;border-bottom:1px solid #171717;max-width:100%;margin:auto}
+.brand{display:flex;align-items:center;gap:14px;flex:1;min-width:0}.brand img{width:48px;height:48px;object-fit:contain}.brand strong{font-size:20px}
+.back,.btn{border:1px solid #6d5622;background:#121212;color:var(--gold);border-radius:13px;padding:13px 18px;text-decoration:none;font-weight:800;cursor:pointer;font-size:15px}
+.wrap{max-width:900px;margin:14px auto 50px;padding:0 20px}.panel{border:1px solid #3d321b;background:#121212;border-radius:30px;padding:clamp(22px,4vw,34px)}
+.eyebrow{color:var(--gold);font-size:14px;font-weight:800;letter-spacing:.16em;margin:8px 0 34px}
+h1{font-size:clamp(32px,6vw,54px);margin:0 0 38px;letter-spacing:-.03em}.muted{color:var(--muted);font-size:clamp(15px,3vw,22px);line-height:1.55;margin:0}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:32px 0 30px}.filter{padding:13px 24px;border:1px solid #302817;border-radius:28px;background:#080808;color:#e0d5b5;font-weight:800;font-size:17px;cursor:pointer}.filter.active{background:var(--gold);color:#111;border-color:var(--gold)}
+.btn{font-size:17px;padding:13px 22px}.btn:disabled{opacity:.5;cursor:not-allowed}.notice{display:none;padding:11px 13px;border-radius:10px;font-size:13px;line-height:1.5;margin:12px 0}.notice.show{display:block}.notice.error{background:#2b1414;border:1px solid #703737;color:#ffbcbc}.notice.ok{background:#102419;border:1px solid #28623e;color:#b1f0c2}.notice.info{background:#211d10;border:1px solid #665323;color:#f1d77a}
+.list{display:grid;gap:16px}.item{display:flex;align-items:flex-start;gap:16px;padding:20px;border:1px solid #3a2e13;border-radius:25px;background:#121212;cursor:pointer;text-align:left;color:inherit;width:100%}.item.unread{border-color:#8b6d20;background:linear-gradient(100deg,#1c170b,#111)}.dot{flex:0 0 16px;width:16px;height:16px;border-radius:50%;background:#514a37;margin-top:10px}.item.unread .dot{background:var(--gold)}.item-main{min-width:0;flex:1}.item h2{font-size:clamp(17px,3.3vw,24px);margin:0 0 10px;color:#f5df8d;line-height:1.35}.item p{font-size:clamp(15px,3vw,21px);line-height:1.6;margin:0;color:#c6bea9;white-space:pre-wrap;overflow-wrap:anywhere}.meta{display:block;font-size:clamp(12px,2.3vw,16px);color:#95896c;margin-top:10px}.thumb{width:92px;height:92px;object-fit:cover;border-radius:18px;border:1px solid #493b1c;flex:0 0 92px}.empty{padding:28px 15px;text-align:center;border:1px dashed #493b1c;border-radius:14px;color:var(--muted);line-height:1.6}
+.modal{display:none;position:fixed;inset:0;z-index:1000;background:#080808;align-items:stretch;justify-content:stretch;padding:0}.modal.open{display:flex}.detail{width:100%;height:100%;max-height:100dvh;overflow:auto;background:#101010;padding:clamp(20px,5vw,34px);padding-bottom:max(28px,env(safe-area-inset-bottom))}.detail-top{display:flex;gap:12px;align-items:flex-start}.detail-top h2{color:#f5df8d;margin:0;flex:1;overflow-wrap:anywhere;font-size:clamp(24px,5vw,36px)}.close{background:#211d10;border:1px solid #665323;color:var(--gold);border-radius:10px;font-size:22px;width:42px;height:42px;cursor:pointer;flex:0 0 42px}.detail-message{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;color:#eee5cd;font-size:17px;margin:24px 0}.detail-image{display:block;width:auto;max-width:100%;max-height:68vh;object-fit:contain;border-radius:12px;border:1px solid #493b1c;margin:18px auto}.detail-date{font-size:13px;color:var(--muted);margin-top:12px}
+@media(max-width:520px){.top{padding:16px 20px;gap:14px}.back{padding:18px 20px;font-size:23px;white-space:nowrap}.brand{gap:12px}.brand img{width:54px;height:54px}.brand strong{font-size:clamp(14px,3.3vw,20px)}.wrap{padding:0 20px;margin-top:14px}.panel{padding:24px;border-radius:30px}.eyebrow{margin:18px 0 34px;font-size:14px}h1{margin-bottom:38px}.actions{gap:10px;margin:32px 0 30px}.filter{padding:14px 25px;font-size:17px}.btn{font-size:17px;padding:14px 22px}.item{padding:20px;border-radius:25px;gap:14px}.thumb{width:92px;height:92px;flex-basis:92px;border-radius:18px}}
+@media(max-width:390px){.top{padding:12px}.back{font-size:16px;padding:13px 12px}.brand img{width:40px;height:40px}.brand strong{font-size:14px}.wrap{padding:0 12px}.panel{padding:18px}.item{padding:14px}.thumb{width:66px;height:66px;flex-basis:66px}}
 </style>
 </head>
 <body>
-<header>
-<a class="brand" href="dashboard.html"><img src="assets/dv-logo.png" alt="DV logo"><span>DelightVendorEdit</span></a>
-<a href="dashboard.html" style="color:var(--gold2);font-size:12px;font-weight:700">← Dashboard</a>
-</header>
-<main>
-<div class="heading"><div><h1>Notifications</h1><p class="muted">Messages and updates sent to your account.</p></div><span class="count" id="unreadCount">0 unread</span></div>
-<div class="toolbar"><button class="btn primary" id="markAll" type="button">Mark all as read</button><button class="btn danger" id="clearRead" type="button">Clear read</button><button class="btn" id="refresh" type="button">Refresh</button></div>
-<div class="filters" role="group" aria-label="Notification filter"><button class="filter active" data-filter="all" type="button">All notifications</button><button class="filter" data-filter="unread" type="button">Unread</button><button class="filter" data-filter="read" type="button">Read</button></div>
-<div id="status" class="status" role="status" aria-live="polite">Checking your session…</div><div id="notificationList" class="list"><div class="empty">Loading notifications…</div></div>
-</main>
-<div id="detailBackdrop" class="dialog-backdrop" role="presentation">
-<section class="dialog" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
-<div class="dialog-head"><div><div id="detailCategory" class="muted"></div><h2 id="detailTitle">Notification</h2></div><button id="closeDetail" class="dialog-close" type="button" aria-label="Close notification">Close ✕</button></div>
-<div id="detailDate" class="muted"></div><p id="detailMessage" class="dialog-message"></p><img id="detailImage" class="dialog-image" alt="Image attached to notification" hidden>
-<div class="toolbar"><button id="detailCloseBottom" class="btn" type="button">Close</button></div>
-</section></div>
-<footer>© <span id="year"></span> DelightVendorEdit</footer>
+<header class="top"><a class="back" href="dashboard.html">← Back</a><div class="brand"><img src="assets/dv-logo.png" alt="DV logo"><strong>DelightVendorEdit</strong></div></header>
+<main class="wrap"><section class="panel"><p class="eyebrow">YOUR ACCOUNT</p><h1>Notifications</h1>
+<p class="muted">Updates sent to you by DelightVendorEdit. Tap any notification to read the full message and view its image, if attached.</p>
+<div id="notice" class="notice" role="status" aria-live="polite"></div>
+<div class="actions"><button class="filter active" data-filter="all" type="button">All</button><button class="filter" data-filter="unread" type="button">Unread</button><button class="filter" data-filter="read" type="button">Read</button><button class="btn" id="markAll" type="button">Mark all as read</button></div>
+<div id="notificationList" class="list"><div class="empty">Loading your notifications…</div></div></section></main>
+<div id="detailModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle"><article class="detail"><div class="detail-top"><h2 id="detailTitle">Notification</h2><button class="close" id="closeDetail" type="button" aria-label="Close">×</button></div><div id="detailDate" class="detail-date"></div><div id="detailMessage" class="detail-message"></div><img id="detailImage" class="detail-image" alt="Image attached to this notification" hidden><div class="actions"><button class="btn" id="detailDone" type="button">Done</button></div></article></div>
 <script>
-(() => {
-"use strict";
-const URL="https://genlmqzkjouinofkitqt.supabase.co";
-const KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
-const db=window.supabase.createClient(URL,KEY);
-const $=id=>document.getElementById(id);
+(()=>{"use strict";
+const URL="https://genlmqzkjouinofkitqt.supabase.co",KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv",db=window.supabase.createClient(URL,KEY),$=id=>document.getElementById(id);
 let userId=null,items=[],filter="all",channel=null,busy=false;
-$("year").textContent=new Date().getFullYear();
-function status(text,type=""){ $("status").textContent=text;$("status").className="status"+(type?" "+type:"");}
-function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function date(v){const d=new Date(v);return Number.isNaN(d.getTime())?"Date unavailable":d.toLocaleString();}
-function setBusy(v){busy=v;["markAll","clearRead","refresh"].forEach(id=>$(id).disabled=v);}
-async function load(show=true){
- if(!userId)return;if(show)status("Loading notifications…");
- const {data,error}=await db.from("notifications").select("id,recipient_user_id,title,message,category,is_read,read_at,created_at,image_url").eq("recipient_user_id",userId).order("created_at",{ascending:false}).limit(500);
- if(error){console.error(error);status("Could not load notifications. Please refresh and try again.","error");return;}
- items=data||[];render();if(show)status(items.length?items.length+" notification(s) loaded.":"You have no notifications yet.");
-}
-function render(){
- const unread=items.filter(x=>!x.is_read).length;
- $("unreadCount").textContent=unread+" unread";
- $("markAll").disabled=busy||unread===0;$("clearRead").disabled=busy||!items.some(x=>x.is_read);
- const visible=items.filter(x=>filter==="unread"?!x.is_read:filter==="read"?x.is_read:true);
- const list=$("notificationList");list.replaceChildren();
- if(!visible.length){const empty=document.createElement("div");empty.className="empty";empty.textContent=filter==="unread"?"You're all caught up.":filter==="read"?"No read notifications.":"No notifications yet. Messages from the DelightVendorEdit team will appear here.";list.append(empty);return;}
- visible.forEach(n=>{
-  const card=document.createElement("article");card.className="item item-click"+(!n.is_read?" unread":"");card.tabIndex=0;card.setAttribute("role","button");card.setAttribute("aria-label","Open notification: "+(n.title||"Notification"));
-  const ico=document.createElement("div");ico.className="item-icon";ico.setAttribute("aria-hidden","true");
-  ico.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>';
-  const content=document.createElement("div");content.className="content";
-  const h=document.createElement("h2");h.textContent=n.title||"Notification";
-  const p=document.createElement("p");const full=String(n.message||"");p.textContent=full.length>150?full.slice(0,150).trimEnd()+"…":full;
-  content.append(h,p);
-  if(n.image_url){const thumb=document.createElement("img");thumb.className="item-thumb";thumb.src=n.image_url;thumb.alt="";thumb.loading="lazy";thumb.addEventListener("error",()=>thumb.remove());content.append(thumb);}
-  const time=document.createElement("time");time.dateTime=n.created_at||"";time.textContent=date(n.created_at);
-  const category=document.createElement("div");category.style.cssText="font-size:11px;color:#d8b75f;margin-top:7px";category.textContent=String(n.category||"general").replace(/[_-]/g," ");content.append(category,time);
-  const actions=document.createElement("div");actions.className="actions";
-  const open=document.createElement("button");open.className="small";open.type="button";open.textContent="View full";open.addEventListener("click",e=>{e.stopPropagation();openDetail(n.id);});actions.append(open);
-  if(!n.is_read){const b=document.createElement("button");b.className="small";b.textContent="Mark as read";b.addEventListener("click",e=>{e.stopPropagation();markOne(n.id);});actions.append(b);}
-  const del=document.createElement("button");del.className="small";del.textContent="Delete";del.addEventListener("click",e=>{e.stopPropagation();deleteOne(n.id);});actions.append(del);
-  card.addEventListener("click",()=>openDetail(n.id));
-  card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openDetail(n.id);}});
-  card.append(ico,content,actions);list.append(card);
- });
-}
-function closeDetail(){
- $("detailBackdrop").classList.remove("open");
- $("detailBackdrop").setAttribute("aria-hidden","true");
-}
-async function openDetail(id){
- const n=items.find(x=>String(x.id)===String(id));if(!n)return;
- $("detailTitle").textContent=n.title||"Notification";
- $("detailCategory").textContent=String(n.category||"general").replace(/[_-]/g," ");
- $("detailDate").textContent=date(n.created_at);
- $("detailMessage").textContent=n.message||"";
- const image=$("detailImage");
- if(n.image_url){image.src=n.image_url;image.hidden=false;}else{image.removeAttribute("src");image.hidden=true;}
- $("detailBackdrop").classList.add("open");$("detailBackdrop").setAttribute("aria-hidden","false");
- $("closeDetail").focus();
- if(!n.is_read) await markOne(id);
-}
-$("closeDetail").addEventListener("click",closeDetail);
-$("detailCloseBottom").addEventListener("click",closeDetail);
-$("detailBackdrop").addEventListener("click",e=>{if(e.target===$("detailBackdrop"))closeDetail();});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDetail();});
-
-async function markOne(id){
- if(busy)return;setBusy(true);const {error}=await db.from("notifications").update({is_read:true,read_at:new Date().toISOString()}).eq("id",id).eq("recipient_user_id",userId);
- setBusy(false);if(error){console.error(error);status("Could not mark notification as read.","error");return;}await load(false);status("Notification marked as read.","success");
-}
-$("markAll").addEventListener("click",async()=>{
- if(busy||!items.some(n=>!n.is_read))return;setBusy(true);
- const {error}=await db.from("notifications").update({is_read:true,read_at:new Date().toISOString()}).eq("recipient_user_id",userId).eq("is_read",false);
- setBusy(false);if(error){console.error(error);status("Could not mark all as read.","error");return;}await load(false);status("All notifications marked as read.","success");
-});
-async function deleteOne(id){
- if(busy||!confirm("Delete this notification?"))return;setBusy(true);
- const {error}=await db.from("notifications").delete().eq("id",id).eq("recipient_user_id",userId);
- setBusy(false);if(error){console.error(error);status("Could not delete notification.","error");return;}await load(false);status("Notification deleted.","success");
-}
-$("clearRead").addEventListener("click",async()=>{
- if(busy||!items.some(n=>n.is_read)||!confirm("Delete all read notifications? This cannot be undone."))return;setBusy(true);
- const {error}=await db.from("notifications").delete().eq("recipient_user_id",userId).eq("is_read",true);
- setBusy(false);if(error){console.error(error);status("Could not clear read notifications.","error");return;}await load(false);status("Read notifications cleared.","success");
-});
-$("refresh").addEventListener("click",()=>load(true));
-document.querySelectorAll("[data-filter]").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.filter;document.querySelectorAll("[data-filter]").forEach(x=>x.classList.toggle("active",x===b));render();}));
-function realtime(){
- if(channel)db.removeChannel(channel);
- channel=db.channel("dve-notifications-"+userId).on("postgres_changes",{event:"*",schema:"public",table:"notifications",filter:"recipient_user_id=eq."+userId},()=>load(false)).subscribe();
-}
-async function init(){
- try{const {data,error}=await db.auth.getUser();if(error||!data?.user){location.replace("login.html");return;}userId=data.user.id;await load();realtime();}
- catch(e){console.error(e);status("Could not connect to your account. Refresh and try again.","error");}
-}
-window.addEventListener("beforeunload",()=>{if(channel)db.removeChannel(channel);});
-init();
+function say(msg,type="info"){const e=$("notice");e.textContent=msg;e.className="notice show "+type}
+function date(v){const d=new Date(v);return Number.isNaN(d.getTime())?"Date unavailable":d.toLocaleString()}
+async function load(show=true){if(!userId)return;if(show)$("notificationList").innerHTML='<div class="empty">Loading notifications…</div>';
+const {data,error}=await db.from("notifications").select("id,recipient_user_id,title,message,category,is_read,read_at,created_at,image_url").eq("recipient_user_id",userId).order("created_at",{ascending:false}).limit(500);
+if(error){console.error(error);say("Could not load notifications. Please refresh and try again.","error");$("notificationList").innerHTML='<div class="empty">Could not load notifications.</div>';return}
+items=data||[];render()}
+function render(){const visible=items.filter(n=>filter==="unread"?!n.is_read:filter==="read"?n.is_read:true),list=$("notificationList");list.replaceChildren();
+if(!visible.length){const e=document.createElement("div");e.className="empty";e.textContent=filter==="unread"?"You have no unread notifications.":filter==="read"?"You have no read notifications yet.":"Notifications sent to you will appear here.";list.append(e)}
+visible.forEach(n=>{const b=document.createElement("button");b.type="button";b.className="item "+(n.is_read?"read":"unread");
+const dot=document.createElement("span");dot.className="dot";dot.setAttribute("aria-hidden","true");
+const main=document.createElement("span");main.className="item-main";const h=document.createElement("h2");h.textContent=n.title||"Notification";
+const p=document.createElement("p");const msg=String(n.message||"");p.textContent=msg.length>150?msg.slice(0,150).trimEnd()+"…":msg;
+const meta=document.createElement("span");meta.className="meta";meta.textContent=date(n.created_at)+" · "+(n.is_read?"Read":"Unread");main.append(h,p,meta);b.append(dot,main);
+if(n.image_url){const im=document.createElement("img");im.className="thumb";im.src=n.image_url;im.alt="";im.loading="lazy";im.addEventListener("error",()=>im.remove());b.append(im)}
+b.addEventListener("click",()=>openDetail(n.id));list.append(b)});
+const unread=items.filter(n=>!n.is_read).length;$("markAll").disabled=busy||unread===0}
+async function openDetail(id){const n=items.find(x=>String(x.id)===String(id));if(!n)return;
+$("detailTitle").textContent=n.title||"Notification";$("detailDate").textContent=date(n.created_at);$("detailMessage").textContent=n.message||"";
+const im=$("detailImage");if(n.image_url){im.src=n.image_url;im.hidden=false}else{im.removeAttribute("src");im.hidden=true}
+$("detailModal").classList.add("open");
+if(!n.is_read){const {error}=await db.from("notifications").update({is_read:true,read_at:new Date().toISOString()}).eq("id",n.id).eq("recipient_user_id",userId);if(error){say("Notification opened, but read status could not be updated.","error");return}n.is_read=true;n.read_at=new Date().toISOString();render()}}
+function closeDetail(){$("detailModal").classList.remove("open")}
+$("closeDetail").onclick=closeDetail;$("detailDone").onclick=closeDetail;$("detailModal").addEventListener("click",e=>{if(e.target===$("detailModal"))closeDetail()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDetail()});
+document.querySelectorAll("[data-filter]").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.filter;document.querySelectorAll("[data-filter]").forEach(x=>x.classList.toggle("active",x===b));render()}));
+$("markAll").onclick=async()=>{if(busy||!items.some(n=>!n.is_read))return;busy=true;$("markAll").disabled=true;const {error}=await db.from("notifications").update({is_read:true,read_at:new Date().toISOString()}).eq("recipient_user_id",userId).eq("is_read",false);busy=false;if(error){say("Could not mark all notifications as read.","error");render();return}items.forEach(n=>{if(!n.is_read){n.is_read=true;n.read_at=new Date().toISOString()}});render();say("All notifications marked as read.","ok")};
+async function init(){const {data,error}=await db.auth.getUser();if(error||!data?.user){location.replace("login.html");return}userId=data.user.id;await load();channel=db.channel("dve-notifications-"+userId).on("postgres_changes",{event:"*",schema:"public",table:"notifications",filter:"recipient_user_id=eq."+userId},()=>load(false)).subscribe()}
+window.addEventListener("beforeunload",()=>{if(channel)db.removeChannel(channel)});init();
 })();
 </script>
-</body>
-</html>
+</body></html>
