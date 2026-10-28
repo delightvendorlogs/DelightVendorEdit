@@ -20,17 +20,17 @@ main{width:min(900px,94%);margin:28px auto 50px}.heading{display:flex;align-item
 .status{min-height:20px;color:var(--muted);font-size:12px;margin:12px 0}.status.error{color:var(--red)}.status.success{color:#8ce5a8}
 .list{display:grid;gap:12px}.item{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:13px;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:15px}.item.unread{border-color:#5b481d;background:linear-gradient(110deg,#19160e,#111)}.item-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:#211b0e;color:var(--gold2);font-size:20px}.content{min-width:0}.item h2{font-size:15px;line-height:1.5;margin:0 0 7px;overflow-wrap:anywhere}.item p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;font-size:13px;color:#c8c8c8;margin:0 0 10px}.item time{font-size:11px;color:#888}.item-image{display:block;max-width:min(100%,420px);max-height:320px;object-fit:contain;border-radius:10px;border:1px solid var(--line);margin:10px 0}.actions{display:flex;flex-direction:column;gap:7px}.small{padding:7px 9px;border:1px solid #383838;border-radius:8px;background:#191919;color:#ddd;font-size:11px;white-space:nowrap}.empty{padding:45px 20px;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:15px;color:var(--muted)}footer{text-align:center;color:#777;font-size:12px;padding:22px}
 @media(max-width:600px){header{padding:12px}.brand img{width:34px;height:34px}main{margin-top:22px}.item{grid-template-columns:36px minmax(0,1fr);gap:10px;padding:14px}.item-icon{width:36px;height:36px}.actions{grid-column:2;flex-direction:row;flex-wrap:wrap}.toolbar .btn{flex:1}.heading{gap:8px}}
-.dialog-backdrop{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;padding:14px}
+.dialog-backdrop{position:fixed;inset:0;z-index:20;background:#080808;display:none;align-items:stretch;justify-content:stretch;padding:0}
 .dialog-backdrop.open{display:flex}
-.dialog{width:min(720px,100%);max-height:90vh;overflow:auto;background:#111;border:1px solid #6a521c;border-radius:18px;box-shadow:0 24px 80px #000;padding:clamp(17px,4vw,28px)}
+.dialog{width:100%;height:100%;max-height:100dvh;overflow:auto;background:#101010;border:0;border-radius:0;box-shadow:none;padding:clamp(17px,4vw,30px);padding-bottom:max(24px,env(safe-area-inset-bottom))}
 .dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .dialog h2{font-size:clamp(20px,4vw,28px);line-height:1.35;margin:0 0 10px;overflow-wrap:anywhere}
 .dialog-message{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;font-size:15px;color:#eee;margin:16px 0}
-.dialog-image{display:block;width:auto;max-width:100%;max-height:55vh;object-fit:contain;border-radius:12px;border:1px solid var(--line);margin:14px auto}
+.dialog-image{display:block;width:auto;max-width:100%;max-height:68vh;object-fit:contain;border-radius:12px;border:1px solid var(--line);margin:18px auto}
 .dialog-close{border:1px solid #444;background:#202020;color:#fff;border-radius:10px;padding:9px 12px;flex-shrink:0}
 .open-hint{font-size:11px;color:var(--gold2);margin-top:7px}
 .item-click{cursor:pointer}
-.item-click:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.item-click:focus-visible{outline:2px solid var(--gold);outline-offset:3px}\n.item-thumb{display:block;width:76px;height:60px;object-fit:cover;border-radius:9px;border:1px solid var(--line);margin:2px 0 10px}\n@media(min-width:700px){.dialog{width:min(900px,100%);margin:0 auto}}
 
 </style>
 </head>
@@ -86,7 +86,7 @@ function render(){
   const h=document.createElement("h2");h.textContent=n.title||"Notification";
   const p=document.createElement("p");const full=String(n.message||"");p.textContent=full.length>150?full.slice(0,150).trimEnd()+"…":full;
   content.append(h,p);
-  if(n.image_url){const hint=document.createElement("div");hint.className="open-hint";hint.textContent="📷 Image attached · Click to view";content.append(hint);}
+  if(n.image_url){const thumb=document.createElement("img");thumb.className="item-thumb";thumb.src=n.image_url;thumb.alt="";thumb.loading="lazy";thumb.addEventListener("error",()=>thumb.remove());content.append(thumb);}
   const time=document.createElement("time");time.dateTime=n.created_at||"";time.textContent=date(n.created_at);
   const category=document.createElement("div");category.style.cssText="font-size:11px;color:#d8b75f;margin-top:7px";category.textContent=String(n.category||"general").replace(/[_-]/g," ");content.append(category,time);
   const actions=document.createElement("div");actions.className="actions";
