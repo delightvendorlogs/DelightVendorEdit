@@ -39,8 +39,8 @@ main{width:min(1100px,95%);margin:26px auto 55px}h1{font-size:clamp(25px,5vw,35p
 <script>
 (() => {
 "use strict";
-const URL="https://genlmqzkjouinofkitqt.supabase.co",KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
-const db=window.supabase.createClient(URL,KEY);
+const SUPABASE_URL="https://genlmqzkjouinofkitqt.supabase.co",KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
+const db=window.supabase.createClient(SUPABASE_URL,KEY);
 const $=id=>document.getElementById(id);
 let allUsers=[],selected=new Set(),isAdmin=false,sending=false;
 $("year").textContent=new Date().getFullYear();
