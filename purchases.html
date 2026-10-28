@@ -39,7 +39,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
 <section class="card">
 <div class="toolbar"><h2>Order history</h2><div class="filters">
 <input class="control" id="searchInput" type="search" placeholder="Search orders…" aria-label="Search orders">
-<select class="control" id="statusFilter" aria-label="Filter by order status"><option value="all">All statuses</option><option value="pending">Pending</option><option value="processing">Processing</option><option value="completed">Completed</option><option value="failed">Failed</option><option value="cancelled">Cancelled</option></select>
+<select class="control" id="statusFilter" aria-label="Filter by order status"><option value="all">All statuses</option><option value="pending_payment">Awaiting payment</option><option value="paid">Paid</option><option value="processing">Processing</option><option value="completed">Completed</option><option value="failed">Failed</option><option value="cancelled">Cancelled</option><option value="refunded">Refunded</option></select>
 </div></div>
 <div class="status" id="statusMessage" role="status" aria-live="polite"></div>
 <div class="list" id="ordersList"><div class="empty"><div class="empty-icon">◷</div><h3>Loading your orders…</h3><p>We’re checking your purchase history.</p></div></div>
@@ -93,7 +93,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
       const name=String(pick(row,["product_name","service_name","item_name","name","title","product","service"],"Purchase"));
       const id=String(pick(row,["id","order_id","reference","order_reference"],""));
       const matchesQuery=!query || normal(name+" "+id+" "+status).includes(query);
-      const matchesStatus=filter==="all" || (filter==="completed" ? /complete|success|deliver/.test(status) : filter==="failed" ? /fail|reject|refund/.test(status) : filter==="cancelled" ? /cancel/.test(status) : status.includes(filter));
+      const matchesStatus=filter==="all" || (filter==="completed" ? /complete/.test(status) : filter==="failed" ? /fail/.test(status) : filter==="cancelled" ? /cancel/.test(status) : filter==="refunded" ? /refund/.test(status) : filter==="pending_payment" ? /pending_payment/.test(status) : status.includes(filter));
       return matchesQuery && matchesStatus;
     });
     $("totalCount").textContent=allOrders.length;
