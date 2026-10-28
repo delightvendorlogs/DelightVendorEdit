@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<meta name="description" content="View your DelightVendorEdit wallet transaction history.">
+<link rel="icon" type="image/png" href="assets/dv-logo.png?v=3">
+<link rel="apple-touch-icon" href="assets/dv-logo.png?v=3">
+<title>Transactions — DelightVendorEdit</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#080808;--card:#111;--gold:#f0cf68;--gold-dark:#c49a24;--muted:#a3a3a3;--border:rgba(212,175,55,.2);--green:#6ee7a0;--red:#ff8888}
+*{box-sizing:border-box}html{min-height:100%;background:var(--bg)}body{margin:0;min-height:100vh;color:#fff;background:radial-gradient(ellipse at top,#211b0b 0%,#0a0a0a 42%,#050505 100%);font-family:Arial,Helvetica,sans-serif}button,input,select{font:inherit}a{-webkit-tap-highlight-color:transparent}
+.topbar{position:sticky;top:0;z-index:5;background:rgba(8,8,8,.94);border-bottom:1px solid var(--border);backdrop-filter:blur(14px)}.topbar-inner{max-width:1100px;margin:auto;padding:15px 22px;display:flex;align-items:center;justify-content:space-between;gap:15px}.brand{display:flex;align-items:center;gap:10px;min-width:0;color:var(--gold);font-size:clamp(15px,2.5vw,21px);font-weight:800;text-decoration:none}.brand img{width:39px;height:39px;object-fit:contain;flex-shrink:0}.brand span{overflow-wrap:anywhere}.nav{display:flex;gap:9px;flex-wrap:wrap}.nav a{display:inline-flex;align-items:center;justify-content:center;padding:10px 13px;border:1px solid var(--border);border-radius:10px;color:var(--gold);text-decoration:none;font-size:13px;font-weight:700;white-space:nowrap}.nav a:hover{background:#191509}
+main{width:min(100% - 32px,1000px);margin:34px auto 55px}.heading{margin-bottom:24px}.eyebrow{margin:0 0 8px;color:var(--gold);text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:800}h1{margin:0;font-size:clamp(27px,5vw,38px)}.subtitle{margin:10px 0 0;color:var(--muted);line-height:1.65;font-size:14px}
+.summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}.summary{min-width:0;padding:19px;border:1px solid var(--border);border-radius:17px;background:linear-gradient(145deg,rgba(25,25,25,.98),rgba(9,9,9,.98))}.summary-label{margin:0;color:var(--muted);font-size:12px;line-height:1.5}.summary-value{margin:10px 0 0;color:var(--gold);font-size:clamp(18px,2.8vw,27px);font-weight:800;overflow-wrap:anywhere}
+.card{min-width:0;padding:23px;border:1px solid var(--border);border-radius:21px;background:linear-gradient(145deg,rgba(25,25,25,.98),rgba(9,9,9,.98));box-shadow:0 15px 40px rgba(0,0,0,.22)}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}.toolbar h2{margin:0;font-size:20px}.filters{display:flex;gap:9px;flex-wrap:wrap}.control{min-height:42px;padding:10px 12px;border:1px solid #343434;border-radius:10px;background:#080808;color:#fff;max-width:100%}.control:focus{outline:2px solid rgba(240,207,104,.4);border-color:var(--gold-dark)}.refresh{border:1px solid var(--border);border-radius:10px;background:#1b1609;color:var(--gold);padding:11px 15px;font-weight:800;cursor:pointer}.refresh:disabled{opacity:.5;cursor:wait}
+.status{display:none;margin:0 0 15px;padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.6;overflow-wrap:anywhere}.status.show{display:block}.status.error{color:#ffc0c0;background:#2b1414;border:1px solid #703737}.status.info{color:#f1d77a;background:#211d10;border:1px solid #665323}.status.ok{color:#b1f0c2;background:#102419;border:1px solid #28623e}
+.table-wrap{width:100%;overflow-x:auto;border:1px solid rgba(212,175,55,.13);border-radius:13px}table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;padding:15px 14px;border-bottom:1px solid #29251a;vertical-align:top;font-size:13px}th{background:#17140c;color:var(--gold);font-size:11px;text-transform:uppercase;letter-spacing:.8px}tbody tr:last-child td{border-bottom:0}td{color:#e9e4d6}td.amount{font-weight:800;white-space:nowrap;color:var(--gold)}.type{display:inline-flex;padding:5px 8px;border:1px solid #393123;border-radius:20px;background:#17140c;font-size:11px;font-weight:800;text-transform:capitalize}.badge{display:inline-flex;padding:5px 8px;border-radius:20px;font-size:11px;font-weight:800;text-transform:capitalize}.badge.completed,.badge.success,.badge.successful{color:#9cf0ba;background:#102719;border:1px solid #285b3a}.badge.pending,.badge.processing,.badge.initiated{color:#f5dc88;background:#28200c;border:1px solid #665323}.badge.failed,.badge.reversed,.badge.rejected,.badge.cancelled{color:#ffaaaa;background:#2b1414;border:1px solid #703737}.reference{max-width:180px;overflow-wrap:anywhere;color:#c6bea9}.empty{padding:30px 16px;text-align:center;color:var(--muted);line-height:1.7}.mobile-list{display:none;gap:12px}.tx-card{border:1px solid var(--border);border-radius:15px;padding:16px;background:#0d0d0d;min-width:0}.tx-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.tx-title{font-weight:800;font-size:15px;overflow-wrap:anywhere}.tx-amount{font-weight:800;font-size:18px;color:var(--gold);text-align:right;overflow-wrap:anywhere}.tx-meta{display:grid;gap:8px;margin-top:13px}.tx-row{display:flex;justify-content:space-between;gap:14px;font-size:12px;line-height:1.5}.tx-row span:first-child{color:var(--muted);flex-shrink:0}.tx-row span:last-child{text-align:right;overflow-wrap:anywhere;min-width:0}.footnote{margin:16px 0 0;color:#777;font-size:12px;line-height:1.6}footer{padding:22px 15px;text-align:center;border-top:1px solid rgba(212,175,55,.12);color:#777;font-size:12px}footer img{width:22px;height:22px;vertical-align:middle;object-fit:contain;margin-right:6px}
+@media(max-width:720px){.topbar-inner{padding:13px 15px}.brand{gap:8px;font-size:15px}.brand img{width:34px;height:34px}.nav{gap:6px}.nav a{padding:9px 10px;font-size:12px}main{width:calc(100% - 28px);margin:25px auto 38px}.summary-grid{grid-template-columns:1fr;gap:10px}.summary{padding:15px;display:flex;align-items:center;justify-content:space-between;gap:12px}.summary-value{margin:0;text-align:right}.card{padding:17px;border-radius:18px}.toolbar{align-items:stretch}.filters{width:100%}.filters .control{flex:1;min-width:0}.refresh{width:100%}.table-wrap{display:none}.mobile-list{display:grid}}
+@media(max-width:390px){.topbar-inner{align-items:flex-start;padding:12px;flex-direction:column}.nav{width:100%}.nav a{flex:1}.brand{font-size:14px}main{width:calc(100% - 22px)}.summary{padding:13px}.card{padding:13px}.tx-card{padding:13px}.tx-row{gap:8px}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-inner">
+<a class="brand" href="dashboard.html"><img src="assets/dv-logo.png" alt="DV logo"><span>DelightVendorEdit</span></a>
+<nav class="nav" aria-label="Main navigation"><a href="dashboard.html">Dashboard</a><a href="wallet.html">Wallet</a></nav>
+</div></header>
+<main>
+<section class="heading"><p class="eyebrow">Payments &amp; account activity</p><h1>Transactions</h1><p class="subtitle">Review deposits and other wallet activity recorded for your account.</p></section>
+<section class="summary-grid" aria-label="Transaction summary">
+<div class="summary"><p class="summary-label">Transactions shown</p><p class="summary-value" id="countValue">—</p></div>
+<div class="summary"><p class="summary-label">Completed deposits shown</p><p class="summary-value" id="depositValue">—</p></div>
+<div class="summary"><p class="summary-label">Latest activity</p><p class="summary-value" id="latestValue">—</p></div>
+</section>
+<section class="card">
+<div class="toolbar"><h2>Transaction history</h2><div class="filters">
+<select id="typeFilter" class="control" aria-label="Filter by transaction type"><option value="all">All types</option><option value="deposit">Deposits</option><option value="purchase">Purchases</option><option value="refund">Refunds</option><option value="withdrawal">Withdrawals</option></select>
+<select id="statusFilter" class="control" aria-label="Filter by status"><option value="all">All statuses</option><option value="completed">Completed</option><option value="pending">Pending</option><option value="failed">Failed</option><option value="reversed">Reversed</option></select>
+</div><button id="refreshButton" class="refresh" type="button">↻ Refresh</button></div>
+<div id="statusMessage" class="status" role="status" aria-live="polite"></div>
+<div id="emptyState" class="empty">Checking your session…</div>
+<div id="desktopTable" class="table-wrap" hidden><table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th><th>Reference</th></tr></thead><tbody id="transactionRows"></tbody></table></div>
+<div id="mobileList" class="mobile-list"></div>
+<p class="footnote">This page displays transaction records available to your signed-in account. If a payment is pending, check again later before attempting to pay again.</p>
+</section>
+</main>
+<footer><img src="assets/dv-logo.png" alt="">DelightVendorEdit · Transaction history</footer>
+<script>
+"use strict";
+(() => {
+const SUPABASE_URL="https://genlmqzkjouinofkitqt.supabase.co";
+const SUPABASE_KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}});
+const $=id=>document.getElementById(id);
+let user=null,allRows=[],loading=false;
+function message(text,type="info"){const n=$("statusMessage");n.textContent=text;n.className="status show "+type}
+function safe(v){return String(v??"")}
+function dateOf(row){return row.created_at||row.updated_at||row.completed_at||row.createdAt||row.timestamp||null}
+function fmtDate(value){if(!value)return "Date unavailable";const d=new Date(value);return Number.isNaN(d.getTime())?safe(value):d.toLocaleString()}
+function fmtMoney(value,currency="NGN"){const n=Number(value);if(!Number.isFinite(n))return safe(value)||"—";try{return new Intl.NumberFormat("en-NG",{style:"currency",currency:/^[A-Z]{3}$/.test(currency)?currency:"NGN",minimumFractionDigits:2,maximumFractionDigits:2}).format(n)}catch{return "₦"+n.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})}}
+function getType(row){return safe(row.transaction_type||row.type||row.transactionType||"Transaction").toLowerCase()}
+function getStatus(row){return safe(row.status||row.payment_status||row.state||"unknown").toLowerCase()}
+function getAmount(row){return row.amount??row.amount_ngn??row.total_amount??row.value??null}
+function getReference(row){return row.reference||row.transaction_reference||row.paystack_reference||row.id||"—"}
+function isDeposit(row){return getType(row).includes("deposit")}
+function render(){
+ const type=$("typeFilter").value,status=$("statusFilter").value;
+ const rows=allRows.filter(r=>(type==="all"||getType(r).includes(type))&&(status==="all"||getStatus(r).includes(status)));
+ $("countValue").textContent=String(rows.length);
+ const deposits=rows.filter(r=>isDeposit(r)&&["completed","success","successful"].includes(getStatus(r)));
+ $("depositValue").textContent=fmtMoney(deposits.reduce((s,r)=>s+(Number(getAmount(r))||0),0));
+ const latest=rows.map(dateOf).filter(Boolean).sort((a,b)=>new Date(b)-new Date(a))[0];
+ $("latestValue").textContent=latest?new Date(latest).toLocaleDateString():"—";
+ const body=$("transactionRows");body.replaceChildren();$("mobileList").replaceChildren();
+ if(!rows.length){$("desktopTable").hidden=true;$("emptyState").hidden=false;$("emptyState").textContent=allRows.length?"No transactions match these filters.":"No transactions found for your account.";return}
+ $("emptyState").hidden=true;$("desktopTable").hidden=false;
+ rows.forEach(r=>{
+  const tr=document.createElement("tr");
+  const tdDate=document.createElement("td");tdDate.textContent=fmtDate(dateOf(r));
+  const tdType=document.createElement("td");const typeTag=document.createElement("span");typeTag.className="type";typeTag.textContent=getType(r);tdType.append(typeTag);
+  const tdAmount=document.createElement("td");tdAmount.className="amount";tdAmount.textContent=fmtMoney(getAmount(r),r.currency||"NGN");
+  const tdStatus=document.createElement("td");const statusTag=document.createElement("span");statusTag.className="badge "+getStatus(r).replace(/[^a-z0-9_-]/g,"");statusTag.textContent=getStatus(r);tdStatus.append(statusTag);
+  const tdRef=document.createElement("td");tdRef.className="reference";tdRef.textContent=getReference(r);
+  tr.append(tdDate,tdType,tdAmount,tdStatus,tdRef);body.append(tr);
+  const card=document.createElement("article");card.className="tx-card";
+  const head=document.createElement("div");head.className="tx-head";
+  const title=document.createElement("div");title.className="tx-title";title.textContent=getType(r);
+  const amount=document.createElement("div");amount.className="tx-amount";amount.textContent=fmtMoney(getAmount(r),r.currency||"NGN");head.append(title,amount);
+  const meta=document.createElement("div");meta.className="tx-meta";
+  [[ "Date",fmtDate(dateOf(r)) ],["Status",getStatus(r)],["Reference",getReference(r)]].forEach(([label,value])=>{const line=document.createElement("div");line.className="tx-row";const a=document.createElement("span"),b=document.createElement("span");a.textContent=label;b.textContent=value;line.append(a,b);meta.append(line)});
+  card.append(head,meta);$("mobileList").append(card);
+ });
+}
+async function load(){
+ if(loading)return;loading=true;$("refreshButton").disabled=true;$("refreshButton").textContent="Loading…";$("emptyState").hidden=false;$("emptyState").textContent="Loading your transactions…";
+ try{
+  const {data,error}=await db.auth.getUser();if(error||!data?.user){location.replace("login.html");return}user=data.user;
+  // Select all columns to avoid assuming optional schema fields; user_id scope and RLS protect the signed-in user's records.
+  const {data:rows,error:queryError}=await db.from("wallet_transactions").select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(200);
+  if(queryError){console.error("Transaction history query failed:",queryError);$("emptyState").textContent="Unable to load transactions.";message("Could not load transaction history. Please refresh, or contact support if the problem continues.","error");return}
+  allRows=Array.isArray(rows)?rows:[];message("Transaction history updated.","ok");render();
+ }catch(err){console.error(err);$("emptyState").textContent="Unable to load transactions.";message("Something went wrong while loading transactions. Please try again.","error")}
+ finally{loading=false;$("refreshButton").disabled=false;$("refreshButton").textContent="↻ Refresh"}
+}
+$("refreshButton").addEventListener("click",load);$("typeFilter").addEventListener("change",render);$("statusFilter").addEventListener("change",render);load();
+})();
+</script>
+</body>
+</html>
