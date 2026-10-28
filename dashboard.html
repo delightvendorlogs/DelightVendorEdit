@@ -120,6 +120,18 @@
       transform: translateY(-1px);
     }
 
+    .notification-badge {
+      position:absolute; right:-5px; top:-5px; min-width:19px; height:19px;
+      padding:0 5px; border-radius:20px; display:flex; align-items:center;
+      justify-content:center; background:#e7b84b; color:#171107;
+      border:2px solid #090909; font-size:10px; line-height:1; font-weight:900;
+    }
+    .nav-unread-badge {
+      margin-left:auto; min-width:18px; height:18px; padding:0 5px;
+      border-radius:20px; display:inline-flex; align-items:center; justify-content:center;
+      background:#e7b84b; color:#171107; font-size:10px; font-weight:900;
+    }
+
     .hamburger {
       display: flex;
       flex-direction: column;
@@ -1214,7 +1226,7 @@
       <div class="topbar-right">
         <a class="icon-btn" href="notifications.html" aria-label="Notifications" title="Notifications">
           <span aria-hidden="true">♧</span>
-          <span id="notificationDot" style="display:none;position:absolute;right:7px;top:7px;width:7px;height:7px;border-radius:50%;background:#e7b84b"></span>
+          <span id="notificationBadge" class="notification-badge" style="display:none">0</span>
         </a>
         <span class="topbar-label">Welcome back</span>
         <a class="avatar" id="profileAvatar" href="profile.html" aria-label="My profile">D</a>
@@ -1551,7 +1563,7 @@
 
       function navMarkup() {
         const links = navItems.map(item =>
-          `<a class="nav-link${item.active ? " active" : ""}" href="${item.href}"><span class="nav-icon">${item.icon}</span><span>${item.label}</span></a>`
+`<a class="nav-link${item.active ? " active" : ""}" href="${item.href}"><span class="nav-icon">${item.icon}</span><span>${item.label}</span>${item.label === "Notifications" ? '<span class="nav-unread-badge" data-nav-unread-badge style="display:none">0</span>' : ""}</a>`
         ).join("");
 
         return links + `
@@ -1825,6 +1837,8 @@ async function loadWallet(userId) {
             `Welcome back, ${displayName}`;
 
           document.getElementById("profileAvatar").textContent = initials(user);
+          await loadUnreadNotifications(user.id);
+          watchUnreadNotifications(user.id);
 
           document.getElementById("loadingScreen").style.display = "none";
           document.getElementById("appShell").hidden = false;
