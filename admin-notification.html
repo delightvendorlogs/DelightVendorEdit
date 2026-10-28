@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080808">
+<meta name="description" content="Send account notifications to DelightVendorEdit users."><title>Admin Notifications — DelightVendorEdit</title>
+<link rel="icon" type="image/png" href="assets/dv-logo.png"><link rel="apple-touch-icon" href="assets/dv-logo.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--bg:#080808;--panel:#121212;--panel2:#191919;--gold:#e7b84b;--gold2:#f5d47e;--text:#f5f3ed;--muted:#a6a39b;--line:#303030;--red:#ff9292;--green:#8ce5a8}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#211b0c,transparent 48%),var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px clamp(13px,4vw,42px);border-bottom:1px solid var(--line);background:#0c0c0c}.brand{display:flex;align-items:center;gap:10px;font-size:clamp(15px,2.6vw,21px);font-weight:800}.brand img{width:39px;height:39px;object-fit:contain}a{color:var(--gold2);text-decoration:none}
+main{width:min(1100px,95%);margin:26px auto 55px}h1{font-size:clamp(25px,5vw,35px);margin:0 0 8px}.muted{color:var(--muted);font-size:13px;line-height:1.6;margin:0}.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,.9fr);gap:18px;margin-top:22px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}.panel h2{font-size:17px;margin:0 0 16px}.field{display:grid;gap:7px;margin-bottom:15px}.field label,.field-label{font-size:12px;color:#d8d4c8;font-weight:700}.field input,.field textarea,.field select,.search{width:100%;background:#0d0d0d;border:1px solid #393939;border-radius:10px;padding:12px;color:var(--text);outline:none}.field textarea{min-height:145px;resize:vertical;line-height:1.6}.field input:focus,.field textarea:focus,.search:focus{border-color:var(--gold)}.hint{font-size:11px;color:var(--muted);line-height:1.5}.btn{border:1px solid #393939;border-radius:10px;padding:11px 14px;background:var(--panel2);color:var(--text);font-size:12px;font-weight:700}.primary{background:var(--gold);color:#171107;border-color:var(--gold)}.status{min-height:20px;margin:12px 0;font-size:12px;color:var(--muted);line-height:1.6}.status.error{color:var(--red)}.status.success{color:var(--green)}.recipient-tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.recipient-summary{font-size:12px;color:var(--gold2);margin:10px 0}.users{display:grid;gap:7px;max-height:450px;overflow:auto;margin-top:12px}.user{display:flex;align-items:flex-start;gap:10px;padding:11px;border:1px solid var(--line);border-radius:10px;background:#0d0d0d}.user input{accent-color:var(--gold);margin-top:3px;width:16px;height:16px;flex-shrink:0}.user-details{min-width:0;overflow-wrap:anywhere}.user-details strong{display:block;font-size:12px}.user-details small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.all-row{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #5b481d;background:#211b0e;border-radius:10px;font-size:12px;font-weight:700}.all-row input{accent-color:var(--gold);width:17px;height:17px}.preview{display:none;max-width:100%;max-height:200px;object-fit:contain;border:1px solid var(--line);border-radius:10px;margin-top:10px}.preview.show{display:block}.counter{font-size:11px;color:var(--muted);text-align:right}.foot{color:#777;text-align:center;padding:20px;font-size:12px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.panel{padding:15px}main{margin-top:20px}.users{max-height:340px}header{padding:12px}.brand img{width:34px;height:34px}}
+</style></head>
+<body>
+<header><a class="brand" href="dashboard.html"><img src="assets/dv-logo.png" alt="DV logo"><span>DelightVendorEdit</span></a><a href="dashboard.html" style="font-size:12px;font-weight:700">← Dashboard</a></header>
+<main>
+<h1>Admin Notifications</h1><p class="muted">Compose a message, optionally attach an image, and send it to all customers or only the users you select.</p>
+<div id="status" class="status" role="status" aria-live="polite">Checking administrator access…</div>
+<div class="grid">
+<section class="panel"><h2>Compose notification</h2>
+<form id="sendForm">
+<div class="field"><label for="title">Notification title</label><input id="title" maxlength="160" required placeholder="e.g. Important account update"><div class="counter" id="titleCount">0/160</div></div>
+<div class="field"><label for="message">Message</label><textarea id="message" maxlength="5000" required placeholder="Write the message your customers will see…"></textarea><div class="counter" id="messageCount">0/5000</div></div>
+<div class="field"><label for="category">Category</label><select id="category"><option value="announcement">Announcement</option><option value="account">Account update</option><option value="wallet">Wallet</option><option value="purchase">Purchase</option><option value="maintenance">Maintenance</option><option value="promotion">Promotion</option></select></div>
+<div class="field"><label for="image">Image (optional)</label><input id="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><div class="hint">JPG, PNG, WEBP or GIF. Maximum 5 MB. The image will appear inside the customer's notification.</div><img id="imagePreview" class="preview" alt="Selected notification image"><button id="removeImage" class="btn" type="button" style="display:none;margin-top:8px">Remove image</button></div>
+<button id="sendButton" class="btn primary" type="submit" style="width:100%">Send notification</button>
+</form></section>
+<section class="panel"><h2>Choose recipients</h2>
+<label class="all-row"><input type="checkbox" id="allUsers"><span>Send to all users</span></label>
+<div class="recipient-tools"><button class="btn" id="selectVisible" type="button">Select search results</button><button class="btn" id="clearSelection" type="button">Clear selection</button><button class="btn" id="reloadUsers" type="button">Refresh users</button></div>
+<div class="field"><label for="searchUsers">Search users by name, email or account ID</label><input id="searchUsers" class="search" type="search" placeholder="Start typing to find a user…"></div>
+<div class="recipient-summary" id="recipientSummary">Loading users…</div>
+<div id="users" class="users"><div class="muted">Loading user list…</div></div>
+<p class="hint" style="margin-top:12px">When you select specific users, only those accounts receive the message. Administrator accounts are excluded from the recipient list.</p>
+</section>
+</div>
+</main><footer class="foot">© <span id="year"></span> DelightVendorEdit</footer>
+<script>
+(() => {
+"use strict";
+const URL="https://genlmqzkjouinofkitqt.supabase.co",KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
+const db=window.supabase.createClient(URL,KEY);
+const $=id=>document.getElementById(id);
+let allUsers=[],selected=new Set(),isAdmin=false,sending=false;
+$("year").textContent=new Date().getFullYear();
+function setStatus(t,type=""){ $("status").textContent=t;$("status").className="status"+(type?" "+type:"");}
+function visibleUsers(){const q=$("searchUsers").value.trim().toLowerCase();return allUsers.filter(u=>!q||[u.display_name,u.email,u.id].some(v=>String(v||"").toLowerCase().includes(q)));}
+async function invoke(body){const {data,error}=await db.functions.invoke("admin-notification",{body});if(error){let msg=error.message||"Request failed";try{const ctx=error.context;if(ctx&&typeof ctx.json==="function"){const d=await ctx.json();if(d.error)msg=d.error;}}catch{}throw new Error(msg);}if(data?.error)throw new Error(data.error);return data;}
+function renderUsers(){
+ const list=$("users"),visible=visibleUsers();list.replaceChildren();
+ if(!visible.length){const p=document.createElement("p");p.className="muted";p.textContent=allUsers.length?"No users match this search.":"No customer accounts were found.";list.append(p);}
+ visible.forEach(u=>{
+  const label=document.createElement("label");label.className="user";
+  const cb=document.createElement("input");cb.type="checkbox";cb.checked=selected.has(u.id)||$("allUsers").checked;cb.disabled=$("allUsers").checked;
+  cb.addEventListener("change",()=>{if(cb.checked)selected.add(u.id);else selected.delete(u.id);updateSummary();});
+  const detail=document.createElement("span");detail.className="user-details";
+  const name=document.createElement("strong");name.textContent=u.display_name||"Unnamed user";
+  const email=document.createElement("small");email.textContent=u.email||"No email on file";
+  const id=document.createElement("small");id.textContent="ID: "+u.id;
+  detail.append(name,email,id);label.append(cb,detail);list.append(label);
+ });
+ updateSummary();
+}
+function updateSummary(){
+ const n=selected.size;
+ $("recipientSummary").textContent=$("allUsers").checked?"All "+allUsers.length+" eligible user(s) selected.":n+" user(s) selected.";
+ $("sendButton").textContent=$("allUsers").checked?"Send to all users":n?"Send to "+n+" selected user(s)":"Send notification";
+}
+async function loadUsers(){
+ $("reloadUsers").disabled=true;$("users").textContent="Loading users…";setStatus("Loading users…");
+ try{const data=await invoke({action:"list_users"});allUsers=data.users||[];selected=new Set([...selected].filter(id=>allUsers.some(u=>u.id===id)));renderUsers();setStatus("Loaded "+allUsers.length+" eligible user(s).","success");}
+ catch(e){console.error(e);$("users").textContent="Could not load users.";setStatus(e.message+" If this account should be an admin, verify its user_roles entry.","error");}
+ finally{$("reloadUsers").disabled=false;}
+}
+$("allUsers").addEventListener("change",()=>{if($("allUsers").checked)selected.clear();renderUsers();});
+$("searchUsers").addEventListener("input",renderUsers);
+$("selectVisible").addEventListener("click",()=>{if($("allUsers").checked){$("allUsers").checked=false;}visibleUsers().forEach(u=>selected.add(u.id));renderUsers();});
+$("clearSelection").addEventListener("click",()=>{selected.clear();$("allUsers").checked=false;renderUsers();});
+$("reloadUsers").addEventListener("click",loadUsers);
+$("title").addEventListener("input",()=>$("titleCount").textContent=$("title").value.length+"/160");
+$("message").addEventListener("input",()=>$("messageCount").textContent=$("message").value.length+"/5000");
+let imageFile=null;
+$("image").addEventListener("change",()=>{
+ const f=$("image").files?.[0]||null;imageFile=f;
+ if(!f){$("imagePreview").classList.remove("show");$("removeImage").style.display="none";return;}
+ if(!["image/jpeg","image/png","image/webp","image/gif"].includes(f.type)||f.size>5*1024*1024){
+  imageFile=null;$("image").value="";$("imagePreview").classList.remove("show");$("removeImage").style.display="none";
+  setStatus("Choose a JPG, PNG, WEBP or GIF image no larger than 5 MB.","error");return;
+ }
+ $("imagePreview").src=URL.createObjectURL(f);$("imagePreview").classList.add("show");$("removeImage").style.display="inline-block";setStatus("Image attached. It will be sent with the notification.");
+});
+$("removeImage").addEventListener("click",()=>{imageFile=null;$("image").value="";$("imagePreview").removeAttribute("src");$("imagePreview").classList.remove("show");$("removeImage").style.display="none";});
+function toBase64(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(",")[1]||"");reader.onerror=()=>reject(new Error("Could not read the selected image."));reader.readAsDataURL(file);});}
+$("sendForm").addEventListener("submit",async event=>{
+ event.preventDefault();if(sending)return;
+ const title=$("title").value.trim(),message=$("message").value.trim(),sendAll=$("allUsers").checked;
+ if(!title||!message){setStatus("Enter both a title and a message.","error");return;}
+ if(!sendAll&&!selected.size){setStatus("Select all users or choose at least one recipient.","error");return;}
+ const recipients=[...selected];const summary=sendAll?"all "+allUsers.length+" eligible users":recipients.length+" selected user(s)";
+ if(!confirm("Send this notification to "+summary+"?"))return;
+ sending=true;$("sendButton").disabled=true;$("reloadUsers").disabled=true;setStatus("Sending notification. Please wait…");
+ try{
+  const payload={action:"send",title,message,category:$("category").value,send_to_all:sendAll,recipient_user_ids:sendAll?[]:recipients};
+  if(imageFile){payload.image_base64=await toBase64(imageFile);payload.image_mime=imageFile.type;}
+  const result=await invoke(payload);
+  setStatus("Success! Notification sent to "+result.sent+" user(s).","success");
+  $("title").value="";$("message").value="";$("titleCount").textContent="0/160";$("messageCount").textContent="0/5000";
+  $("image").value="";imageFile=null;$("imagePreview").removeAttribute("src");$("imagePreview").classList.remove("show");$("removeImage").style.display="none";
+  selected.clear();$("allUsers").checked=false;renderUsers();
+ }catch(e){console.error(e);setStatus("Notification was not confirmed as sent: "+e.message,"error");}
+ finally{sending=false;$("sendButton").disabled=false;$("reloadUsers").disabled=false;updateSummary();}
+});
+async function init(){
+ try{const {data,error}=await db.auth.getUser();if(error||!data?.user){location.replace("login.html");return;}
+  const {data:role,error:roleError}=await db.from("user_roles").select("role").eq("user_id",data.user.id).eq("role","admin").maybeSingle();
+  if(roleError)throw roleError;if(!role){setStatus("Access denied. This account is not marked as an administrator.","error");$("sendButton").disabled=true;return;}
+  isAdmin=true;await loadUsers();
+ }catch(e){console.error(e);setStatus("Could not verify admin access: "+e.message,"error");}
+}
+init();
+})();
+</script>
+</body></html>
