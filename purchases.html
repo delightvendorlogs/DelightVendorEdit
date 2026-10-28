@@ -29,7 +29,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
 <main>
 <section class="hero">
 <div><p class="eyebrow">Your account</p><h1>My Purchases</h1><p class="subtitle">Keep track of your orders, check their latest status, and return to the marketplace whenever you’re ready.</p></div>
-<div class="hero-actions"><a class="btn primary" href="services.html">Explore services <span aria-hidden="true">→</span></a><button class="btn" id="refreshBtn" type="button">↻ Refresh</button></div>
+<div class="hero-actions"><a class="btn primary" href="dashboard.html">Explore services <span aria-hidden="true">→</span></a><button class="btn" id="refreshBtn" type="button">↻ Refresh</button></div>
 </section>
 <section class="summary" aria-label="Purchase summary">
 <div class="metric"><div class="metric-label">Total orders shown</div><div class="metric-value" id="totalCount">—</div></div>
@@ -77,7 +77,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
     const el=$("statusMessage"); el.textContent=message; el.className="status show "+kind;
   }
   function empty(title, message, button=false) {
-    $("ordersList").innerHTML = '<div class="empty"><div class="empty-icon">◷</div><h3>'+escapeHTML(title)+'</h3><p>'+escapeHTML(message)+'</p>'+(button?'<a class="btn primary" href="services.html">Browse services →</a>':"")+'</div>';
+    $("ordersList").innerHTML = '<div class="empty"><div class="empty-icon">◷</div><h3>'+escapeHTML(title)+'</h3><p>'+escapeHTML(message)+'</p>'+(button?'<a class="btn primary" href="dashboard.html">Browse services →</a>':"")+'</div>';
   }
   function statusClass(status) {
     const s=normal(status);
