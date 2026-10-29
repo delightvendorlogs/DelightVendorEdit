@@ -1871,25 +1871,46 @@ async function loadWallet(userId) {
 
 
       async function loadApprovedListings() {
-        // Product columns/status names are intentionally not guessed here.
-        // Once the final products schema is confirmed, connect this panel to its approved-public listing query.
         const resultNode = document.getElementById("sellerResults");
         const search = document.getElementById("sellerSearch");
-
-        search.addEventListener("input", () => {
-          if (!search.value.trim()) return;
-
-          showToast(
-            "Seller search will work when the approved listings catalogue is connected."
-          );
-        }, { once: true });
-
-        resultNode.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon">◇</div>
-            <strong>Seller listings will appear here</strong>
-            <p>The approved-listings catalogue is not connected yet. Once the public product fields and approval status are finalized, only approved and published products will be loaded here.</p>
-          </div>`;
+        let listings = [];
+        function renderListings() {
+          const term = (search.value || "").trim().toLowerCase();
+          const rows = listings.filter(function(p) {
+            return (String(p.title || "") + " " + String(p.description || "")).toLowerCase().includes(term);
+          });
+          if (!rows.length) {
+            resultNode.innerHTML = '<div class="empty-state"><div class="empty-icon">◇</div><strong>' +
+              (listings.length ? 'No matching seller products' : 'No seller listings yet') +
+              '</strong><p>' + (listings.length ? 'Try another search.' : 'Approved and published products will appear here.') +
+              '</p><a class="text-link" href="explore-sellers.html">Open marketplace ↗</a></div>';
+            return;
+          }
+          resultNode.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px">' +
+            rows.slice(0, 3).map(function(p) {
+              const img = p.image_path ? client.storage.from("seller-product-images").getPublicUrl(p.image_path).data.publicUrl : "";
+              return '<article style="border:1px solid var(--line);border-radius:13px;background:#0b0b0b;overflow:hidden;min-width:0">' +
+                (img ? '<img src="' + escapeHTML(img) + '" alt="" loading="lazy" style="width:100%;height:130px;object-fit:cover;background:#181818">' : '') +
+                '<div style="padding:13px"><strong style="display:block;overflow-wrap:anywhere">' + escapeHTML(p.title) + '</strong>' +
+                (p.description ? '<p style="font-size:12px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere">' + escapeHTML(p.description) + '</p>' : '') +
+                '<div style="font-weight:900;color:var(--gold);font-size:18px;margin:8px 0">₦' + Number(p.price || 0).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
+                '<a class="text-link" href="explore-sellers.html">View &amp; buy ↗</a></div></article>';
+            }).join("") + '</div><div style="margin-top:14px"><a class="text-link" href="explore-sellers.html">Explore all seller products ↗</a></div>';
+        }
+        search.addEventListener("input", renderListings);
+        try {
+          const result = await client.from("products")
+            .select("id,title,description,image_path,price,listing_status,created_at")
+            .eq("listing_status", "published")
+            .order("created_at", { ascending: false })
+            .limit(6);
+          if (result.error) throw result.error;
+          listings = result.data || [];
+          renderListings();
+        } catch (error) {
+          console.warn("Seller marketplace preview could not load:", error?.message || error);
+          resultNode.innerHTML = '<div class="empty-state"><strong>Seller listings are temporarily unavailable</strong><p>Please open the marketplace or refresh the dashboard.</p><a class="text-link" href="explore-sellers.html">Open marketplace ↗</a></div>';
+        }
       }
 
       async function start() {
