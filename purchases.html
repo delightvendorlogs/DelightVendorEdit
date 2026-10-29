@@ -171,6 +171,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
       const knownReferences = new Set(orderRows.map(row => row.payment_reference).filter(Boolean).map(String));
       const fallbackRows = (transactionResult.data || [])
         .filter(tx => !tx.reference || !knownReferences.has(String(tx.reference)))
+        .filter(tx => !/flight[- ]?ticket|flight itinerary pdf/i.test(String(tx.metadata?.category || "")+" "+String(tx.description || "")))
         .filter(tx => Boolean(tx.metadata?.category) || /DelightVendorEdit/i.test(String(tx.description || "")))
         .map(tx => {
           const meta = tx.metadata && typeof tx.metadata === "object" ? tx.metadata : {};
