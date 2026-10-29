@@ -64,7 +64,7 @@ async function loadAll(){
  ]);
  if(pr.error)throw pr.error;if(wr.error)throw wr.error;if(pe.error)throw pe.error;if(rr.error)throw rr.error;if(ww.error)throw ww.error;
  profile=pr.data;const code=profile&&profile.referral_code;if(!code)throw new Error("Your referral code is not ready yet. Please refresh or contact support.");
- $("refCode").value=code;$("refLink").value=location.origin+location.pathname.replace(/[^/]*$/,"")+"register.html?ref="+encodeURIComponent(code);
+  const {data:baseUrl,error:baseError}=await db.rpc("get_referral_base_url");if(baseError)throw baseError;const base=String(baseUrl||"https://delightvendorlogs.github.io/DelightVendorEdit/").trim();$("refCode").value=code;$("refLink").value=base.replace(/\/?$/,"/")+"register.html?ref="+encodeURIComponent(code);
  $("balance").textContent=money(wr.data?.available_balance||0);$("balanceHint").textContent=Number(wr.data?.reserved_balance||0)>0?money(wr.data.reserved_balance)+" reserved for pending bank withdrawal(s)":"Available to withdraw";
  people=pe.data||[];rewards=rr.data||[];withdrawals=ww.data||[];renderPeople();renderEarnings();renderHistory();
 }
