@@ -48,7 +48,7 @@ if(!visible.length){const e=document.createElement("div");e.className="empty";e.
 visible.forEach(n=>{const b=document.createElement("button");b.type="button";b.className="item "+(n.is_read?"read":"unread");
 const dot=document.createElement("span");dot.className="dot";dot.setAttribute("aria-hidden","true");
 const main=document.createElement("span");main.className="item-main";const h=document.createElement("h2");h.textContent=n.title||"Notification";
-const p=document.createElement("p");const msg=String(n.message||"");p.textContent=msg.length>150?msg.slice(0,150).trimEnd()+"…":msg;
+const p=document.createElement("p");const msg=String(n.message||"");const preview=msg.replace(/https:\/\/[^\s<>"\']+/gi,"click here");p.textContent=preview.length>150?preview.slice(0,150).trimEnd()+"…":preview;
 const meta=document.createElement("span");meta.className="meta";meta.textContent=date(n.created_at)+" · "+(n.is_read?"Read":"Unread");main.append(h,p,meta);b.append(dot,main);
 if(n.image_url){const im=document.createElement("img");im.className="thumb";im.src=n.image_url;im.alt="";im.loading="lazy";im.addEventListener("error",()=>im.remove());b.append(im)}
 b.addEventListener("click",()=>openDetail(n.id));list.append(b)});
