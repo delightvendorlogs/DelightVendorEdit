@@ -155,29 +155,46 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
       return '<article class="order"><div><div class="order-title">'+escapeHTML(name)+'</div><div class="order-id">'+(id ? "Order #"+escapeHTML(id) : "Order reference unavailable")+'</div><div class="order-meta"><span>🗓 '+escapeHTML(dateText(date))+'</span>'+(extra?'<span>'+escapeHTML(extra)+'</span>':"")+'</div>'+deliveryHtml+'</div><div class="order-side"><div class="amount">'+escapeHTML(money(amount))+'</div><span class="badge '+statusClass(status)+'">'+escapeHTML(status)+'</span></div></article>';
     }).join("");
   }
-  async function promptWebsiteReviews(orders) {
-    for (const order of (orders||[])) {
-      if (!/completed|success/.test(normal(order.order_status)) || !/verified|paid|completed/.test(normal(order.payment_status))) continue;
-      for (const item of (Array.isArray(order.order_items)?order.order_items:[])) {
-        if (!item.id || item.item_source === "seller_product") continue;
-        const key="dv-website-review-"+item.id;
-        if (localStorage.getItem(key)==="submitted" || localStorage.getItem(key)==="never") continue;
-        const choice=prompt("How was your DelightVendorEdit purchase?\n\nType REVIEW to leave feedback, LATER to be reminded next time, or NO to stop asking for this purchase.","REVIEW");
-        if (choice===null || /^later$/i.test(String(choice).trim())) continue;
-        if (/^no$/i.test(String(choice).trim())) { localStorage.setItem(key,"never"); continue; }
-        if (!/^review$/i.test(String(choice).trim())) continue;
-        const review=prompt("Write your review (3–1,200 characters):","");
-        if (!review || review.trim().length<3) continue;
-        try {
-          const {error}=await db.rpc("submit_website_review",{p_order_item_id:item.id,p_review_text:review.trim()});
-          if(error) throw error;
-          localStorage.setItem(key,"submitted");
-          alert("Thank you! Your review has been sent to the team for approval. It will appear on the dashboard only after it is published.");
-        } catch(error) {
-          if(/already been submitted/i.test(error.message||"")) localStorage.setItem(key,"submitted");
-          else alert("Your purchase is safe, but the review could not be submitted: "+(error.message||"Please try again later."));
-        }
+  async function promptWebsiteReviews(orders, transactions) {
+    async function ask(key, submit) {
+      let state={};
+      try { state=JSON.parse(localStorage.getItem(key)||"{}"); } catch(_) {}
+      if(state.state==="submitted"||state.state==="never"||(state.state==="later"&&Number(state.nextAt)>Date.now())) return;
+      const choice=prompt("How was your DelightVendorEdit purchase?\n\nType REVIEW to leave feedback, LATER to be reminded in 3 days, or NO to stop asking for this purchase.","REVIEW");
+      if(choice===null||/^later$/i.test(String(choice).trim())) {
+        localStorage.setItem(key,JSON.stringify({state:"later",nextAt:Date.now()+3*24*60*60*1000}));
+        return;
       }
+      if(/^no$/i.test(String(choice).trim())) { localStorage.setItem(key,JSON.stringify({state:"never"})); return; }
+      if(!/^review$/i.test(String(choice).trim())) return;
+      const review=prompt("Write your review (3–1,200 characters):","");
+      if(!review||review.trim().length<3) return;
+      try {
+        await submit(review.trim());
+        localStorage.setItem(key,JSON.stringify({state:"submitted"}));
+        alert("Thank you! Your review has been sent for admin approval. It will appear publicly only after it is published.");
+      } catch(error) {
+        if(/already been submitted/i.test(error.message||"")) localStorage.setItem(key,JSON.stringify({state:"submitted"}));
+        else alert("Your purchase is safe, but the review could not be submitted: "+(error.message||"Please try again later."));
+      }
+    }
+    for(const order of (orders||[])) {
+      if(!/completed|success/i.test(normal(order.order_status))||!/verified|paid|completed|success/i.test(normal(order.payment_status))) continue;
+      for(const item of (Array.isArray(order.order_items)?order.order_items:[])) {
+        if(!item.id||item.item_source==="seller_product"||!/delivered|completed|success/i.test(normal(item.fulfillment_status))) continue;
+        await ask("dv-website-review-item-"+item.id,async text=>{
+          const {error}=await db.rpc("submit_website_review",{p_order_item_id:item.id,p_review_text:text});
+          if(error)throw error;
+        });
+      }
+    }
+    for(const tx of (transactions||[])) {
+      if(tx.transaction_type!=="purchase"||tx.status!=="completed") continue;
+      if(tx.metadata&&tx.metadata.seller_marketplace) continue;
+      await ask("dv-website-review-tx-"+tx.id,async text=>{
+        const {error}=await db.rpc("submit_website_transaction_review",{p_transaction_id:tx.id,p_review_text:text});
+        if(error)throw error;
+      });
     }
   }
 
@@ -248,7 +265,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
       else if(transactionResult.error) showStatus("Order history loaded, but wallet purchase history could not be checked: "+transactionResult.error.message,"error");
       else showStatus("You’re signed in. No purchase records were found for this account yet.","info");
       render();
-      await promptWebsiteReviews(orderRows);
+      await promptWebsiteReviews(orderRows, transactionResult.data || []);
     } catch(error) {
       console.error(error);
       showStatus(error?.message || "Could not load purchase history. Please try again.","error");
