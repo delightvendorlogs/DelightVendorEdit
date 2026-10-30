@@ -76,4 +76,5 @@ $("changeRequests").innerHTML=changeRequests.length?changeRequests.map(r=>'<arti
 async function init(){try{await window.__dvSupabaseReady;db=window.supabase.createClient(SUPABASE_URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});const {data,error}=await db.auth.getUser();if(error)throw error;if(!data.user){location.replace("login.html?redirect="+encodeURIComponent("sell.html"));return}user=data.user;const {data:profile}=await db.from("profiles").select("display_name,email").eq("id",user.id).maybeSingle();$("sellerName").value=profile&&profile.display_name||"";$("sellerEmail").value=profile&&profile.email||user.email||"";const {data:accountData}=await db.from("seller_payout_accounts").select("bank_name,account_name,account_number").eq("seller_user_id",user.id).eq("is_default",true).maybeSingle();if(accountData){$("bankName").value=accountData.bank_name||"";$("accountName").value=accountData.account_name||"";$("accountNumber").value=accountData.account_number||"";}pageMsg("Signed in as "+(user.email||"your account"),"ok");$("app").classList.remove("hidden");}catch(e){pageMsg(e.message||"Could not load the seller centre.","error")}}
 init();
 })();
-</script></body></html>
+</script><script src="assets/site-announcement.js" defer></script>
+</body></html>
