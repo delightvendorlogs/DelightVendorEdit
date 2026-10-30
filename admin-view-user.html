@@ -92,4 +92,5 @@ $("reloadDetail").addEventListener("click",()=>selectUser(id));
 $("search").addEventListener("input",renderUsers);$("refreshUsers").addEventListener("click",async()=>{try{await loadUsers();setStatus("User list refreshed.","ok")}catch(e){setStatus("Could not refresh users: "+e.message,"error")}});
 try{await window.__dvSupabaseReady;db=window.supabase.createClient(URL,KEY);const {data,error}=await db.auth.getUser();if(error)throw error;if(!data.user){location.replace("login.html?redirect="+encodeURIComponent("admin-view-user.html"));return}adminUser=data.user;const {data:ok,error:ae}=await db.rpc("is_admin");if(ae)throw ae;if(!ok){setStatus("Access denied. This page is for administrators only.","error");return}$("app").classList.remove("hidden");setStatus("Admin access verified.","ok");await loadUsers()}catch(e){setStatus("Could not verify admin access: "+(e.message||"Unknown error"),"error")}
 })();
-</script></body></html>
+</script><script src="assets/site-announcement.js" defer></script>
+</body></html>
