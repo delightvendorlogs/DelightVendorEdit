@@ -35,4 +35,5 @@ async function reviewChange(id,decision){let reason=null;if(decision==="reject")
 async function init(){try{await window.__dvSupabaseReady;db=window.supabase.createClient(SUPABASE_URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});const a=await db.auth.getUser();if(a.error)throw a.error;if(!a.data.user){location.replace("login.html?redirect="+encodeURIComponent("admin-seller.html"));return}user=a.data.user;const r=await db.rpc("is_admin");if(r.error)throw r.error;if(!r.data){status("status","Access denied. This page is for administrators only.","error");return}$("adminApp").classList.remove("hidden");status("status","Admin access verified.","ok");await loadAll()}catch(e){status("status","Could not verify admin access: "+e.message,"error")}}
 init();
 })();
-</script></body></html>
+</script><script src="assets/site-announcement.js" defer></script>
+</body></html>
