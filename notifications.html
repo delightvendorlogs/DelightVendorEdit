@@ -90,4 +90,5 @@ async function init(){const {data,error}=await db.auth.getUser();if(error||!data
 window.addEventListener("beforeunload",()=>{if(channel)db.removeChannel(channel)});init();
 })();
 </script>
+<script src="assets/site-announcement.js" defer></script>
 </body></html>
