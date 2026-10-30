@@ -47,7 +47,7 @@ function renderMessageLinks(target,message){
   while(/[.,!?;:)}\]]$/.test(url))url=url.slice(0,-1);
   if(m.index>pos)target.append(document.createTextNode(text.slice(pos,m.index)));
   try{
-   const parsed=new URL(url);
+   const parsed=new window.URL(url);
    if(parsed.protocol==="https:"&&parsed.hostname){
     const a=document.createElement("a");
     a.href=parsed.href;
