@@ -1,6 +1,20 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Service Catalogue Admin — DelightVendorEdit</title><link rel="icon" href="assets/dv-logo.png"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>
 :root{color-scheme:dark;--gold:#e9bd53;--muted:#aaa69b}*{box-sizing:border-box}body{margin:0;background:#080808;color:#f7f4ec;font:14px/1.5 system-ui,sans-serif}a{color:var(--gold);text-decoration:none}.nav,.wrap{max-width:1100px;margin:auto;padding:16px}.nav{display:flex;gap:12px;align-items:center;border-bottom:1px solid #292929}.brand{display:flex;align-items:center;gap:9px;color:#fff;font-weight:800}.brand img{width:34px;height:34px;object-fit:contain}.links{margin-left:auto;display:flex;gap:14px}.panel,.item{background:#111;border:1px solid #302a1c;border-radius:13px;padding:15px;margin:12px 0}.item{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(100px,.7fr)) auto;gap:10px;align-items:end}.muted{color:var(--muted)}button{border:1px solid #73591f;border-radius:9px;padding:10px 13px;background:var(--gold);color:#171208;font-weight:800;cursor:pointer}.status{white-space:pre-wrap;background:#191919;border:1px solid #333;border-radius:10px;padding:10px;margin:12px 0}input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #444;background:#080808;color:#fff}label{display:block;color:#ddd;font-size:12px;margin-bottom:5px}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.item strong{display:block}.item small{color:var(--muted)}@media(max-width:760px){.item{grid-template-columns:1fr 1fr}.item .name{grid-column:1/-1}.links{gap:8px;font-size:12px}}
 </style></head><body><header class="nav"><a class="brand" href="admin.html"><img src="assets/dv-logo.png" alt="DV logo">DelightVendorEdit · Service Admin</a><div class="links"><a href="admin.html">Main Admin</a><a href="admin-pricing.html">Pricing</a></div></header><main class="wrap"><h1>Services catalogue & pricing</h1><p class="muted">Refresh the supplier catalogue, enable only services you want to sell, and set a fixed price or markup for each service.</p><div class="panel"><div class="row"><button id="sync">Refresh from TheGiftUNC</button><button id="reload">Reload saved services</button></div><div id="status" class="status">Checking admin access…</div></div><div id="list"></div></main><script>
+// Keep Services pages compatible with the same legacy-to-standard session migration used by login and dashboard.
+try {
+  const standardKey = "sb-genlmqzkjouinofkitqt-auth-token";
+  const previousKey = "delightvendoredit-auth";
+  if (!localStorage.getItem(standardKey)) {
+    const previousSession = localStorage.getItem(previousKey);
+    if (previousSession) localStorage.setItem(standardKey, previousSession);
+  }
+} catch (storageError) { console.warn("Session migration unavailable:", storageError); }
+if (!window.supabase || typeof window.supabase.createClient !== "function") {
+  const node = document.getElementById("status");
+  if (node) node.textContent = "Supabase sign-in library did not load. Check your connection and reload this page.";
+  throw new Error("Supabase client library unavailable");
+}
 const URL="https://genlmqzkjouinofkitqt.supabase.co",KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv",db=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});const $=id=>document.getElementById(id);let rows=[];
 async function call(action,body={}){const {data,error}=await db.functions.invoke("thegiftunc-proxy",{body:{action,body}});if(error)throw error;if(data?.error)throw Error(data.error);return data}
 function status(t,bad=false){$("status").textContent=t;$("status").style.borderColor=bad?"#703b3b":"#333"}
