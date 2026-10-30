@@ -17,4 +17,5 @@ async function init(){try{db=window.supabase.createClient(URL,KEY,{auth:{persist
 $("save").addEventListener("click",async()=>{if(busy)return;busy=true;$("save").disabled=true;try{const {error}=await db.rpc("save_site_announcement",{p_message:$("message").value.trim(),p_enabled:$("enabled").checked});if(error)throw error;status("Saved successfully. The announcement will appear on eligible pages.");}catch(e){status("Could not save: "+e.message)}finally{busy=false;$("save").disabled=false}});
 init();
 })();
-</script></body></html>
+</script><script src="assets/site-announcement.js" defer></script>
+</body></html>
