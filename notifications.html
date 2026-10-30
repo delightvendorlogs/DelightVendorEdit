@@ -22,7 +22,7 @@ h1{font-size:clamp(25px,4vw,34px);margin:0 0 10px;letter-spacing:-.02em}.muted{c
 .modal{display:none;position:fixed;inset:0;z-index:1000;background:#000b;align-items:center;justify-content:center;padding:16px}.modal.open{display:flex}.detail{width:min(620px,100%);max-height:88dvh;overflow:auto;background:#101010;border:1px solid #493b1c;border-radius:16px;padding:clamp(16px,3vw,24px);padding-bottom:max(18px,env(safe-area-inset-bottom));box-shadow:0 18px 60px #0009}.detail-top{display:flex;gap:10px;align-items:flex-start}.detail-top h2{color:#f5df8d;margin:0;flex:1;overflow-wrap:anywhere;font-size:clamp(18px,3vw,24px)}.close{background:#211d10;border:1px solid #665323;color:var(--gold);border-radius:8px;font-size:20px;width:34px;height:34px;cursor:pointer;flex:0 0 34px}.detail-message{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;color:#eee5cd;font-size:14px;margin:16px 0}.detail-image{display:block;width:auto;max-width:100%;max-height:48vh;object-fit:contain;border-radius:9px;margin:14px auto}.detail-image[hidden]{display:none!important}.detail-date{font-size:11px;color:var(--muted);margin-top:7px}
 @media(max-width:520px){.top{padding:10px 12px;gap:10px}.back{padding:8px 10px;font-size:12px}.brand{gap:7px}.brand img{width:30px;height:30px}.brand strong{font-size:13px}.wrap{padding:0 10px;margin:14px auto 28px}.panel{padding:15px;border-radius:13px}.actions{gap:6px;margin:16px 0 12px}.filter{padding:8px 11px;font-size:11px}.btn{font-size:11px;padding:8px 10px}.item{padding:11px;border-radius:10px;gap:8px}.thumb{width:48px;height:48px;flex-basis:48px}.detail{border-radius:13px;padding:16px;max-height:90dvh}.detail-message{font-size:14px;margin:14px 0}}
 @media(max-width:360px){.brand strong{font-size:12px}.brand img{width:27px;height:27px}.back{font-size:11px;padding:7px 8px}.panel{padding:12px}.item{padding:9px}.thumb{width:42px;height:42px;flex-basis:42px}}
-</style>
+ .detail-message a{color:#4da3ff;text-decoration:underline;font-weight:800} </style>
 </head>
 <body>
 <header class="top"><a class="back" href="dashboard.html">← Back</a><div class="brand"><img src="assets/dv-logo.png" alt="DV logo"><strong>DelightVendorEdit</strong></div></header>
@@ -37,6 +37,7 @@ h1{font-size:clamp(25px,4vw,34px);margin:0 0 10px;letter-spacing:-.02em}.muted{c
 const URL="https://genlmqzkjouinofkitqt.supabase.co",KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv",db=window.supabase.createClient(URL,KEY),$=id=>document.getElementById(id);
 let userId=null,items=[],filter="all",channel=null,busy=false;
 function say(msg,type="info"){const e=$("notice");e.textContent=msg;e.className="notice show "+type}
+function renderMessageLinks(target,message){target.replaceChildren();const text=String(message||""),re=/https:\/\/[^\s<>"']+/gi;let pos=0,m;while((m=re.exec(text))){let raw=m[0],url=raw;while(/[.,!?;:)\]]$/.test(url))url=url.slice(0,-1);if(m.index>pos)target.append(document.createTextNode(text.slice(pos,m.index)));try{const parsed=new URL(url);if(parsed.protocol==="https:"){const a=document.createElement("a");a.href=parsed.href;a.textContent="click here";a.target="_blank";a.rel="noopener noreferrer";target.append(a);target.append(document.createTextNode(raw.slice(url.length)))}else target.append(document.createTextNode(raw))}catch{target.append(document.createTextNode(raw))}pos=m.index+raw.length}if(pos<text.length)target.append(document.createTextNode(text.slice(pos)))}
 function date(v){const d=new Date(v);return Number.isNaN(d.getTime())?"Date unavailable":d.toLocaleString()}
 async function load(show=true){if(!userId)return;if(show)$("notificationList").innerHTML='<div class="empty">Loading notifications…</div>';
 const {data,error}=await db.from("notifications").select("id,recipient_user_id,title,message,category,is_read,read_at,created_at,image_url").eq("recipient_user_id",userId).order("created_at",{ascending:false}).limit(500);
@@ -53,7 +54,7 @@ if(n.image_url){const im=document.createElement("img");im.className="thumb";im.s
 b.addEventListener("click",()=>openDetail(n.id));list.append(b)});
 const unread=items.filter(n=>!n.is_read).length;$("markAll").disabled=busy||unread===0}
 async function openDetail(id){const n=items.find(x=>String(x.id)===String(id));if(!n)return;
-$("detailTitle").textContent=n.title||"Notification";$("detailDate").textContent=date(n.created_at);$("detailMessage").textContent=n.message||"";
+$("detailTitle").textContent=n.title||"Notification";$("detailDate").textContent=date(n.created_at);renderMessageLinks($("detailMessage"),n.message||"");
 const im=$("detailImage");if(n.image_url){im.src=n.image_url;im.hidden=false}else{im.removeAttribute("src");im.hidden=true}
 $("detailModal").classList.add("open");
 if(!n.is_read){const {error}=await db.from("notifications").update({is_read:true,read_at:new Date().toISOString()}).eq("id",n.id).eq("recipient_user_id",userId);if(error){say("Notification opened, but read status could not be updated.","error");return}n.is_read=true;n.read_at=new Date().toISOString();render()}}
