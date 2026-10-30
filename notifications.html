@@ -43,21 +43,21 @@ function renderMessageLinks(target,message){
  const re=/https:\/\/[^\s<>"']+/gi;
  let pos=0,m;
  while((m=re.exec(text))){
-  let raw=m[0],url=raw;
+  const raw=m[0];
+  let url=raw;
   while(/[.,!?;:)}\]]$/.test(url))url=url.slice(0,-1);
   if(m.index>pos)target.append(document.createTextNode(text.slice(pos,m.index)));
-  try{
-   const parsed=new window.URL(url);
-   if(parsed.protocol==="https:"&&parsed.hostname){
-    const a=document.createElement("a");
-    a.href=parsed.href;
-    a.textContent="click here";
-    a.target="_blank";
-    a.rel="noopener noreferrer";
-    target.append(a);
-    if(raw.length>url.length)target.append(document.createTextNode(raw.slice(url.length)));
-   }else target.append(document.createTextNode(raw));
-  }catch{target.append(document.createTextNode(raw))}
+  if(url.toLowerCase().startsWith("https://")){
+   const a=document.createElement("a");
+   a.setAttribute("href",url);
+   a.textContent="click here";
+   a.target="_blank";
+   a.rel="noopener noreferrer";
+   target.append(a);
+  }else{
+   target.append(document.createTextNode(url));
+  }
+  if(raw.length>url.length)target.append(document.createTextNode(raw.slice(url.length)));
   pos=m.index+raw.length;
  }
  if(pos<text.length)target.append(document.createTextNode(text.slice(pos)));
