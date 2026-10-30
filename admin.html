@@ -27,4 +27,5 @@
 </div><div class="note">Security note: wallet changes are processed by a server-side admin-only function. Each successful adjustment updates the existing shopping wallet and creates a completed transaction and admin audit record. A deduction cannot make the available balance negative.</div></div></main>
 <script>
 (async function(){const URL="https://genlmqzkjouinofkitqt.supabase.co",KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv",$=id=>document.getElementById(id);function status(t,e){$("status").textContent=t;$("status").className="status"+(e?" error":"")}try{await window.__dvSupabaseReady;const db=window.supabase.createClient(URL,KEY);const {data,error}=await db.auth.getUser();if(error)throw error;if(!data.user){location.replace("login.html?redirect="+encodeURIComponent("admin.html"));return}const {data:ok,error:ae}=await db.rpc("is_admin");if(ae)throw ae;if(!ok){status("Access denied. This page is for administrators only.",true);return}$("adminTools").classList.remove("hidden");status("Admin access verified.");}catch(e){status("Could not verify admin access: "+(e.message||"Unknown error"),true)}})();
-</script></body></html>
+</script><script src="assets/site-announcement.js" defer></script>
+</body></html>
