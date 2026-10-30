@@ -1352,7 +1352,9 @@
           </div>
         </section>
 
-        <section aria-labelledby="sellersTitle">
+        <section id="websiteReviewSection" aria-label="Customer reviews" style="margin:22px 0;display:none"><div class="section-head"><div><h2>What customers say</h2><p>Feedback from customers who have used DelightVendorEdit.</p></div></div><article id="websiteReviewCard" style="background:#101010;border:1px solid var(--line);border-radius:15px;padding:18px"><div id="websiteReviewText" style="font-size:15px;line-height:1.7"></div><div id="websiteReviewName" style="color:var(--gold);font-weight:800;margin-top:12px"></div><div id="websiteReviewPosition" style="font-size:11px;color:var(--muted);margin-top:3px"></div></article></section>
+
+<section aria-labelledby="sellersTitle">
           <div class="section-head">
             <div>
               <h2 id="sellersTitle">Explore other sellers</h2>
@@ -1920,7 +1922,9 @@ async function loadWallet(userId) {
         }
       }
 
-      async function start() {
+async function loadWebsiteReviews(){try{const r=await client.rpc("get_public_website_reviews");if(r.error)throw r.error;const rows=r.data&&r.data.reviews||[];if(!r.data?.enabled||!rows.length)return;const section=document.getElementById("websiteReviewSection"),txt=document.getElementById("websiteReviewText"),name=document.getElementById("websiteReviewName"),pos=document.getElementById("websiteReviewPosition");let index=0;function show(){const item=rows[index%rows.length];txt.textContent="“"+item.review_text+"”";name.textContent=item.display_name||"Customer";pos.textContent="Verified customer feedback · "+(index+1)+" of "+rows.length;index++}show();section.style.display="block";if(rows.length>1)setInterval(show,7000)}catch(e){console.warn("Customer reviews unavailable:",e?.message||e)}}
+
+            async function start() {
         try {
           const { data, error } = await client.auth.getSession();
 
@@ -1953,7 +1957,8 @@ async function loadWallet(userId) {
 
           await Promise.all([
             loadWallet(user.id),
-            loadApprovedListings()
+            loadApprovedListings(),
+            loadWebsiteReviews()
           ]);
         } catch (error) {
           console.error("Dashboard initialization failed:", error);
