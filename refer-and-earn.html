@@ -76,4 +76,5 @@ $("refreshHistory").addEventListener("click",()=>loadAll().catch(e=>note(e.messa
 loadAll().catch(e=>{console.error(e);note(e.message||"Could not load your referral page. Please refresh.","error");$("balance").textContent="Unavailable"});
 })();
 </script>
+<script src="assets/site-announcement.js" defer></script>
 </body></html>
