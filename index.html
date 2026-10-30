@@ -10,17 +10,16 @@
 
   <link rel="icon" type="image/png" href="assets/dv-logo.png">
   <link rel="apple-touch-icon" href="assets/dv-logo.png">
-  <link rel="preload" as="image" href="assets/hero-image.png">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="DelightVendorEdit — Buy. Sell. Earn. Grow.">
   <meta property="og:description" content="Create your account to access digital services and independent sellers.">
   <meta property="og:url" content="https://delightvendorlogs.github.io/DelightVendorEdit/">
-  <meta property="og:image" content="https://delightvendorlogs.github.io/DelightVendorEdit/assets/hero-image.png">
+  <meta property="og:image" content="https://delightvendorlogs.github.io/DelightVendorEdit/assets/dv-logo.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="DelightVendorEdit">
   <meta name="twitter:description" content="Buy. Sell. Earn. Grow.">
-  <meta name="twitter:image" content="https://delightvendorlogs.github.io/DelightVendorEdit/assets/hero-image.png">
+  <meta name="twitter:image" content="https://delightvendorlogs.github.io/DelightVendorEdit/assets/dv-logo.png">
 
   <title>DelightVendorEdit — Your Digital Marketplace</title>
 
@@ -205,7 +204,7 @@
 
     /* Hero */
 
-    .hero { padding: 24px 0 42px; }
+    .hero { padding: 36px 0 42px; }
 
     .hero-frame {
       position: relative;
@@ -225,9 +224,9 @@
     }
 
     .hero-under {
-      display: none;
-      padding: 24px;
-      background: radial-gradient(ellipse at top, #29200b, #0a0a0a 75%);
+      display: block;
+      padding: clamp(28px, 6vw, 76px);
+      background: radial-gradient(ellipse at 85% 10%, rgba(245,189,50,.17), transparent 42%), linear-gradient(135deg, #17130a, #0a0a0a 70%);
     }
 
     .hero-under h1 {
@@ -681,16 +680,7 @@
       .hero { padding-top: 12px; }
       .hero-frame { border-radius: 13px; }
 
-      .hero-image {
-        aspect-ratio: 4 / 3;
-        object-fit: cover;
-        object-position: center;
-      }
-
-      .hero-under {
-        display: block;
-        padding: 22px 18px;
-      }
+      .hero-under { display: block; padding: 24px 18px; }
 
       .hero-under h1 { font-size: 2rem; }
 
@@ -769,13 +759,7 @@
     <section class="hero">
       <div class="container">
         <div class="hero-frame">
-          <img class="hero-image"
-            src="assets/hero-image.png"
-            alt="DelightVendorEdit digital marketplace promotional banner"
-            fetchpriority="high"
-            onerror="this.style.display='none';document.getElementById('heroFallback').style.display='block'">
-
-          <div class="hero-under" id="heroFallback">
+          <div class="hero-under">
             <div class="eyebrow">Your Digital Marketplace</div>
             <h1>Buy. Sell. <span class="gold">Earn.</span> Grow.</h1>
             <p>
