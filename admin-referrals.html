@@ -67,4 +67,5 @@ document.querySelectorAll("#withdrawalFilters [data-filter]").forEach(b=>b.addEv
 async function init(){try{const {data,error}=await db.auth.getUser();if(error)throw error;if(!data.user){location.replace("login.html?redirect="+encodeURIComponent("admin-referrals.html"));return}const {data:ok,error:adminError}=await db.rpc("is_admin");if(adminError)throw adminError;if(!ok){setStatus("status","Access denied. This page is for administrators only.","error");return}$("adminApp").classList.remove("hidden");setStatus("status","Admin access verified.","ok");await loadAll()}catch(e){setStatus("status","Could not verify admin access: "+(e.message||"Unknown error"),"error")}}
 init();
 })();
-</script></body></html>
+</script><script src="assets/site-announcement.js" defer></script>
+</body></html>
