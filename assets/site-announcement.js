@@ -1,7 +1,8 @@
 (function(){
 "use strict";
 if(window.__dvAnnouncementLoaded)return;window.__dvAnnouncementLoaded=true;
-if(/(?:^|\\/)index\\.html$/i.test(location.pathname)||location.pathname==="/"||location.pathname==="")return;
+var pageName=location.pathname.split("/").pop().toLowerCase();
+if(pageName==="index.html"||pageName==="")return;
 var SUPABASE_URL="https://genlmqzkjouinofkitqt.supabase.co";
 var KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
 function loadClient(done){
