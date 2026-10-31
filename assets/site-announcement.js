@@ -1,6 +1,7 @@
 (function(){
 "use strict";
 if(window.__dvAnnouncementLoaded)return;window.__dvAnnouncementLoaded=true;
+if(/(?:^|\\/)index\\.html$/i.test(location.pathname)||location.pathname==="/"||location.pathname==="")return;
 var SUPABASE_URL="https://genlmqzkjouinofkitqt.supabase.co";
 var KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
 function loadClient(done){
@@ -28,7 +29,7 @@ function render(data){
  var track=document.createElement("div");track.className="dv-announcement-track";
  for(var n=0;n<2;n++){var item=document.createElement("span");item.className="dv-announcement-item";appendMessage(item,String(data.message));track.appendChild(item);}
  bar.appendChild(track);
- var style=document.createElement("style");style.textContent=".dv-announcement-bar{width:100%;height:39px;overflow:hidden;display:flex;align-items:center;background:#17130a;border-bottom:1px solid rgba(231,184,75,.3);color:#f5d982;position:relative;z-index:40;font:600 12px/1.4 system-ui,sans-serif}.dv-announcement-track{display:flex;align-items:center;width:max-content;min-width:max-content;animation:dvAnnouncementMove 34s linear infinite}.dv-announcement-bar:hover .dv-announcement-track{animation-play-state:paused}.dv-announcement-item{display:inline-flex;align-items:center;gap:8px;padding-left:42px;padding-right:42px;white-space:nowrap}.dv-announcement-link{color:#63a9ff!important;text-decoration:underline!important;text-underline-offset:2px;font-weight:800;cursor:pointer}.dv-announcement-link:hover{color:#9bc9ff!important}@keyframes dvAnnouncementMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}@media(prefers-reduced-motion:reduce){.dv-announcement-track{animation-duration:90s}}";
+ var style=document.createElement("style");style.textContent=".dv-announcement-bar{width:100%;min-height:39px;height:auto;max-height:96px;overflow:hidden;display:flex;align-items:center;background:#17130a;border-bottom:1px solid rgba(231,184,75,.3);color:#f5d982;position:relative;z-index:40;font:600 12px/1.4 system-ui,sans-serif}.dv-announcement-track{display:flex;align-items:center;width:max-content;min-width:max-content;animation:dvAnnouncementMove 34s linear infinite}.dv-announcement-bar:hover .dv-announcement-track{animation-play-state:paused}.dv-announcement-item{display:inline-block;align-self:center;padding:8px 42px;white-space:pre;line-height:1.5}.dv-announcement-link{color:#63a9ff!important;text-decoration:underline!important;text-underline-offset:2px;font-weight:800;cursor:pointer}.dv-announcement-link:hover{color:#9bc9ff!important}@keyframes dvAnnouncementMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}@media(prefers-reduced-motion:reduce){.dv-announcement-track{animation-duration:90s}}";
  document.head.appendChild(style);
  var body=document.body;if(body.firstElementChild)body.insertBefore(bar,body.firstElementChild);else body.appendChild(bar);
 }
