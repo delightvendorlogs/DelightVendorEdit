@@ -35,7 +35,9 @@ h1{font-size:clamp(25px,4vw,34px);margin:0 0 10px;letter-spacing:-.02em}.muted{c
 <script>
 (()=>{"use strict";
 const URL="https://genlmqzkjouinofkitqt.supabase.co",KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv",db=window.supabase.createClient(URL,KEY),$=id=>document.getElementById(id);
-let userId=null,session=null,items=[],filter="all",channel=null,busy=false;\nlet VAPID_PUBLIC_KEY="";\nconst PUSH_FN=URL+"/functions/v1/customer-push-subscribe";
+let userId=null,session=null,items=[],filter="all",channel=null,busy=false;
+let VAPID_PUBLIC_KEY="";
+const PUSH_FN=URL+"/functions/v1/customer-push-subscribe";
 function say(msg,type="info"){const e=$("notice");e.textContent=msg;e.className="notice show "+type}
 function renderMessageLinks(target,message){
  target.replaceChildren();
