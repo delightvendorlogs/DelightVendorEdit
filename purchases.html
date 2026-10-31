@@ -138,17 +138,17 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
       const deliveryItems=items.map(item=>({item,text:cleanDelivery(item.delivery_payload)})).filter(entry=>entry.text);
       function deliveryMarkup(value) {
         const text=String(value||"");
-        const urlPattern=/https?:\\/\\/[^\\s<>"']+/gi;
+        const urlPattern=/https?:\/\/[^\s<>"']+/gi;
         let out="",pos=0,match;
         while((match=urlPattern.exec(text))) {
           let url=match[0],suffix="";
-          while(/[.,!?;:)}\\]]$/.test(url)){suffix=url.slice(-1)+suffix;url=url.slice(0,-1)}
+          while(/[.,!?;:)}\]]$/.test(url)){suffix=url.slice(-1)+suffix;url=url.slice(0,-1)}
           if(match.index>pos)out+=escapeHTML(text.slice(pos,match.index));
           out+='<a class="delivery-link" href="'+escapeHTML(url)+'" target="_blank" rel="noopener noreferrer">'+escapeHTML(url)+'</a>'+escapeHTML(suffix);
           pos=match.index+match[0].length;
         }
         if(pos<text.length)out+=escapeHTML(text.slice(pos));
-        return out.replace(/\\n/g,"<br>");
+        return out.replace(/\n/g,"<br>");
       }
       const deliveryHtml=deliveryItems.length ? '<details class="delivery-details"><summary>View delivery information / download</summary><div class="delivery-content">'+deliveryItems.map(entry=>'<div class="delivery-line">'+(items.length>1?'<div class="delivery-label">'+escapeHTML(entry.item.item_title_snapshot||"Item delivery")+'</div>':"")+'<div class="delivery-actions"><button type="button" class="copy-delivery-btn" data-copy="'+escapeHTML(entry.text)+'">Copy</button></div>'+deliveryMarkup(entry.text)+'</div>').join("")+'</div></details>' : "";
       return '<article class="order"><div><div class="order-title">'+escapeHTML(name)+'</div><div class="order-id">'+(id ? "Order #"+escapeHTML(id) : "Order reference unavailable")+'</div><div class="order-meta"><span>🗓 '+escapeHTML(dateText(date))+'</span>'+(extra?'<span>'+escapeHTML(extra)+'</span>':"")+'</div>'+deliveryHtml+'</div><div class="order-side"><div class="amount">'+escapeHTML(money(amount))+'</div><span class="badge '+statusClass(status)+'">'+escapeHTML(status)+'</span></div></article>';
