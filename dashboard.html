@@ -1289,7 +1289,7 @@
 .dve-banner-cta{position:absolute;left:clamp(14px,4vw,38px);bottom:clamp(14px,4vw,30px);display:inline-flex;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#f5d47e,#d6a431);color:#17130a;font-weight:800;font-size:12px;box-shadow:0 5px 18px #0007}
 .dve-banner-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:36px;height:36px;border:1px solid #ffffff55;border-radius:50%;background:#080808aa;color:#fff;font-size:20px;display:grid;place-items:center}
 .dve-banner-arrow.prev{left:10px}.dve-banner-arrow.next{right:10px}
-.dve-banner-dots{display:flex;justify-content:center;gap:7px;padding:10px 0 0}
+.dve-banner-dots{display:none!important;display:flex;justify-content:center;gap:7px;padding:10px 0 0}
 .dve-banner-dot{width:7px;height:7px;border:0;border-radius:20px;background:#777;padding:0}
 .dve-banner-dot.active{width:22px;background:#e7b84b}
 @media(max-width:600px){.dve-banner-slide{min-height:130px;aspect-ratio:2.3/1}.dve-banner-arrow{width:30px;height:30px;font-size:17px}.dve-banner-cta{font-size:11px;padding:8px 12px}}
@@ -2022,7 +2022,7 @@ async function loadWebsiteReviews(){try{const r=await client.rpc("get_public_web
   slides.querySelectorAll(".dve-banner-slide").forEach((el,i)=>el.classList.toggle("active",i===index));
   dots.querySelectorAll(".dve-banner-dot").forEach((el,i)=>el.classList.toggle("active",i===index));
  }
- function restart(){if(timer)clearInterval(timer);if(items.length>1)timer=setInterval(()=>show(index+1),2000);}
+ function restart(){if(timer)clearInterval(timer);if(items.length>1)timer=setInterval(()=>show(index+1),3000);}
  async function load(){
   try{
    const {data,error}=await db.from("dashboard_banners").select("id,image_url,destination_url,button_text,alt_text").eq("is_active",true).is("deleted_at",null).order("display_order",{ascending:true}).order("created_at",{ascending:true});
