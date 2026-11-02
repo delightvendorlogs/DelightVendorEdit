@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>document.documentElement.style.visibility="hidden";</script>
+  <script src="auth-guard.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090909">
+  <meta name="description" content="Explore gift delivery services from DelightVendorEdit.">
+  <link rel="icon" type="image/png" href="assets/dv-logo.png">
+  <link rel="apple-touch-icon" href="assets/dv-logo.png">
+  <title>Gift — DelightVendorEdit</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{color-scheme:dark;--bg:#090909;--panel:#141414;--gold:#e7b84b;--gold2:#f5d47e;--muted:#aaa69c;--line:rgba(255,255,255,.09)}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 80% -10%,rgba(231,184,75,.13),transparent 38%),var(--bg);color:#f5f3ed;font-family:"DM Sans",Arial,sans-serif}
+    a{color:inherit;text-decoration:none}button{font:inherit}.top{position:sticky;top:0;z-index:5;background:rgba(9,9,9,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    .topin{max-width:1100px;margin:auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--gold2)}.brand img{width:38px;height:38px;object-fit:contain}
+    .back,.fund{border:1px solid rgba(231,184,75,.3);border-radius:11px;padding:10px 14px;font-size:12px;font-weight:700}.back{color:#eee;background:#171717}.fund{background:linear-gradient(135deg,var(--gold2),#c89428);color:#171107;border:0}
+    main{width:min(100% - 32px,1000px);margin:32px auto 60px}.intro{margin-bottom:22px}.eyebrow{margin:0 0 9px;color:var(--gold);font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+    h1{font-size:clamp(28px,5vw,40px);letter-spacing:-1px;margin:0 0 9px}.sub{color:var(--muted);font-size:14px;line-height:1.7;margin:0;max-width:650px}
+    .balance{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 24px;margin:25px 0;border:1px solid rgba(231,184,75,.3);border-radius:19px;background:linear-gradient(115deg,rgba(231,184,75,.15),rgba(231,184,75,.035));box-shadow:0 16px 40px #0005}
+    .balance-label{color:#d1c5a6;font-size:12px;margin:0 0 9px}.amount{font-size:clamp(25px,4vw,34px);font-weight:800;letter-spacing:-.7px;margin:0}.fund{white-space:nowrap}
+    .section-title{font-size:18px;margin:30px 0 14px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .service{min-width:0;padding:20px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(145deg,#171717,#101010);display:flex;flex-direction:column;min-height:190px}
+    .ico{width:45px;height:45px;border-radius:14px;display:grid;place-items:center;background:rgba(231,184,75,.11);font-size:22px;margin-bottom:15px}
+    .service h3{font-size:15px;margin:0 0 7px}.service p{color:var(--muted);font-size:12px;line-height:1.6;margin:0 0 17px}
+    .soon{margin-top:auto;padding:9px 11px;border-radius:10px;background:rgba(231,184,75,.08);border:1px solid rgba(231,184,75,.17);color:var(--gold2);font-size:11px;font-weight:700;text-align:center}
+    .notice{margin-top:22px;padding:20px;border:1px solid rgba(231,184,75,.22);border-radius:16px;background:#14120d}
+    .notice strong{display:block;font-size:14px;margin-bottom:7px}.notice p{color:var(--muted);font-size:12px;line-height:1.7;margin:0 0 14px}
+    .chat{display:inline-flex;align-items:center;justify-content:center;padding:12px 17px;border-radius:11px;background:#20b968;color:#07180e;font-size:12px;font-weight:800}
+    footer{text-align:center;padding:22px;color:#777;font-size:11px;border-top:1px solid var(--line)}
+    @media(max-width:700px){.topin{padding:12px 14px}.brand{font-size:14px}.brand img{width:33px;height:33px}.back,.fund{padding:9px 10px;font-size:11px}main{width:calc(100% - 28px);margin:25px auto 42px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.service{padding:15px;min-height:185px}.balance{padding:18px;align-items:flex-start;flex-direction:column}.fund{width:100%;text-align:center}}
+    @media(max-width:390px){.grid{grid-template-columns:1fr}.service{min-height:0}.topin{gap:7px}.brand{font-size:12px}}
+  </style>
+</head>
+<body>
+<header class="top"><div class="topin">
+  <a class="brand" href="dashboard.html"><img src="assets/dv-logo.png" alt="DV logo"><span>DelightVendorEdit</span></a>
+  <nav style="display:flex;gap:8px"><a class="back" href="dashboard.html">← Dashboard</a></nav>
+</div></header>
+<main>
+  <section class="intro"><p class="eyebrow">Thoughtful surprises, delivered</p><h1>Send a Gift 🎁</h1><p class="sub">Make someone's day with a thoughtful gift. Explore gift ideas and delivery services across different countries.</p></section>
+  <section class="balance" aria-label="Wallet balance">
+    <div><p class="balance-label">Your available wallet balance</p><p class="amount" id="walletBalance" aria-live="polite">Loading balance…</p></div>
+    <a class="fund" href="wallet.html">＋ Fund Wallet</a>
+  </section>
+  <h2 class="section-title">Explore gift services</h2>
+  <section class="grid" aria-label="Gift categories">
+    <article class="service"><div class="ico">🌍</div><h3>Send Gift to All Countries</h3><p>Send a thoughtful surprise to someone wherever they are.</p><span class="soon">Available soon</span></article>
+    <article class="service"><div class="ico">💐</div><h3>Flowers</h3><p>Brighten someone's day with a beautiful flower delivery.</p><span class="soon">Available soon</span></article>
+    <article class="service"><div class="ico">🍕</div><h3>Pizza</h3><p>Send a delicious treat to friends and loved ones.</p><span class="soon">Available soon</span></article>
+    <article class="service"><div class="ico">🧴</div><h3>Cream &amp; Beauty</h3><p>Explore personal-care and beauty gift options.</p><span class="soon">Available soon</span></article>
+    <article class="service"><div class="ico">🎁</div><h3>Gift Listings</h3><p>Browse more gift ideas and special selections.</p><span class="soon">Available soon</span></article>
+    <article class="service"><div class="ico">✨</div><h3>More Gifts</h3><p>More gift categories and delivery options will be added.</p><span class="soon">Available soon</span></article>
+  </section>
+  <section class="notice"><strong>This service will be available soon.</strong><p>If you need a gift service or want to make an enquiry, please chat with our support team on WhatsApp.</p><a class="chat" href="https://wa.me/2347015908401?text=Hello%20DelightVendorEdit%2C%20I%20need%20help%20with%20the%20Gift%20service." target="_blank" rel="noopener noreferrer">Chat us on WhatsApp ↗</a></section>
+</main>
+<footer>DelightVendorEdit · Gift services</footer>
+<script>
+"use strict";
+(function(){
+ const SUPABASE_URL="https://genlmqzkjouinofkitqt.supabase.co";
+ const SUPABASE_KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv";
+ const balance=document.getElementById("walletBalance");
+ const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
+ const money=n=>"₦"+Number(n).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
+ async function load(){
+  try{
+   const {data:{user},error:authError}=await client.auth.getUser();
+   if(authError||!user){const target=location.pathname+location.search+location.hash;location.replace("login.html?redirect="+encodeURIComponent(target));return}
+   const {data,error}=await client.from("wallets").select("available_balance").eq("user_id",user.id).eq("wallet_type","shopping").eq("currency","NGN").maybeSingle();
+   if(error)throw error;
+   if(!data){balance.textContent="Wallet not set up";return}
+   const value=Number(data.available_balance);if(!Number.isFinite(value))throw new Error("Invalid wallet balance");
+   balance.textContent=money(value);
+  }catch(e){console.error("Gift wallet balance error:",e);balance.textContent="Unable to load balance"}
+ }
+ load();
+ client.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"||!session)location.replace("login.html")});
+})();
+</script>
+</body>
+</html>
