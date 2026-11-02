@@ -163,7 +163,7 @@ form.addEventListener("submit", async event => {
     if (!persisted?.session?.user) {
       throw new Error("Sign-in succeeded but the browser could not restore the session. Please allow site data/cookies for this site, then try again.");
     }
-    showMessage("success", "Signed in successfully. Opening your dashboard…");
+    showMessage("success", "Signed in successfully. Opening the page you requested…");
     window.location.replace(destination);
   } catch (error) {
     const raw = error && error.message ? error.message : "";
