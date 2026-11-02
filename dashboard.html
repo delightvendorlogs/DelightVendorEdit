@@ -1283,7 +1283,7 @@
 #dveBannerSection{display:none;margin:0 0 25px;position:relative}
 .dve-banner-shell{position:relative;overflow:hidden;border:1px solid rgba(231,184,75,.34);border-radius:18px;background:#080808;box-shadow:0 12px 35px rgba(0,0,0,.22);touch-action:pan-y}
 #dveBannerSlides{display:flex;width:100%;transition:transform .42s cubic-bezier(.22,.61,.36,1);will-change:transform}
-.dve-banner-slide{display:block;position:relative;flex:0 0 100%;width:100%;aspect-ratio:16/7;min-height:150px;background:#080808;overflow:hidden}
+.dve-banner-slide{display:block;position:relative;flex:0 0 100%;width:100%;aspect-ratio:3/1;min-height:0;background:#080808;overflow:hidden}
 .dve-banner-slide img{width:100%;height:100%;position:absolute;inset:0;object-fit:contain;display:block}
 .dve-banner-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.20),rgba(0,0,0,0) 78%);pointer-events:none}
 .dve-banner-cta{position:absolute;left:clamp(14px,4vw,38px);bottom:clamp(14px,4vw,30px);display:inline-flex;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#f5d47e,#d6a431);color:#17130a;font-weight:800;font-size:12px;box-shadow:0 5px 18px #0007}
@@ -1292,7 +1292,7 @@
 .dve-banner-dots{display:none!important;justify-content:center;gap:7px;padding:10px 0 0}
 .dve-banner-dot{width:7px;height:7px;border:0;border-radius:20px;background:#777;padding:0}
 .dve-banner-dot.active{width:22px;background:#e7b84b}
-@media(max-width:600px){.dve-banner-slide{min-height:155px;aspect-ratio:4/3}.dve-banner-arrow{width:30px;height:30px;font-size:17px}.dve-banner-cta{font-size:11px;padding:8px 12px}}
+@media(max-width:600px){.dve-banner-slide{aspect-ratio:3/1;min-height:0}.dve-banner-arrow{width:30px;height:30px;font-size:17px}.dve-banner-cta{font-size:11px;padding:8px 12px}}
 </style>
 <section id="dveBannerSection" aria-label="Featured promotions">
  <div class="dve-banner-shell" id="dveBannerShell">
@@ -2024,7 +2024,7 @@ async function loadWebsiteReviews(){try{const r=await client.rpc("get_public_web
  const slides=document.getElementById("dveBannerSlides");
  const dots=document.getElementById("dveBannerDots");
  if(!section||!slides||!dots)return;
- let items=[],index=0,timer=null,startX=0;
+ let items=[],index=0,timer=null,startX=0,startY=0,swiped=false;
  function show(n){if(!items.length)return;index=(n+items.length)%items.length;
   slides.style.transform="translateX(-"+(index*100)+"%)";
   dots.querySelectorAll(".dve-banner-dot").forEach((el,i)=>el.classList.toggle("active",i===index));
