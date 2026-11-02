@@ -111,6 +111,27 @@ try {
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
 });
+function postAuthDestination() {
+  const requested = new URLSearchParams(window.location.search).get("redirect");
+  if (!requested) return new URL("dashboard.html", window.location.href).href;
+  try {
+    const target = new URL(requested, window.location.href);
+    const appBase = new URL("./", window.location.href);
+    if (target.origin !== window.location.origin || !target.pathname.startsWith(appBase.pathname) || /\/(?:login|register)\.html$/i.test(target.pathname)) {
+      return new URL("dashboard.html", window.location.href).href;
+    }
+    return target.href;
+  } catch (_) {
+    return new URL("dashboard.html", window.location.href).href;
+  }
+}
+const destination = postAuthDestination();
+document.querySelectorAll('a[href="register.html"]').forEach(a => {
+  a.href = "register.html?redirect=" + encodeURIComponent(destination);
+});
+client.auth.getUser().then(({ data, error }) => {
+  if (!error && data && data.user) window.location.replace(destination);
+}).catch(() => {});
 form.addEventListener("submit", async event => {
   event.preventDefault();
   messageBox.className = "message";
@@ -143,7 +164,7 @@ form.addEventListener("submit", async event => {
       throw new Error("Sign-in succeeded but the browser could not restore the session. Please allow site data/cookies for this site, then try again.");
     }
     showMessage("success", "Signed in successfully. Opening your dashboard…");
-    window.location.replace(new URL("dashboard.html", window.location.href).href);
+    window.location.replace(destination);
   } catch (error) {
     const raw = error && error.message ? error.message : "";
     let friendly = "We couldn't sign you in. Please check your details and try again.";
