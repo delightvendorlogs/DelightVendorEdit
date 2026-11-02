@@ -92,6 +92,21 @@ function setBusy(busy) {
   submitButton.textContent = busy ? "Creating account…" : "Create account";
 }
 const params = new URLSearchParams(window.location.search);
+function postSignupDestination() {
+  const requested = params.get("redirect");
+  if (!requested) return new URL("dashboard.html", window.location.href).href;
+  try {
+    const target = new URL(requested, window.location.href);
+    const appBase = new URL("./", window.location.href);
+    if (target.origin !== window.location.origin || !target.pathname.startsWith(appBase.pathname) || /\/(?:login|register)\.html$/i.test(target.pathname)) {
+      return new URL("dashboard.html", window.location.href).href;
+    }
+    return target.href;
+  } catch (_) {
+    return new URL("dashboard.html", window.location.href).href;
+  }
+}
+const signupDestination = postSignupDestination();
 const urlReferral = (params.get("ref") || params.get("referral") || "").trim().slice(0, 50);
 if (urlReferral) referralInput.value = urlReferral;
 
@@ -132,7 +147,7 @@ form.addEventListener("submit", async event => {
     if (error) throw error;
     if (data && data.session) {
       showMessage("success", "Your account has been created. Taking you to your dashboard…");
-      window.location.replace("dashboard.html");
+      window.location.replace(signupDestination);
       return;
     }
     showMessage("success", "Supabase accepted the signup but did not sign you in automatically. In Supabase, open Authentication → Sign In / Providers → Email and turn OFF Confirm email, then try again.");
