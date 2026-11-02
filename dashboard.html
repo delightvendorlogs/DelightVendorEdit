@@ -1281,18 +1281,18 @@
 
 <style>
 #dveBannerSection{display:none;margin:0 0 25px;position:relative}
-.dve-banner-shell{position:relative;overflow:hidden;border:1px solid rgba(231,184,75,.34);border-radius:18px;background:#111;box-shadow:0 12px 35px rgba(0,0,0,.22);touch-action:pan-y}
-.dve-banner-slide{display:none;position:relative;aspect-ratio:3/1;min-height:145px}
-.dve-banner-slide.active{display:block}
-.dve-banner-slide img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover;display:block}
-.dve-banner-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.66),rgba(0,0,0,.08) 78%)}
+.dve-banner-shell{position:relative;overflow:hidden;border:1px solid rgba(231,184,75,.34);border-radius:18px;background:#080808;box-shadow:0 12px 35px rgba(0,0,0,.22);touch-action:pan-y}
+#dveBannerSlides{display:flex;width:100%;transition:transform .42s cubic-bezier(.22,.61,.36,1);will-change:transform}
+.dve-banner-slide{display:block;position:relative;flex:0 0 100%;width:100%;aspect-ratio:16/7;min-height:150px;background:#080808;overflow:hidden}
+.dve-banner-slide img{width:100%;height:100%;position:absolute;inset:0;object-fit:contain;display:block}
+.dve-banner-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.20),rgba(0,0,0,0) 78%);pointer-events:none}
 .dve-banner-cta{position:absolute;left:clamp(14px,4vw,38px);bottom:clamp(14px,4vw,30px);display:inline-flex;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#f5d47e,#d6a431);color:#17130a;font-weight:800;font-size:12px;box-shadow:0 5px 18px #0007}
 .dve-banner-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:36px;height:36px;border:1px solid #ffffff55;border-radius:50%;background:#080808aa;color:#fff;font-size:20px;display:grid;place-items:center}
 .dve-banner-arrow.prev{left:10px}.dve-banner-arrow.next{right:10px}
-.dve-banner-dots{display:none!important;display:flex;justify-content:center;gap:7px;padding:10px 0 0}
+.dve-banner-dots{display:none!important;justify-content:center;gap:7px;padding:10px 0 0}
 .dve-banner-dot{width:7px;height:7px;border:0;border-radius:20px;background:#777;padding:0}
 .dve-banner-dot.active{width:22px;background:#e7b84b}
-@media(max-width:600px){.dve-banner-slide{min-height:130px;aspect-ratio:2.3/1}.dve-banner-arrow{width:30px;height:30px;font-size:17px}.dve-banner-cta{font-size:11px;padding:8px 12px}}
+@media(max-width:600px){.dve-banner-slide{min-height:155px;aspect-ratio:4/3}.dve-banner-arrow{width:30px;height:30px;font-size:17px}.dve-banner-cta{font-size:11px;padding:8px 12px}}
 </style>
 <section id="dveBannerSection" aria-label="Featured promotions">
  <div class="dve-banner-shell" id="dveBannerShell">
@@ -2026,7 +2026,7 @@ async function loadWebsiteReviews(){try{const r=await client.rpc("get_public_web
  if(!section||!slides||!dots)return;
  let items=[],index=0,timer=null,startX=0;
  function show(n){if(!items.length)return;index=(n+items.length)%items.length;
-  slides.querySelectorAll(".dve-banner-slide").forEach((el,i)=>el.classList.toggle("active",i===index));
+  slides.style.transform="translateX(-"+(index*100)+"%)";
   dots.querySelectorAll(".dve-banner-dot").forEach((el,i)=>el.classList.toggle("active",i===index));
  }
  function restart(){if(timer)clearInterval(timer);if(items.length>1)timer=setInterval(()=>show(index+1),3000);}
@@ -2035,7 +2035,8 @@ async function loadWebsiteReviews(){try{const r=await client.rpc("get_public_web
    const {data,error}=await db.from("dashboard_banners").select("id,image_url,destination_url,button_text,alt_text").eq("is_active",true).is("deleted_at",null).order("display_order",{ascending:true}).order("created_at",{ascending:true});
    if(error)throw error;items=data||[];
    if(!items.length){section.style.display="none";return;}
-   slides.innerHTML=items.map((b,i)=>'<a class="dve-banner-slide '+(i===0?'active':'')+'" href="'+esc(b.destination_url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(b.alt_text||"Open promotion")+'"><img src="'+esc(b.image_url)+'" alt="'+esc(b.alt_text||"Featured promotion")+'" loading="'+(i===0?'eager':'lazy')+'"><span class="dve-banner-overlay"></span>'+(b.button_text?'<span class="dve-banner-cta">'+esc(b.button_text)+'</span>':'')+'</a>').join("");
+   slides.style.transform="translateX(0)";
+   slides.innerHTML=items.map((b,i)=>'<a class="dve-banner-slide" href="'+esc(b.destination_url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(b.alt_text||"Open promotion")+'"><img src="'+esc(b.image_url)+'" alt="'+esc(b.alt_text||"Featured promotion")+'" loading="'+(i===0?'eager':'lazy')+'"><span class="dve-banner-overlay"></span>'+(b.button_text?'<span class="dve-banner-cta">'+esc(b.button_text)+'</span>':'')+'</a>').join("");
    dots.innerHTML=items.map((b,i)=>'<button class="dve-banner-dot '+(i===0?'active':'')+'" type="button" aria-label="Show banner '+(i+1)+'" data-index="'+i+'"></button>').join("");
    section.style.display="block";
    dots.querySelectorAll("button").forEach(btn=>btn.addEventListener("click",()=>{show(Number(btn.dataset.index));restart()}));
