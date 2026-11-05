@@ -3,6 +3,12 @@
 <header class="top"><a class="brand" href="admin.html"><img src="assets/dv-logo.png" alt="DV logo">DelightVendorEdit · Alert Settings</a></header>
 <main class="wrap"><h1>Admin Alert Settings</h1><p>Configure email and Telegram alerts for important DelightVendorEdit activity. Private credentials stay on the server.</p><div id="status" class="status">Checking admin access…</div>
 <section class="card"><h2>Email and Telegram delivery</h2><p>Admin alerts are sent automatically when important admin notifications are created, including new customer live chat messages when you are away. Email goes to delightvendorlogs@gmail.com. Telegram goes to the chat configured by TELEGRAM_CHAT_ID.</p><p class="small">Add these exact names in Supabase → Project Settings → Edge Functions → Secrets:</p><div id="secrets"></div><p class="small">The shared alert webhook secret and VAPID public key are read from Supabase Vault. They are not entered here.</p></section>
+<section class="card">
+<h2>Admin browser push alerts</h2>
+<p>Enable browser push on this device. Only an authenticated administrator can register this device, and admin alerts are sent to registered admin devices—not customer devices.</p>
+<button id="enablePush" type="button">Enable browser push alerts on this device</button>
+<div id="pushStatus" class="status" role="status">Browser push has not been enabled on this device yet.</div>
+</section>
 <section class="card"><h2>Delivery checklist</h2><p class="small">Email requires RESEND_API_KEY. Telegram requires TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID. Email is delivered to delightvendorlogs@gmail.com. Resend may require a verified sender domain; the default onboarding sender is suitable only for permitted test sending.</p><a href="https://resend.com/" target="_blank" rel="noopener">Open Resend ↗</a></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 (()=>{"use strict";
@@ -19,7 +25,38 @@ async function init(){
   const {data:ok,error:adminError}=await db.rpc("is_admin");
   if(adminError)throw adminError;
   if(!ok)throw Error("Admin access required.");
+
   $("status").textContent="Admin access verified. Email and Telegram alerts are handled automatically by the server.";
+  const pushButton=$("enablePush");
+  const pushStatus=$("pushStatus");
+  const pushEndpoint=URL+"/functions/v1/admin-push-subscribe";
+  const b64ToBytes=value=>{const padding="=".repeat((4-value.length%4)%4);const raw=atob((value+padding).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(raw,c=>c.charCodeAt(0));};
+  const pushRequest=async(method,accessToken,body)=>{
+   const response=await fetch(pushEndpoint,{method,headers:{"apikey":KEY,"Authorization":"Bearer "+accessToken,"Content-Type":"application/json"},...(body?{body:JSON.stringify(body)}:{})});
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok)throw Error(result.error||"Browser push setup failed ("+response.status+").");
+   return result;
+  };
+  pushButton.addEventListener("click",async()=>{
+   pushButton.disabled=true;pushStatus.textContent="Setting up secure admin browser alerts…";
+   try{
+    if(!("serviceWorker"in navigator)||!("PushManager"in window)||!("Notification"in window))throw Error("This browser does not support push notifications. Try Chrome on Android.");
+    if(!session?.access_token)throw Error("Your admin session expired. Sign in again.");
+    const permission=await Notification.requestPermission();
+    if(permission!=="granted")throw Error("Browser notification permission was not granted. Allow notifications for this website in Chrome settings.");
+    const registration=await navigator.serviceWorker.register("/sw.js");
+    const config=await pushRequest("GET",session.access_token);
+    if(!config.publicKey)throw Error("The admin push public key is not configured.");
+    let subscription=await registration.pushManager.getSubscription();
+    if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToBytes(config.publicKey)});
+    await pushRequest("POST",session.access_token,subscription.toJSON());
+    pushStatus.textContent="Success! This device is now registered for admin-only browser push alerts.";
+    pushButton.textContent="Browser push enabled on this device";
+   }catch(error){
+    pushStatus.textContent=error?.message||"Could not enable browser push.";
+    pushButton.disabled=false;
+   }
+  });
   $("secrets").innerHTML=["RESEND_API_KEY","TELEGRAM_BOT_TOKEN","TELEGRAM_CHAT_ID"].map(x=>"<p><b>"+x+"</b></p>").join("");
  }catch(e){$("status").textContent=e?.message||"Could not verify admin access. Refresh and try again."}
 }
