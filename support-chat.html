@@ -97,7 +97,11 @@ $("composer").addEventListener("submit",async e=>{
    const up=await db.storage.from(BUCKET).upload(path,file,{contentType:file.type,upsert:false,cacheControl:"3600"});if(up.error)throw up.error;image_path=path}
   const {error}=await db.from("support_chat_messages").insert({conversation_id:active.id,sender_user_id:user.id,sender_role:"customer",message_text:message||null,image_path});
   if(error)throw error;$("messageInput").value="";$("imageInput").value="";$("fileName").textContent="";
+  await db.rpc("support_chat_set_typing",{p_conversation_id:active.id,p_is_typing:false});
   await loadMessages();await loadChats();status("Message sent.");
+  const alertResult=await db.functions.invoke("support-chat-alerts",{body:{conversationId:active.id,messageId:sent.id}});
+  if(alertResult.error)console.warn("Support alert could not be delivered:",alertResult.error.message);
+  await loadMessages();
  }catch(e){status("Your message couldn’t be sent. Please check your connection and try again.")}finally{$("sendBtn").disabled=false}
 });
 let typingTimer=null;$("messageInput").addEventListener("input",()=>{if(!active)return;db.rpc("support_chat_set_typing",{p_conversation_id:active.id,p_is_typing:true});clearTimeout(typingTimer);typingTimer=setTimeout(()=>db.rpc("support_chat_set_typing",{p_conversation_id:active.id,p_is_typing:false}),1800);});
