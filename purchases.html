@@ -1,4 +1,6 @@
-<head><script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script><style>.dve-banner-dots,#dvBannerDots{display:none!important}</style></head><!DOCTYPE html>
+<head><script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script><style>.dve-banner-dots,#dvBannerDots{display:none!important}
+.review-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.82);backdrop-filter:blur(8px)}.review-modal[hidden]{display:none}.review-dialog{position:relative;width:min(100%,470px);max-height:min(90vh,760px);overflow:auto;padding:25px 21px 20px;border:1px solid #8b6b25;border-radius:20px;background:linear-gradient(145deg,#19160e,#090909 72%);box-shadow:0 24px 80px #000b}.review-kicker{margin:0 0 7px;color:#f0cf68;text-transform:uppercase;letter-spacing:1.8px;font-size:10px;font-weight:800}.review-dialog h2{margin:0;font-size:23px}.review-subtitle{margin:9px 0 18px;color:#bcb6a7;font-size:13px;line-height:1.6}.review-close{position:absolute;right:12px;top:11px;width:36px;height:36px;border:1px solid #393326;border-radius:50%;background:#101010;color:#eee;font-size:22px;line-height:1}.review-stars{display:flex;justify-content:center;gap:8px;margin:17px 0 7px}.review-stars button{padding:3px;border:0;background:transparent;color:#555;font-size:35px;line-height:1}.review-stars button.active{color:#f0cf68;text-shadow:0 0 15px #f0cf6855}.review-rating-label{text-align:center;min-height:20px;color:#d9c27c;font-size:12px;margin-bottom:17px}.review-label{display:block;margin:0 0 7px;color:#eee;font-size:12px;font-weight:700}.review-textarea{width:100%;min-height:118px;resize:vertical;padding:12px;border:1px solid #393939;border-radius:11px;background:#080808;color:#fff;font:inherit;font-size:14px;line-height:1.5}.review-textarea:focus{outline:2px solid #9a762b;border-color:#f0cf68}.review-hint{min-height:20px;margin:8px 0 10px;color:#aaa;font-size:11px;line-height:1.5}.review-hint.error{color:#ffaaaa}.review-actions{display:flex;gap:9px;flex-wrap:wrap}.review-actions button{flex:1;min-height:44px;border:1px solid #65501f;border-radius:10px;background:#171717;color:#f3d77b;font-weight:800;font-size:13px}.review-actions button.primary{border:0;background:linear-gradient(135deg,#f0cf68,#bd922c);color:#0a0906}.review-actions button:disabled{opacity:.55;cursor:wait}@media(max-width:480px){.review-dialog{padding:23px 16px 17px}.review-stars button{font-size:32px}}
+</style></head><!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -46,6 +48,29 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
 </section>
 <div class="footer"><span>© <span id="year"></span> DelightVendorEdit</span><span>Need help? <a href="support-chat.html">Live Chat</a> · <a href="https://wa.me/2347015908401" target="_blank" rel="noopener noreferrer">Other support</a></span></div>
 </main>
+<div class="review-modal" id="reviewModal" hidden aria-hidden="true">
+  <section class="review-dialog" role="dialog" aria-modal="true" aria-labelledby="reviewHeading">
+    <button class="review-close" id="reviewClose" type="button" aria-label="Close review">×</button>
+    <p class="review-kicker">Quick feedback</p>
+    <h2 id="reviewHeading">Rate your purchase</h2>
+    <p class="review-subtitle" id="reviewSubtitle">Your feedback helps us improve.</p>
+    <div class="review-stars" id="reviewStars" role="group" aria-label="Choose a star rating">
+      <button type="button" data-review-rating="1" aria-label="1 star" aria-pressed="false">★</button>
+      <button type="button" data-review-rating="2" aria-label="2 stars" aria-pressed="false">★</button>
+      <button type="button" data-review-rating="3" aria-label="3 stars" aria-pressed="false">★</button>
+      <button type="button" data-review-rating="4" aria-label="4 stars" aria-pressed="false">★</button>
+      <button type="button" data-review-rating="5" aria-label="5 stars" aria-pressed="false">★</button>
+    </div>
+    <div class="review-rating-label" id="reviewRatingLabel">Choose a star rating</div>
+    <label class="review-label" for="reviewText">Write your review</label>
+    <textarea class="review-textarea" id="reviewText" maxlength="1500" placeholder="Tell us about your experience…"></textarea>
+    <div class="review-hint" id="reviewHint">Your review will be checked by our team before it is published.</div>
+    <div class="review-actions">
+      <button type="button" id="reviewLater">Remind me later</button>
+      <button type="button" class="primary" id="reviewSubmit">Submit review</button>
+    </div>
+  </section>
+</div>
 <script>
 (() => {
   "use strict";
@@ -154,47 +179,159 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
       return '<article class="order"><div><div class="order-title">'+escapeHTML(name)+'</div><div class="order-id">'+(id ? "Order #"+escapeHTML(id) : "Order reference unavailable")+'</div><div class="order-meta"><span>🗓 '+escapeHTML(dateText(date))+'</span>'+(extra?'<span>'+escapeHTML(extra)+'</span>':"")+'</div>'+deliveryHtml+'</div><div class="order-side"><div class="amount">'+escapeHTML(money(amount))+'</div><span class="badge '+statusClass(status)+'">'+escapeHTML(status)+'</span></div></article>';
     }).join("");
   }
+  let reviewQueue = [];
+  let activeReview = null;
+  let selectedRating = 0;
+  const ratingLabels = ["", "Poor", "Fair", "Good", "Very good", "Excellent"];
+
+  function updateReviewStars() {
+    document.querySelectorAll("[data-review-rating]").forEach(button => {
+      const value=Number(button.dataset.reviewRating);
+      button.classList.toggle("active",value<=selectedRating);
+      button.setAttribute("aria-pressed",value===selectedRating?"true":"false");
+    });
+    $("reviewRatingLabel").textContent=selectedRating?ratingLabels[selectedRating]:"Choose a star rating";
+  }
+
+  function hideReviewModal() {
+    $("reviewModal").hidden=true;
+    $("reviewModal").setAttribute("aria-hidden","true");
+    activeReview=null;
+    selectedRating=0;
+    updateReviewStars();
+  }
+
+  function showNextReview() {
+    if(activeReview || !reviewQueue.length) return;
+    activeReview=reviewQueue.shift();
+    selectedRating=0;
+    $("reviewHeading").textContent=activeReview.kind==="seller"?"Rate your seller":"Rate your purchase";
+    $("reviewSubtitle").textContent=activeReview.title
+      ? "How was “"+activeReview.title+"”? Choose a star rating and tell us what you think."
+      : "How was your DelightVendorEdit experience? Choose a star rating and tell us what you think.";
+    $("reviewText").value="";
+    $("reviewText").maxLength=activeReview.maxLength;
+    $("reviewHint").className="review-hint";
+    $("reviewHint").textContent="Your review will be checked by our team before it is published.";
+    $("reviewSubmit").disabled=false;
+    $("reviewLater").disabled=false;
+    $("reviewClose").disabled=false;
+    $("reviewSubmit").textContent="Submit review";
+    updateReviewStars();
+    $("reviewModal").hidden=false;
+    $("reviewModal").setAttribute("aria-hidden","false");
+    setTimeout(()=>$("reviewText").focus(),80);
+  }
+
+  function remindReviewLater() {
+    if(activeReview) {
+      try { localStorage.setItem(activeReview.key,JSON.stringify({state:"later",nextAt:Date.now()+3*24*60*60*1000})); } catch(_) {}
+    }
+    hideReviewModal();
+    showNextReview();
+  }
+
+  async function submitCurrentReview() {
+    if(!activeReview) return;
+    const reviewText=$("reviewText").value.trim();
+    if(selectedRating<1) {
+      $("reviewHint").className="review-hint error";
+      $("reviewHint").textContent="Please select a star rating first.";
+      return;
+    }
+    if(reviewText.length<3) {
+      $("reviewHint").className="review-hint error";
+      $("reviewHint").textContent="Please write at least 3 characters.";
+      return;
+    }
+    if(reviewText.length>activeReview.maxLength) {
+      $("reviewHint").className="review-hint error";
+      $("reviewHint").textContent="Please keep your review within "+activeReview.maxLength+" characters.";
+      return;
+    }
+    const current=activeReview;
+    $("reviewSubmit").disabled=true;
+    $("reviewLater").disabled=true;
+    $("reviewClose").disabled=true;
+    $("reviewSubmit").textContent="Submitting…";
+    $("reviewHint").className="review-hint";
+    $("reviewHint").textContent="Sending your review…";
+    try {
+      await current.submit(selectedRating,reviewText);
+      try { localStorage.setItem(current.key,JSON.stringify({state:"submitted",submittedAt:Date.now()})); } catch(_) {}
+      hideReviewModal();
+      showStatus("Thank you! Your review has been submitted for approval.","ok");
+      showNextReview();
+    } catch(error) {
+      if(/already been submitted/i.test(error.message||"")) {
+        try { localStorage.setItem(current.key,JSON.stringify({state:"submitted",submittedAt:Date.now()})); } catch(_) {}
+        hideReviewModal();
+        showNextReview();
+      } else {
+        $("reviewHint").className="review-hint error";
+        $("reviewHint").textContent=error.message||"Your review could not be submitted. Please try again.";
+      }
+    } finally {
+      if(activeReview===current) {
+        $("reviewSubmit").disabled=false;
+        $("reviewLater").disabled=false;
+        $("reviewClose").disabled=false;
+        $("reviewSubmit").textContent="Submit review";
+      }
+    }
+  }
+
+  document.querySelectorAll("[data-review-rating]").forEach(button => {
+    button.addEventListener("click",()=>{selectedRating=Number(button.dataset.reviewRating);updateReviewStars();});
+  });
+  $("reviewClose").addEventListener("click",remindReviewLater);
+  $("reviewLater").addEventListener("click",remindReviewLater);
+  $("reviewSubmit").addEventListener("click",submitCurrentReview);
+  $("reviewModal").addEventListener("click",event=>{if(event.target===$("reviewModal"))remindReviewLater();});
+  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&activeReview)remindReviewLater();});
+
   async function promptWebsiteReviews(orders, transactions) {
-    async function ask(key, submit) {
+    reviewQueue=[];
+    const queueReview=(key,kind,title,maxLength,submit)=>{
       let state={};
       try { state=JSON.parse(localStorage.getItem(key)||"{}"); } catch(_) {}
-      if(state.state==="submitted"||state.state==="never"||(state.state==="later"&&Number(state.nextAt)>Date.now())) return;
-      const choice=prompt("How was your DelightVendorEdit purchase?\n\nType REVIEW to leave feedback, LATER to be reminded in 3 days, or NO to stop asking for this purchase.","REVIEW");
-      if(choice===null||/^later$/i.test(String(choice).trim())) {
-        localStorage.setItem(key,JSON.stringify({state:"later",nextAt:Date.now()+3*24*60*60*1000}));
-        return;
-      }
-      if(/^no$/i.test(String(choice).trim())) { localStorage.setItem(key,JSON.stringify({state:"never"})); return; }
-      if(!/^review$/i.test(String(choice).trim())) return;
-      const review=prompt("Write your review (3–1,200 characters):","");
-      if(!review||review.trim().length<3) return;
-      try {
-        await submit(review.trim());
-        localStorage.setItem(key,JSON.stringify({state:"submitted"}));
-        alert("Thank you! Your review has been sent for admin approval. It will appear publicly only after it is published.");
-      } catch(error) {
-        if(/already been submitted/i.test(error.message||"")) localStorage.setItem(key,JSON.stringify({state:"submitted"}));
-        else alert("Your purchase is safe, but the review could not be submitted: "+(error.message||"Please try again later."));
-      }
-    }
+      if(state.state==="submitted" || (state.state==="later"&&Number(state.nextAt)>Date.now())) return;
+      reviewQueue.push({key,kind,title,maxLength,submit});
+    };
+
     for(const order of (orders||[])) {
-      if(!/completed|success/i.test(normal(order.order_status))||!/verified|paid|completed|success/i.test(normal(order.payment_status))) continue;
+      if(!/completed|success/i.test(normal(order.order_status)) ||
+         !/verified|paid|completed|success/i.test(normal(order.payment_status))) continue;
       for(const item of (Array.isArray(order.order_items)?order.order_items:[])) {
-        if(!item.id||item.item_source==="seller_product"||!/delivered|completed|success/i.test(normal(item.fulfillment_status))) continue;
-        await ask("dv-website-review-item-"+item.id,async text=>{
-          const {error}=await db.rpc("submit_website_review",{p_order_item_id:item.id,p_review_text:text});
-          if(error)throw error;
-        });
+        if(!item.id || !/delivered|completed|success/i.test(normal(item.fulfillment_status))) continue;
+        const title=item.item_title_snapshot||"your purchase";
+        if(item.item_source==="seller_product") {
+          queueReview("dv-seller-review-item-"+item.id,"seller",title,1500,async(rating,text)=>{
+            const {error}=await db.rpc("submit_seller_review",{p_order_item_id:item.id,p_rating:rating,p_review_text:text});
+            if(error) throw error;
+          });
+        } else {
+          queueReview("dv-website-review-item-"+item.id,"website",title,1200,async(rating,text)=>{
+            const {error}=await db.rpc("submit_website_review",{p_order_item_id:item.id,p_rating:rating,p_review_text:text});
+            if(error) throw error;
+          });
+        }
       }
     }
+
+    const orderIds=new Set((orders||[]).map(order=>String(order.id||"")));
+    const orderReferences=new Set((orders||[]).map(order=>String(order.payment_reference||"")).filter(Boolean));
     for(const tx of (transactions||[])) {
-      if(tx.transaction_type!=="purchase"||tx.status!=="completed") continue;
-      if(tx.metadata&&tx.metadata.seller_marketplace) continue;
-      await ask("dv-website-review-tx-"+tx.id,async text=>{
-        const {error}=await db.rpc("submit_website_transaction_review",{p_transaction_id:tx.id,p_review_text:text});
-        if(error)throw error;
+      if(tx.transaction_type!=="purchase" || tx.status!=="completed") continue;
+      if(tx.metadata && tx.metadata.seller_marketplace) continue;
+      if(tx.related_order_id && orderIds.has(String(tx.related_order_id))) continue;
+      if(tx.reference && orderReferences.has(String(tx.reference))) continue;
+      queueReview("dv-website-review-tx-"+tx.id,"website",tx.description||"your purchase",1200,async(rating,text)=>{
+        const {error}=await db.rpc("submit_website_transaction_review",{p_transaction_id:tx.id,p_rating:rating,p_review_text:text});
+        if(error) throw error;
       });
     }
+    showNextReview();
   }
 
   async function loadOrders() {
@@ -214,7 +351,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
           .order("created_at", { ascending: false })
           .limit(100),
         db.from("wallet_transactions")
-          .select("id,transaction_type,status,amount,currency,reference,description,metadata,created_at,completed_at")
+          .select("id,transaction_type,status,amount,currency,reference,description,metadata,related_order_id,created_at,completed_at")
           .eq("user_id", currentUser.id)
           .eq("transaction_type", "purchase")
           .order("created_at", { ascending: false })
