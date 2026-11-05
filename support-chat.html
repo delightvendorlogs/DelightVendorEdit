@@ -37,7 +37,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (()=>{"use strict";
-const URL="https://genlmqzkjouinofkitqt.supabase.co",KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHOkNv",BUCKET="support-chat-images";
+const URL="https://genlmqzkjouinofkitqt.supabase.co",KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv",BUCKET="support-chat-images";
 const $=id=>document.getElementById(id),db=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true}});
 let user=null,active=null,channel=null,chats=[];
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -76,9 +76,9 @@ async function openChat(id){
 }
 async function createChat(){
  const {data,error}=await db.from("support_chat_conversations").insert({customer_user_id:user.id}).select("id,created_at,last_message_at,last_message_preview").single();
- if(error)throw error;chats=[data,...chats];active=data;renderChats();await openChat(data.id);status("Your new conversation is ready.");
+ if(error)throw error;chats=[data,...chats];active=data;renderChats();await openChat(data.id);status("Your chat is ready. Send us a message anytime.");
 }
-$("newChat").addEventListener("click",async()=>{try{status("Starting a new chat…");await createChat()}catch(e){status(e.message||"Could not start a new chat.")}});
+$("newChat").addEventListener("click",async()=>{try{status("Starting a new chat…");await createChat()}catch(e){status("We couldn’t start your chat. Please try again in a moment.")}});
 $("backToChats").addEventListener("click",()=>$("layout").classList.remove("chat-open"));
 $("attachBtn").addEventListener("click",()=>$("imageInput").click());
 $("imageInput").addEventListener("change",()=>{$("fileName").textContent=$("imageInput").files[0]?"Image selected: "+$("imageInput").files[0].name:""});
@@ -86,7 +86,7 @@ $("composer").addEventListener("submit",async e=>{
  e.preventDefault();if(!active)return;
  const message=$("messageInput").value.trim(),file=$("imageInput").files[0];if(!message&&!file)return;
  if(file&&(!/^image\/(jpeg|png|webp|gif)$/.test(file.type)||file.size>5*1024*1024)){status("Choose a JPG, PNG, WEBP or GIF image up to 5 MB.");return}
- $("sendBtn").disabled=true;status("Sending message…");
+ $("sendBtn").disabled=true;status("Sending…");
  try{
   let image_path=null;
   if(file){const ext=({ "image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif"})[file.type],path=active.id+"/"+user.id+"/"+crypto.randomUUID()+"."+ext;
@@ -94,7 +94,7 @@ $("composer").addEventListener("submit",async e=>{
   const {error}=await db.from("support_chat_messages").insert({conversation_id:active.id,sender_user_id:user.id,sender_role:"customer",message_text:message||null,image_path});
   if(error)throw error;$("messageInput").value="";$("imageInput").value="";$("fileName").textContent="";
   await loadMessages();await loadChats();status("Message sent.");
- }catch(e){status(e.message||"Message could not be sent. Please try again.")}finally{$("sendBtn").disabled=false}
+ }catch(e){status("Your message couldn’t be sent. Please check your connection and try again.")}finally{$("sendBtn").disabled=false}
 });
 $("messageInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("composer").requestSubmit()}});
 (async()=>{
@@ -102,7 +102,7 @@ $("messageInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey
  await loadChats();status("You're connected to live chat.");
  if(chats.length)await openChat(chats[0].id);else setComposer(false);
  db.channel("customer-chat-list-"+user.id).on("postgres_changes",{event:"*",schema:"public",table:"support_chat_conversations",filter:"customer_user_id=eq."+user.id},()=>loadChats().catch(e=>console.warn(e.message))).subscribe();
- }catch(e){status(e.message||"Could not connect to live chat. Refresh and try again.")}
+ }catch(e){status("We couldn’t connect to support right now. Please refresh and try again.")}
 })();
 })();
 </script>
