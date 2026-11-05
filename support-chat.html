@@ -59,9 +59,9 @@ async function signedImage(path){
 }
 async function loadMessages(){
  if(!active)return;
- const {data,error}=await db.from("support_chat_messages").select("id,sender_user_id,sender_role,message_text,image_path,created_at").eq("conversation_id",active.id).order("created_at",{ascending:true}).limit(300);
+ const {data,error}=await db.from("support_chat_messages").select("id,sender_user_id,sender_role,message_text,image_path,created_at").eq("conversation_id",active.id).order("created_at",{ascending:false}).limit(300);
  if(error)throw error;
- const rows=data||[],images=await Promise.all(rows.map(m=>m.image_path?signedImage(m.image_path):null));
+ const rows=(data||[]).reverse(),images=await Promise.all(rows.map(m=>m.image_path?signedImage(m.image_path):null));
  $("messages").innerHTML=rows.length?rows.map((m,i)=>{
   const mine=m.sender_role==="customer"&&m.sender_user_id===user.id,bot=m.sender_role==="bot";
   return '<article class="bubble '+(mine?'mine':bot?'bot':'')+'">'+(m.message_text?esc(m.message_text):'')+(images[i]?'<img src="'+esc(images[i])+'" alt="Image attachment" loading="lazy">':'')+'<small>'+(bot?'DelightVendorEdit':mine?'You':'Support')+' · '+time(m.created_at)+'</small></article>';
