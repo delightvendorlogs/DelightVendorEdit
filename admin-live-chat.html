@@ -45,8 +45,8 @@ function renderList(){
 }
 async function signedImage(path){if(!path)return null;const {data,error}=await db.storage.from(BUCKET).createSignedUrl(path,3600);if(error)return null;return data.signedUrl}
 async function loadMessages(){
- if(!active)return;const {data,error}=await db.from("support_chat_messages").select("id,sender_user_id,sender_role,message_text,image_path,created_at").eq("conversation_id",active.id).order("created_at",{ascending:true}).limit(500);if(error)throw error;
- const rows=data||[],images=await Promise.all(rows.map(m=>m.image_path?signedImage(m.image_path):null));
+ if(!active)return;const {data,error}=await db.from("support_chat_messages").select("id,sender_user_id,sender_role,message_text,image_path,created_at").eq("conversation_id",active.id).order("created_at",{ascending:false}).limit(500);if(error)throw error;
+ const rows=(data||[]).reverse(),images=await Promise.all(rows.map(m=>m.image_path?signedImage(m.image_path):null));
  $("messages").innerHTML=rows.length?rows.map((m,i)=>'<article class="bubble '+(m.sender_role==='customer'?'customer':m.sender_role==='bot'?'bot':'')+'">'+(m.message_text?esc(m.message_text):'')+(images[i]?'<img src="'+esc(images[i])+'" alt="Customer image attachment" loading="lazy">':'')+'<small>'+(m.sender_role==='customer'?'Customer':m.sender_role==='bot'?'Automatic reply':'You')+' · '+time(m.created_at)+'</small></article>').join(""):'<div class="empty">This conversation is ready for your reply.</div>';
  $("messages").scrollTop=$("messages").scrollHeight;
 }
