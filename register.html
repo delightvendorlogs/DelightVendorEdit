@@ -107,6 +107,10 @@ const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_K
   auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
 });
 
+async function notifyAdminAuthActivity(eventType) {
+  try { const { data, error } = await client.functions.invoke("auth-activity-alert", { body: { event: eventType } }); if (error) console.warn("Admin activity alert:", error.message); else if (data && data.emailSent === false && data.telegramSent === false) console.warn("Admin alerts not delivered:", data.emailError, data.telegramError); } catch (e) { console.warn("Admin activity alert failed:", e); }
+}
+
 // The database's new-user trigger creates the profile. Never insert wallet
 // balances or privileged roles from public browser code.
 form.addEventListener("submit", async event => {
@@ -134,6 +138,7 @@ form.addEventListener("submit", async event => {
     });
     if (error) throw error;
     if (data && data.session) {
+      void notifyAdminAuthActivity("signup");
       showMessage("success", "Your account has been created. Opening the page you requested…");
       window.location.replace(signupDestination);
       return;
