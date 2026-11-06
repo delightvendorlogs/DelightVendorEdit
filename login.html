@@ -110,10 +110,7 @@ try {
 
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
-});
-async function notifyAdminAuthActivity(eventType) {
-  try { const { data, error } = await client.functions.invoke("auth-activity-alert", { body: { event: eventType } }); if (error) console.warn("Admin activity alert:", error.message); else if (data && data.emailSent === false && data.telegramSent === false) console.warn("Admin alerts not delivered:", data.emailError, data.telegramError); } catch (e) { console.warn("Admin activity alert failed:", e); }
-}
+}); 
 
 // Successful sign-in always opens the private dashboard. Public pages
 // are never used as post-login destinations.
@@ -152,8 +149,7 @@ form.addEventListener("submit", async event => {
     if (!persisted?.session?.user) {
       throw new Error("Sign-in succeeded but the browser could not restore the session. Please allow site data/cookies for this site, then try again.");
     }
-    void notifyAdminAuthActivity("login");
-    showMessage("success", "Signed in successfully. Opening the page you requested…");
+showMessage("success", "Signed in successfully. Opening the page you requested…");
     window.location.replace(destination);
   } catch (error) {
     const raw = error && error.message ? error.message : "";
