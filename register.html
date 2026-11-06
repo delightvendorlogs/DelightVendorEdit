@@ -92,21 +92,9 @@ function setBusy(busy) {
   submitButton.textContent = busy ? "Creating account…" : "Create account";
 }
 const params = new URLSearchParams(window.location.search);
-function postSignupDestination() {
-  const requested = params.get("redirect");
-  if (!requested) return new URL("dashboard.html", window.location.href).href;
-  try {
-    const target = new URL(requested, window.location.href);
-    const appBase = new URL("./", window.location.href);
-    if (target.origin !== window.location.origin || !target.pathname.startsWith(appBase.pathname) || /\/(?:login|register)\.html$/i.test(target.pathname)) {
-      return new URL("dashboard.html", window.location.href).href;
-    }
-    return target.href;
-  } catch (_) {
-    return new URL("dashboard.html", window.location.href).href;
-  }
-}
-const signupDestination = postSignupDestination();
+// New accounts always enter the private dashboard after signup.
+// Ignore stale redirect parameters that may point back to the public homepage.
+const signupDestination = new URL("dashboard.html", window.location.href).href;
 const urlReferral = (params.get("ref") || params.get("referral") || "").trim().slice(0, 50);
 if (urlReferral) referralInput.value = urlReferral;
 
