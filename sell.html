@@ -57,6 +57,7 @@ async function loadSellerRestriction(){
  $("appealHistory").innerHTML=rows.map(x=>'<article class="item"><strong>Appeal · '+esc(x.status)+'</strong><p>'+esc(x.appeal_text)+'</p>'+(x.admin_response?'<p class="hint">Admin response: '+esc(x.admin_response)+'</p>':'')+'<div class="hint">'+esc(date(x.created_at))+'</div></article>').join("");
  const pending=rows.some(x=>x.status==="pending");$("appealForm").classList.toggle("hidden",pending);
  if(pending)$("appealHistory").insertAdjacentHTML("afterbegin",'<p class="hint">Your appeal has been submitted and is awaiting admin review.</p>');
+ if(!blocked){const wait=Math.max(1000,new Date(sellerRestriction.restriction_expires_at).getTime()-Date.now()+500);window.setTimeout(()=>loadSellerRestriction().catch(e=>msg("appealStatus",e.message,"error")),wait);}
 }
 $("appealForm").addEventListener("submit",async e=>{e.preventDefault();const b=$("appealSubmit");b.disabled=true;msg("appealStatus","Submitting your appeal…");try{const {error}=await db.rpc("submit_seller_appeal",{p_appeal_text:$("appealText").value.trim()});if(error)throw error;$("appealText").value="";msg("appealStatus","Your appeal has been submitted successfully.","ok");await loadSellerRestriction()}catch(err){msg("appealStatus",err.message||"Could not submit your appeal.","error")}finally{b.disabled=false}});
 
