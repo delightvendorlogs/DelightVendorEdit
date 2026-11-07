@@ -68,7 +68,8 @@ footer{text-align:center;color:#777368;font-size:12px;padding:18px 16px 24px}
   </button>
   <div class="auth-divider"><span>or continue with email</span></div>
 </div>
-\n<form id="login-form" novalidate>
+
+<form id="login-form" novalidate>
 <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" maxlength="254" required></div>
 <div class="field"><label for="password">Password</label><div class="input-wrap"><input class="password-input" id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="toggle-password" type="button" id="toggle-password" aria-label="Show password">Show</button></div></div>
 <div class="forgot-row"><a href="forgot-password.html">Forgot password?</a></div>
@@ -201,7 +202,8 @@ googleButton.addEventListener("click", async () => {
     googleButton.querySelector("span").textContent = "Continue with Google";
   }
 });
-\n})();
+
+})();
 </script>
 </body>
 </html>
