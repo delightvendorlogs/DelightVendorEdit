@@ -49,7 +49,7 @@ async function loadSellerRestriction(){
  if(!active){$("appealHistory").innerHTML="";$("appealForm").classList.add("hidden");return}
  const blocked=sellerRestriction.restriction_status==="blocked";
  $("restrictionTitle").textContent=blocked?"Your selling account has been blocked":"Your selling account has been suspended";
- $("restrictionMessage").textContent=blocked?"Your selling account has been blocked. You cannot submit selling requests or sell products until the restriction is removed.":"Your selling account has been suspended until "+date(sellerRestriction.restriction_expires_at)+". You cannot submit selling requests or sell products during this period.";
+ const hours=Math.max(1,Math.round((new Date(sellerRestriction.restriction_expires_at).getTime()-new Date(sellerRestriction.restriction_started_at).getTime())/3600000));const duration=hours%24===0?(hours/24)+" day"+(hours/24===1?"":"s"):hours+" hour"+(hours===1?"":"s");$("restrictionMessage").textContent=blocked?"Your selling account has been blocked. You cannot submit selling requests or sell products until the restriction is removed.":"Your selling account has been suspended for "+duration+". You cannot submit selling requests or sell products during this period.";
  $("restrictionReason").textContent="Reason: "+(sellerRestriction.restriction_reason||"Not provided.");
  $("restrictionExpiry").textContent=blocked?"This block has no automatic expiry.":"Suspension ends: "+date(sellerRestriction.restriction_expires_at);
  const a=await db.from("seller_appeals").select("id,status,appeal_text,admin_response,created_at,reviewed_at").eq("seller_user_id",user.id).order("created_at",{ascending:false}).limit(10);
