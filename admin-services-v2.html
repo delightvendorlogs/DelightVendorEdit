@@ -36,6 +36,8 @@ $("reload").onclick=load;$("searchService").oninput=e=>{searchText=e.target.valu
 
 <script>
 (async()=>{
+async function waitForSupabaseClient(){for(let i=0;i<100;i++){if(window.supabase&&typeof window.supabase.createClient==="function")return;await new Promise(resolve=>setTimeout(resolve,100));}throw new Error("The sign-in library is still loading. Reload the admin page.");}
+await waitForSupabaseClient();
 const LP_URL="https://genlmqzkjouinofkitqt.supabase.co",LP_KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv",LP_DB=window.supabase.createClient(LP_URL,LP_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let lpRows=[],lpPage=1,lpSearchTerm="",lpSearchTimer=null;const $lp=id=>document.getElementById(id),lpMoney=n=>"₦"+Number(n||0).toLocaleString("en-NG",{minimumFractionDigits:2});
 async function lpAdminCall(action,extra={}){const {data,error}=await LP_DB.functions.invoke("logsplug-api",{body:{action,...extra}});if(error)throw error;if(data?.error)throw Error(data.error);return data}
