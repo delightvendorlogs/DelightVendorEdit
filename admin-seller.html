@@ -11,6 +11,11 @@
 .dve-video-menu-close{margin-top:14px!important;text-align:center!important;background:#292319!important}
 .dve-video-speed-row{display:flex;gap:6px;flex-wrap:wrap}
 .dve-video-speed-row button{width:auto;flex:1;text-align:center;padding:9px 5px}
+</style><style id="dve-video-basic-controls">
+.dve-video-controls{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#111;border:1px solid #3d3421;border-radius:0 0 10px 10px;color:#eee;font:12px system-ui}
+.dve-video-controls button{border:1px solid #514322;border-radius:8px;background:#080808;color:#f5d47e;padding:7px 10px;cursor:pointer}
+.dve-video-controls input[type=range]{min-width:0;flex:1;accent-color:#e9bd53}
+.dve-video-time{white-space:nowrap;font-variant-numeric:tabular-nums}
 </style></head><!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080808"><meta name="robots" content="noindex,nofollow"><title>Admin Seller Control — DelightVendorEdit</title><link rel="icon" type="image/png" href="assets/dv-logo.png"><script>window.__dvSupabaseReady=new Promise(function(resolve,reject){var urls=["https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2","https://unpkg.com/@supabase/supabase-js@2"];function go(i){if(i>=urls.length){reject(new Error("Could not load Supabase. Check your connection and reload."));return;}var s=document.createElement("script");s.src=urls[i];s.onload=function(){if(window.supabase&&window.supabase.createClient)resolve();else go(i+1)};s.onerror=function(){go(i+1)};document.head.appendChild(s)}go(0)});</script>
 <style>
@@ -244,6 +249,17 @@ function setup(){
   if(v.dataset.dveMenuReady)return;v.dataset.dveMenuReady="1";
   var shell=document.createElement("div");shell.className="dve-video-shell";v.parentNode.insertBefore(shell,v);shell.appendChild(v);
   v.removeAttribute("controls");v.setAttribute("playsinline","");
+  var controls=document.createElement("div");controls.className="dve-video-controls";
+  controls.innerHTML='<button type="button" data-vplay>Play</button><span class="dve-video-time" data-vtime>0:00</span><input type="range" min="0" max="1000" value="0" step="1" aria-label="Video position" data-vseek><button type="button" data-vmute>Unmute</button>';
+  shell.appendChild(controls);
+  var play=controls.querySelector("[data-vplay]"),seek=controls.querySelector("[data-vseek]"),time=controls.querySelector("[data-vtime]"),mute=controls.querySelector("[data-vmute]");
+  function stamp(n){if(!Number.isFinite(n))return "0:00";var m=Math.floor(n/60),s=Math.floor(n%60);return m+":"+String(s).padStart(2,"0")}
+  play.addEventListener("click",function(){if(v.paused)v.play().catch(function(){});else v.pause()});
+  v.addEventListener("play",function(){play.textContent="Pause"});v.addEventListener("pause",function(){play.textContent="Play"});
+  v.addEventListener("timeupdate",function(){if(Number.isFinite(v.duration)&&v.duration>0)seek.value=String(Math.round(v.currentTime/v.duration*1000));time.textContent=stamp(v.currentTime)+" / "+stamp(v.duration)});
+  seek.addEventListener("input",function(){if(Number.isFinite(v.duration)&&v.duration>0)v.currentTime=Number(seek.value)/1000*v.duration});
+  mute.addEventListener("click",function(){v.muted=!v.muted;mute.textContent=v.muted?"Unmute":"Mute"});
+  mute.textContent=v.muted?"Unmute":"Mute";
   var trigger=document.createElement("button");trigger.type="button";trigger.className="dve-video-menu-trigger";trigger.textContent="⋮";trigger.setAttribute("aria-label","Video options");shell.appendChild(trigger);
   trigger.addEventListener("click",function(){activeVideo=v;backdrop.querySelector('[data-action="download"]').href=v.currentSrc||v.src||"";backdrop.classList.add("open")});
   v.addEventListener("click",function(){if(v.paused)v.play().catch(function(){});else v.pause()});
