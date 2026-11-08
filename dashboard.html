@@ -1955,26 +1955,42 @@ async function loadWallet(userId) {
               '</p><a class="text-link" href="explore-sellers.html">Open marketplace ↗</a></div>';
             return;
           }
-          resultNode.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px">' +
+          resultNode.innerHTML = '<div class="dve-dashboard-products" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px">' +
             rows.slice(0, 3).map(function(p) {
               const img = p.image_path ? client.storage.from("seller-product-images").getPublicUrl(p.image_path).data.publicUrl : "";
-              return '<article style="border:1px solid var(--line);border-radius:13px;background:#0b0b0b;overflow:hidden;min-width:0">' +
-                (img ? '<img src="' + escapeHTML(img) + '" alt="" loading="lazy" style="width:100%;height:130px;object-fit:cover;background:#181818">' : '') +
-                '<div style="padding:13px"><strong style="display:block;overflow-wrap:anywhere">' + escapeHTML(p.title) + '</strong>' +
+              const video = p.product_video_path ? client.storage.from("seller-product-images").getPublicUrl(p.product_video_path).data.publicUrl : "";
+              const badge = p.seller_badge || {};
+              const medal = ({bronze:"🥉",silver:"🥈",gold:"🥇"})[badge.seller_award] || "";
+              const sellerName = badge.business_name || "Seller";
+              const sellerLink = p.seller_user_id ? 'seller-profile.html?seller='+encodeURIComponent(p.seller_user_id) : "explore-sellers.html";
+              const listingLink = "explore-sellers.html#product-"+encodeURIComponent(p.id);
+              const media = (img ? '<img src="' + escapeHTML(img) + '" alt="" loading="lazy" style="width:100%;max-height:180px;aspect-ratio:16/9;object-fit:contain;background:#080808;border-radius:10px">' : '') +
+                (video ? '<video class="dve-dashboard-product-video" src="' + escapeHTML(video) + '" muted playsinline loop preload="metadata" style="display:block;width:100%;max-height:190px;aspect-ratio:16/9;object-fit:contain;background:#080808;border-radius:10px;margin-top:8px" aria-label="Video preview for ' + escapeHTML(p.title) + '"></video>' : '');
+              return '<article id="dashboard-product-' + escapeHTML(p.id) + '" style="position:relative;border:1px solid var(--line);border-radius:13px;background:#0b0b0b;overflow:visible;min-width:0;padding:10px">' +
+                '<div style="display:flex;flex-direction:column;gap:8px">' + (media || '<div style="aspect-ratio:16/9;background:#181818;border-radius:10px;display:grid;place-items:center;color:var(--muted)">No product media</div>') + '</div>' +
+                '<div style="padding:9px 2px 2px"><strong style="display:block;overflow-wrap:anywhere">' + escapeHTML(p.title) + '</strong>' +
+                '<div style="font-size:11px;color:var(--muted);margin-top:5px"><a href="' + sellerLink + '" style="color:var(--gold);text-decoration:none">' + medal + (medal ? " " : "") + escapeHTML(sellerName) + '</a></div>' +
                 (p.description ? '<p style="font-size:12px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere">' + escapeHTML(p.description) + '</p>' : '') +
                 '<div style="font-weight:900;color:var(--gold);font-size:18px;margin:8px 0">₦' + Number(p.price || 0).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
-                '<a class="text-link" href="explore-sellers.html">View &amp; buy ↗</a></div></article>';
+                '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><a class="text-link" href="' + listingLink + '">View &amp; buy ↗</a>' +
+                '<details class="dve-listing-menu" style="position:relative"><summary aria-label="More listing actions" title="More actions" style="list-style:none;cursor:pointer;color:var(--gold);font-size:22px;line-height:1;padding:5px 9px;border:1px solid var(--line);border-radius:9px">⋮</summary><div style="position:absolute;right:0;bottom:38px;z-index:30;min-width:155px;padding:7px;background:#171717;border:1px solid #514322;border-radius:10px;box-shadow:0 10px 25px #0009"><a href="' + sellerLink + '" style="display:block;padding:9px;color:#f5d47e;text-decoration:none;font-size:12px">View seller</a><button type="button" data-copy-listing="' + escapeHTML(p.id) + '" style="width:100%;padding:9px;background:transparent;color:#f5d47e;text-align:left;font-size:12px">Copy listing link</button></div></details></div></div></article>';
             }).join("") + '</div><div style="margin-top:14px"><a class="text-link" href="explore-sellers.html">Explore all seller products ↗</a></div>';
+          resultNode.querySelectorAll("[data-copy-listing]").forEach(function(button){button.addEventListener("click",async function(){const p=listings.find(x=>x.id===button.dataset.copyListing);if(!p)return;const url=new URL("explore-sellers.html#product-"+p.id,location.href).href;try{await navigator.clipboard.writeText(url);button.textContent="Copied!";}catch(_){window.prompt("Copy listing link",url);} });});
+          const previewVideos=[...resultNode.querySelectorAll(".dve-dashboard-product-video")];
+          previewVideos.forEach(function(video){video.addEventListener("click",function(){video.currentTime=0;video.muted=false;video.controls=true;video.loop=false;video.play().catch(()=>{});});});
+          if("IntersectionObserver" in window){const observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){const video=entry.target;if(entry.isIntersecting){if(!video.controls){video.muted=true;video.play().catch(()=>{});}}else{video.pause();}});},{threshold:0.45});previewVideos.forEach(video=>observer.observe(video));}else{previewVideos.forEach(video=>video.play().catch(()=>{}));}
         }
         search.addEventListener("input", renderListings);
         try {
           const result = await client.from("products")
-            .select("id,title,description,image_path,price,listing_status,created_at")
+            .select("id,title,description,image_path,product_video_path,seller_user_id,price,listing_status,created_at")
             .eq("listing_status", "published")
             .order("created_at", { ascending: false })
             .limit(6);
           if (result.error) throw result.error;
           listings = result.data || [];
+          const sellerIds=[...new Set(listings.map(p=>p.seller_user_id).filter(Boolean))];
+          if(sellerIds.length){const badges=await client.rpc("get_public_seller_badges",{p_seller_user_ids:sellerIds});if(!badges.error){const byId=new Map((badges.data||[]).map(x=>[x.user_id,x]));listings=listings.map(p=>({...p,seller_badge:byId.get(p.seller_user_id)||null}));}}
           renderListings();
         } catch (error) {
           console.warn("Seller marketplace preview could not load:", error?.message || error);
