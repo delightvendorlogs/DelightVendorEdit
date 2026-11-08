@@ -9,10 +9,10 @@ function calc(provider:number,g:any,i:any){const r=i&&i.pricing_mode!=="inherit"
 function providerError(parsed:any){if(!parsed||typeof parsed!=="object")return null;const s=String(parsed.status??"").toLowerCase();if(parsed.success===false||parsed.status===false||["error","failed","failure","rejected"].includes(s)||parsed.error||parsed.errors?.length)return String(parsed.error?.message??parsed.error??parsed.errors?.[0]?.message??parsed.message??"Provider rejected this order.");return null}
 function hasDelivery(value:any):boolean{
  if(value===null||value===undefined)return false;
- if(typeof value==="string")return value.trim().length>0;
+ if(typeof value==="string"){const text=value.trim();return !!text&&!/^(success|successful|completed|order (placed|created|submitted)|request (accepted|submitted))\b/i.test(text)}
  if(typeof value!=="object")return false;
  if(Array.isArray(value))return value.some(hasDelivery);
- const ignored=new Set(["status","success","message","error","errors","id","order_id","reference","provider","provider_name","tool_id","tool_name","name","title","price","amount","currency","quantity","created_at","updated_at"]);
+ const ignored=new Set(["status","success","message","error","errors","id","order_id","order_number","provider_order_id","provider_reference","reference","transaction_id","payment_reference","provider","provider_name","tool_id","tool_name","name","title","price","amount","currency","quantity","created_at","updated_at"]);
  return Object.entries(value).some(([key,val])=>!ignored.has(key.toLowerCase())&&hasDelivery(val));
 }
 Deno.serve(async(req)=>{
@@ -125,6 +125,7 @@ Deno.serve(async(req)=>{
       }else console.error("Working Tools reusable inventory save failed",inventoryInsert.error.message);
     }else inventoryId=inventoryInsert.data?.tool_id||null;
   }
+  meta.inventory_saved=!!inventoryId;
 
   await db.rpc("finish_product_wallet_purchase",{p_transaction_id:tx,p_success:true,p_note:"Working Tools purchase — "+tool.tool_name});
   let orderId:string|null=null,orderNumber:string|null=null,itemId:string|null=null,orderRecorded=false;
