@@ -9,7 +9,7 @@ function calc(provider:number,g:any,i:any){const r=i&&i.pricing_mode!=="inherit"
 function providerError(parsed:any){if(!parsed||typeof parsed!=="object")return null;const s=String(parsed.status??"").toLowerCase();if(parsed.success===false||parsed.status===false||["error","failed","failure","rejected"].includes(s)||parsed.error||parsed.errors?.length)return String(parsed.error?.message??parsed.error??parsed.errors?.[0]?.message??parsed.message??"Provider rejected this order.");return null}
 function hasDelivery(value:any):boolean{
  if(value===null||value===undefined)return false;
- if(typeof value==="string"){const text=value.trim();return !!text&&!/^(success|successful|completed|order (placed|created|submitted)|request (accepted|submitted))\b/i.test(text)}
+ if(typeof value==="string"){const text=value.trim();return !!text&&!/^(ok|success|successful|completed|done|accepted|pending|processing|queued|order (placed|created|submitted)|request (accepted|submitted))\b/i.test(text)}
  if(typeof value!=="object")return false;
  if(Array.isArray(value))return value.some(hasDelivery);
  const ignored=new Set(["status","success","message","error","errors","id","order_id","order_number","provider_order_id","provider_reference","reference","transaction_id","payment_reference","provider","provider_name","tool_id","tool_name","name","title","price","amount","currency","quantity","created_at","updated_at"]);
@@ -105,8 +105,8 @@ Deno.serve(async(req)=>{
     if(!response.ok||fail){const providerMessage=String(fail||result?.message||result?.error?.message||"");const providerInsufficient=/insufficient|not enough|low balance|insufficient funds/i.test(providerMessage)||response.status===402;await db.rpc("finish_product_wallet_purchase",{p_transaction_id:tx,p_success:false,p_note:"XclusivePlugs rejected order: "+(providerMessage||response.status)});return reply({error:providerInsufficient?"Insufficient funds. Please contact support.":(providerMessage||"Provider order failed. Your wallet has been refunded.")},502)}
   }
 
-  const providerStatus=String(result?.status||result?.data?.status||"").toLowerCase();
-  const providerPending=["pending","processing","queued","in_progress"].includes(providerStatus);
+  const providerStatus=String(result?.status||result?.data?.status||"").toLowerCase().replace(/[\\s-]+/g,"_");
+  const providerPending=["pending","processing","queued","in_progress","waiting"].includes(providerStatus);
   const hasDeliveryResult=hasDelivery(result);
   const isPending=providerPending||!hasDeliveryResult;
   const meta={category:"working-tools",tool_id:toolId,title:tool.tool_name,customer_price:selling,delivery_payload:result,inventory_used:inventoryUsed,inventory_saved:!!saved||(!isPending&&hasDeliveryResult)};
