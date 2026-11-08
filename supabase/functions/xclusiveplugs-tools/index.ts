@@ -128,6 +128,7 @@ Deno.serve(async(req)=>{
   meta.inventory_saved=!!inventoryId;
 
   await db.rpc("finish_product_wallet_purchase",{p_transaction_id:tx,p_success:true,p_note:"Working Tools purchase — "+tool.tool_name});
+  await db.from("wallet_transactions").update({metadata:meta,description:"Working Tools purchase — "+tool.tool_name}).eq("id",tx);
   let orderId:string|null=null,orderNumber:string|null=null,itemId:string|null=null,orderRecorded=false;
   try{
     const order=await db.from("orders").insert({
