@@ -12,7 +12,7 @@
 <section id="tab-products" class="panel hidden"><div class="rowbetween"><div><h2>Approved listings</h2><p class="muted">Pause or republish unsold listings. Sold-out listings cannot be reactivated from here.</p></div><button id="refreshProducts">Refresh</button></div><div id="productsStatus" class="status"></div><div id="productsList" class="list"></div></section>
 <section id="tab-sales" class="panel hidden"><div class="rowbetween"><div><h2>Customer sales orders</h2><p class="muted">Every successful purchase, including repeat sales, appears as its own order.</p></div><button id="refreshSales">Refresh</button></div><div id="salesStatus" class="status"></div><div id="salesList" class="list"></div></section>
 <section id="tab-activeSellers" class="panel hidden"><div class="rowbetween"><div><h2>Active Sellers</h2><p class="muted">All approved sellers, ranked by completed product sales. Reviews are shown here to help you assess sellers before awarding badges.</p></div><button id="refreshActiveSellers">Refresh</button></div><div id="activeSellersStatus" class="status"></div><div id="activeSellersList" class="list"></div></section>
-<section id="tab-payouts" class="panel hidden"><div class="rowbetween"><div><h2>Seller payouts</h2><p class="muted">Confirm payment only after you have sent the money to the seller's bank.</p></div><button id="refreshPayouts">Refresh</button></div><div class="filters" id="payoutFilters"><button class="active" data-filter="pending">Pending</button><button data-filter="all">All</button><button data-filter="approved">Successful</button></div><div id="payoutsStatus" class="status"></div><div id="payoutsList" class="list"></div></section>
+<section id="tab-payouts" class="panel hidden"><div class="rowbetween"><div><h2>Seller payouts</h2><p class="muted">Review totals by status and seller. Mark payments complete only after you have sent the money.</p></div><button id="refreshPayouts">Refresh</button></div><div class="stats" style="margin:14px 0"><div class="stat"><span class="muted small">Total pending</span><b id="payoutPendingTotal">₦0.00</b></div><div class="stat"><span class="muted small">Total completed</span><b id="payoutCompletedTotal">₦0.00</b></div><div class="stat"><span class="muted small">Total cancelled</span><b id="payoutCancelledTotal">₦0.00</b></div></div><div class="filters" id="payoutFilters"><button class="active" data-filter="pending">Pending</button><button data-filter="completed">Completed</button><button data-filter="cancelled">Cancelled</button><button data-filter="all">All payouts</button></div><div id="payoutsStatus" class="status"></div><div id="pendingSellerSummary" class="list"></div><div id="payoutsList" class="list"></div></section>
 <section id="tab-changes" class="panel hidden"><div class="rowbetween"><div><h2>Payout account change requests</h2><p class="muted">Approve new bank details only after reviewing them.</p></div><button id="refreshChanges">Refresh</button></div><div class="filters" id="changeFilters"><button class="active" data-filter="pending">Pending</button><button data-filter="all">All</button><button data-filter="approved">Approved</button><button data-filter="rejected">Rejected</button></div><div id="changesStatus" class="status"></div><div id="changesList" class="list"></div></section>
 <section id="tab-restrictions" class="panel hidden"><div class="rowbetween"><div><h2>Seller Restrictions</h2><p class="muted">Suspend sellers for a chosen number of hours or days, or block them until you remove the block.</p></div><button id="refreshRestrictions">Refresh</button></div><div id="restrictionsStatus" class="status"></div><div id="restrictionsList" class="list"></div><h2 style="margin-top:28px">Seller Appeals</h2><p class="muted">Review seller explanations. Approving an appeal restores selling access and eligible listings.</p><div id="appealsStatus" class="status"></div><div id="appealsList" class="list"></div></section>
 <section id="tab-badges" class="panel hidden"><div class="rowbetween"><div><h2>Seller Status & Awards</h2><p class="muted">Set verification status and medal award independently. A seller can hold both at the same time.</p></div><button id="refreshBadges">Refresh</button></div><div id="badgesStatus" class="status"></div><div id="badgesList" class="list"></div></section>
@@ -32,7 +32,106 @@ async function reviewApp(id,decision){let reason=null,mode="single";if(decision=
 function renderProducts(){const rows=products.filter(p=>["published","paused","sold_out","deleted","rejected"].includes(p.listing_status));if(!rows.length){$("productsList").innerHTML='<div class="empty"><strong>No listings yet</strong>Approved products will appear here.</div>';return}$("productsList").innerHTML=rows.map(p=>{const account=accounts.filter(x=>x.seller_user_id===p.seller_user_id).sort((x,y)=>Number(y.is_default)-Number(x.is_default))[0];return '<article class="item"><div class="rowbetween"><div><h3>'+esc(p.title)+'</h3><div class="meta">'+esc((profiles[p.seller_user_id]&&profiles[p.seller_user_id].email)||p.seller_user_id)+' · '+esc(date(p.created_at))+'</div></div><span class="badge '+(p.listing_status==="published"?"good":p.listing_status==="sold_out"?"bad":"")+'">'+esc(p.listing_status==="sold_out"?"sold":p.listing_status)+'</span></div><div class="price">'+money(p.price)+'</div><div class="meta">Sale mode: '+(p.sale_mode==="single"?"Sell once":"Endless / multiple customers")+' · Delivery: '+(p.delivery_mode==="unique"?"unique inventory":"reusable")+(p.delivery_mode==="unique"?" · Stock left "+Number(p.inventory_quantity||0):"")+' · Platform fee '+money(Number(p.price)*.1)+' · Seller net '+money(Number(p.price)*.9)+'</div>'+(p.description?'<p>'+esc(p.description)+'</p>':'')+'<details><summary>View private delivery information</summary><div class="delivery">'+esc(deliveries[p.id]||"No delivery information saved.")+'</div></details><div class="meta">Default payout account: '+(account?esc(account.bank_name)+' · '+esc(account.account_name)+' · '+esc(account.account_number):'Not available')+'</div>'+(p.listing_status==="published"?'<button data-pause="'+esc(p.id)+'">Pause listing</button>':p.listing_status==="paused"?'<button class="primary" data-publish="'+esc(p.id)+'">Republish listing</button>':"")+'</article>'}).join("");$("productsList").querySelectorAll("[data-pause]").forEach(b=>b.addEventListener("click",()=>setProductStatus(b.dataset.pause,"paused")));$("productsList").querySelectorAll("[data-publish]").forEach(b=>b.addEventListener("click",()=>setProductStatus(b.dataset.publish,"published")))}
 async function setProductStatus(id,s){if(!confirm((s==="paused"?"Pause":"Republish")+" this listing?"))return;try{const {error}=await db.rpc("admin_set_seller_product_status",{p_product_id:id,p_status:s});if(error)throw error;await loadAll()}catch(e){alert(e.message||"Could not update listing.")}}
 function renderSales(){if(!salesItems.length){$("salesStatus").textContent="";$("salesList").innerHTML='<div class="empty"><strong>No customer sales yet</strong>Successful marketplace purchases will appear here.</div>';return}const orders={};orderRows.forEach(o=>orders[o.id]=o);$("salesStatus").textContent=salesItems.length+" seller sale order"+(salesItems.length===1?"":"s")+" recorded."; $("salesList").innerHTML=salesItems.map(i=>{const o=orders[i.order_id]||{};const buyer=profiles[o.customer_user_id]||{};const seller=profiles[i.seller_user_id]||{};const payout=payouts.find(p=>p.order_item_id===i.id);return '<article class="item"><div class="rowbetween"><div><h3>'+esc(i.item_title_snapshot||"Seller product")+'</h3><div class="meta">Order '+esc(o.order_number||i.order_id)+' · '+esc(date(i.created_at))+'</div></div><span class="badge good">'+esc(i.fulfillment_status||"delivered")+'</span></div><div class="split" style="margin-top:10px"><div><div class="meta">Seller</div><strong>'+esc(seller.display_name||seller.email||i.seller_user_id)+'</strong></div><div><div class="meta">Buyer</div><strong>'+esc(buyer.display_name||buyer.email||o.customer_user_id||"Customer")+'</strong></div></div><div class="price">'+money(i.seller_net_amount)+'</div><div class="meta">Customer paid '+money(i.unit_price)+' · Platform fee '+money(i.platform_commission)+' · Seller net '+money(i.seller_net_amount)+'</div><div class="rowbetween"><span class="badge">'+esc(o.order_status||"completed")+'</span><span class="badge '+(payout&&(payout.status==="approved"||payout.status==="paid")?"good":"")+'">Payout: '+esc(payout?payout.status:"not created")+'</span></div><details style="margin-top:10px"><summary>View delivered information</summary><div class="delivery">'+esc(JSON.stringify(i.delivery_payload||{},null,2))+'</div></details></article>'}).join("")}
-function renderPayouts(){const rows=payouts.filter(p=>payoutFilter==="all"||(payoutFilter==="approved"?["approved","paid"].includes(p.status):p.status===payoutFilter));if(!rows.length){$("payoutsList").innerHTML='<div class="empty"><strong>No '+esc(payoutFilter)+' payouts</strong>Seller payouts appear here after successful purchases.</div>';return}$("payoutsList").innerHTML=rows.map(p=>{const account=accounts.find(x=>x.id===p.payout_account_id);const profile=profiles[p.seller_user_id]||{};return '<article class="item"><div class="rowbetween"><div><h3>'+esc(profile.display_name||profile.email||p.seller_user_id)+'</h3><div class="meta">Product: '+esc((salesItems.find(i=>i.id===p.order_item_id)||{}).item_title_snapshot||"Seller product")+' · Created '+esc(date(p.created_at))+' · Order item '+esc(p.order_item_id)+'</div></div><span class="badge '+(["approved","paid"].includes(p.status)?"good":"")+'">'+esc(p.status==="approved"||p.status==="paid"?"successful":p.status)+'</span></div><div class="price">'+money(p.net_amount)+'</div><div class="meta">Gross sale '+money(p.gross_amount)+' · 10% fee '+money(p.commission_amount)+'</div><div class="delivery">'+(account?esc(account.bank_name)+'\nAccount name: '+esc(account.account_name)+'\nAccount number: '+esc(account.account_number):'Payout account record not found')+'</div>'+(p.admin_note?'<p class="muted">'+esc(p.admin_note)+'</p>':'')+(["pending","processing"].includes(p.status)?'<div class="actions"><button class="primary" data-paid="'+esc(p.id)+'">Confirm sent & mark paid</button></div><p class="hint muted small">Use this only after you have sent the money to the bank account above.</p>':"")+'</article>'}).join("");$("payoutsList").querySelectorAll("[data-paid]").forEach(b=>b.addEventListener("click",async()=>{const note=prompt("Optional admin note/reference for this payment (the money must already have been sent):","");if(note===null)return;if(!confirm("Confirm that you have already sent "+money(payouts.find(x=>x.id===b.dataset.paid)?.net_amount)+" to the seller?"))return;b.disabled=true;try{const {error}=await db.rpc("admin_mark_seller_payout_paid",{p_payout_id:b.dataset.paid,p_admin_note:note});if(error)throw error;await loadAll();alert("Payout marked successful and seller notified.")}catch(e){alert(e.message||"Could not update payout.")}finally{b.disabled=false}}))}
+function payoutBucket(status){
+ if(["pending","processing"].includes(status))return "pending";
+ if(["approved","paid"].includes(status))return "completed";
+ return "cancelled";
+}
+function renderPayouts(){
+ const pending=payouts.filter(p=>payoutBucket(p.status)==="pending");
+ const completed=payouts.filter(p=>payoutBucket(p.status)==="completed");
+ const cancelled=payouts.filter(p=>payoutBucket(p.status)==="cancelled");
+ $("payoutPendingTotal").textContent=money(pending.reduce((sum,p)=>sum+Number(p.net_amount||0),0));
+ $("payoutCompletedTotal").textContent=money(completed.reduce((sum,p)=>sum+Number(p.net_amount||0),0));
+ $("payoutCancelledTotal").textContent=money(cancelled.reduce((sum,p)=>sum+Number(p.net_amount||0),0));
+
+ const sellerGroups={};
+ pending.forEach(p=>{
+   if(!sellerGroups[p.seller_user_id])sellerGroups[p.seller_user_id]=[];
+   sellerGroups[p.seller_user_id].push(p);
+ });
+ const groups=Object.entries(sellerGroups);
+ $("pendingSellerSummary").classList.toggle("hidden",payoutFilter!=="pending"||!groups.length);
+ $("pendingSellerSummary").innerHTML=payoutFilter==="pending"&&groups.length
+   ? '<h3>Pending totals by seller</h3>'+groups.map(([sellerId,items])=>{
+       const profile=profiles[sellerId]||{};
+       const total=items.reduce((sum,p)=>sum+Number(p.net_amount||0),0);
+       return '<article class="item"><div class="rowbetween"><div><h3>'+esc(profile.display_name||profile.email||sellerId)+'</h3><div class="meta">'+items.length+' pending payout(s)</div></div><div class="price">'+money(total)+'</div></div><button class="primary" data-pay-all-seller="'+esc(sellerId)+'">Mark all '+items.length+' payouts paid</button></article>';
+     }).join("")
+   : "";
+
+ const rows=payouts.filter(p=>payoutFilter==="all"||payoutBucket(p.status)===payoutFilter);
+ if(!rows.length){
+   $("payoutsList").innerHTML='<div class="empty"><strong>No '+esc(payoutFilter)+' payouts</strong>Seller payouts appear here after successful purchases.</div>';
+ }else{
+   $("payoutsList").innerHTML=rows.map(p=>{
+     const account=accounts.find(x=>x.id===p.payout_account_id);
+     const profile=profiles[p.seller_user_id]||{};
+     const item=salesItems.find(i=>i.id===p.order_item_id)||{};
+     const bucket=payoutBucket(p.status);
+     const label=bucket==="completed"?"Completed":bucket==="cancelled"?"Cancelled":"Pending";
+     const actions=bucket==="pending"
+       ? '<div class="actions"><button class="primary" data-paid="'+esc(p.id)+'">Confirm sent & mark paid</button><button class="danger" data-cancel-payout="'+esc(p.id)+'">Cancel payout</button></div><p class="hint muted small">Only mark paid after sending the money to the seller.</p>'
+       : "";
+     return '<article class="item"><div class="rowbetween"><div><h3>'+esc(profile.display_name||profile.email||p.seller_user_id)+'</h3><div class="meta">Product: '+esc(item.item_title_snapshot||"Seller product")+' · Created '+esc(date(p.created_at))+' · Order item '+esc(p.order_item_id)+'</div></div><span class="badge '+(bucket==="completed"?"good":bucket==="cancelled"?"bad":"")+'">'+label+'</span></div><div class="price">'+money(p.net_amount)+'</div><div class="meta">Gross sale '+money(p.gross_amount)+' · 10% fee '+money(p.commission_amount)+'</div><div class="delivery">'+(account?esc(account.bank_name)+'\\nAccount name: '+esc(account.account_name)+'\\nAccount number: '+esc(account.account_number):'Payout account record not found')+'</div>'+(p.admin_note?'<p class="muted">'+esc(p.admin_note)+'</p>':"")+actions+'</article>';
+   }).join("");
+ }
+
+ $("payoutsList").querySelectorAll("[data-paid]").forEach(b=>b.addEventListener("click",async()=>{
+   const payout=payouts.find(x=>x.id===b.dataset.paid);
+   const note=prompt("Optional admin note/reference for this payment (the money must already have been sent):","");
+   if(note===null)return;
+   if(!confirm("Confirm that you have already sent "+money(payout?.net_amount)+" to the seller?"))return;
+   b.disabled=true;
+   try{
+     const {error}=await db.rpc("admin_mark_seller_payout_paid",{p_payout_id:b.dataset.paid,p_admin_note:note});
+     if(error)throw error;
+     await loadAll();
+     alert("Payout marked completed and seller notified.");
+   }catch(e){alert(e.message||"Could not update payout.");}
+   finally{b.disabled=false;}
+ }));
+
+ $("payoutsList").querySelectorAll("[data-cancel-payout]").forEach(b=>b.addEventListener("click",async()=>{
+   const payout=payouts.find(x=>x.id===b.dataset.cancelPayout);
+   if(!confirm("Cancel this pending payout of "+money(payout?.net_amount)+"? The seller will be notified."))return;
+   const note=prompt("Optional reason or admin note for the seller:","");
+   if(note===null)return;
+   b.disabled=true;
+   try{
+     const {error}=await db.rpc("admin_cancel_seller_payout",{p_payout_id:b.dataset.cancelPayout,p_admin_note:note});
+     if(error)throw error;
+     await loadAll();
+     alert("Payout cancelled and seller notified.");
+   }catch(e){alert(e.message||"Could not cancel payout.");}
+   finally{b.disabled=false;}
+ }));
+
+ $("pendingSellerSummary").querySelectorAll("[data-pay-all-seller]").forEach(b=>b.addEventListener("click",async()=>{
+   const sellerId=b.dataset.payAllSeller;
+   const items=payouts.filter(p=>p.seller_user_id===sellerId&&["pending","processing"].includes(p.status)&&!p.paid_at);
+   if(!items.length){alert("There are no pending payouts for this seller.");return;}
+   const total=items.reduce((sum,p)=>sum+Number(p.net_amount||0),0);
+   const profile=profiles[sellerId]||{};
+   const sellerName=profile.display_name||profile.email||sellerId;
+   if(!confirm("You are about to mark "+items.length+" payouts for "+sellerName+" as paid. Total: "+money(total)+". Have you sent the full amount?"))return;
+   const note=prompt("Optional payment reference / note for all these payouts:","");
+   if(note===null)return;
+   b.disabled=true;
+   let done=0,failed=[];
+   try{
+     for(const item of items){
+       const result=await db.rpc("admin_mark_seller_payout_paid",{p_payout_id:item.id,p_admin_note:note});
+       if(result.error){failed.push(result.error.message||"Unknown error");break;}
+       done++;
+     }
+     await loadAll();
+     if(failed.length)alert(done+" payout(s) marked paid. Remaining payouts were not changed: "+failed[0]);
+     else alert("All "+done+" payouts marked completed. The seller has been notified for each payout.");
+   }catch(e){alert(done+" payout(s) marked paid before an error: "+(e.message||"Could not finish bulk payment."));await loadAll();}
+   finally{b.disabled=false;}
+ }));
+}
 
 async function loadRestrictions(){
  status("restrictionsStatus","Loading seller restrictions…");status("appealsStatus","Loading appeals…");
