@@ -105,7 +105,7 @@ Deno.serve(async(req)=>{
     if(!response.ok||fail){const providerMessage=String(fail||result?.message||result?.error?.message||"");const providerInsufficient=/insufficient|not enough|low balance|insufficient funds/i.test(providerMessage)||response.status===402;await db.rpc("finish_product_wallet_purchase",{p_transaction_id:tx,p_success:false,p_note:"XclusivePlugs rejected order: "+(providerMessage||response.status)});return reply({error:providerInsufficient?"Insufficient funds. Please contact support.":(providerMessage||"Provider order failed. Your wallet has been refunded.")},502)}
   }
 
-  const providerStatus=String(result?.status||result?.data?.status||"").toLowerCase().replace(/[\\s-]+/g,"_");
+  const providerStatus=String(result?.status||result?.data?.status||"").toLowerCase().replace(/[\s-]+/g,"_");
   const providerPending=["pending","processing","queued","in_progress","waiting"].includes(providerStatus);
   const hasDeliveryResult=hasDelivery(result);
   const isPending=providerPending||!hasDeliveryResult;
