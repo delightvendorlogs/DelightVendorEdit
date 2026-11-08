@@ -84,7 +84,7 @@ begin
 end
 $function$;
 
-revoke all on function public.submit_seller_review(uuid, numeric, text) from public;
+revoke all on function public.submit_seller_review(uuid, numeric, text) from public, anon;
 grant execute on function public.submit_seller_review(uuid, numeric, text) to authenticated;
 
 notify pgrst, 'reload schema';
