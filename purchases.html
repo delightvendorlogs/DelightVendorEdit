@@ -150,7 +150,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
         if (Array.isArray(payload)) return payload.map(entry => cleanDelivery(entry)).filter(Boolean).join("\n\n");
         if (payload && typeof payload === "object") {
           if (Object.prototype.hasOwnProperty.call(payload, "delivery_info")) return cleanDelivery(payload.delivery_info);
-          const hiddenKeys = new Set(["product_id","category","reference","provider_item_reference","order_id","order_item_id","id","created_at","updated_at"]);
+          const hiddenKeys = new Set(["product_id","category","reference","provider","provider_name","provider_order_id","provider_reference","provider_item_reference","order_id","order_item_id","id","created_at","updated_at"]);
           return Object.entries(payload).filter(([key,val]) => !hiddenKeys.has(key) && val !== null && val !== "")
             .map(([key,val]) => {
               const label = key.replace(/_/g," ").replace(/\b\w/g,ch=>ch.toUpperCase());
