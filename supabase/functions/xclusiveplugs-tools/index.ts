@@ -57,7 +57,7 @@ Deno.serve(async(req)=>{
   if(action==="admin_sync"){const items=await providerTools();for(const x of items){const old=await db.from("xclusiveplugs_tool_pricing").select("pricing_mode,fixed_price,markup_amount,markup_percent,enabled").eq("tool_id",x.tool_id).maybeSingle();const p=old.data||{};const r=await db.from("xclusiveplugs_tool_pricing").upsert({...x,pricing_mode:p.pricing_mode||"inherit",fixed_price:p.fixed_price??null,markup_amount:p.markup_amount??0,markup_percent:p.markup_percent??0,enabled:p.enabled??true,provider_synced_at:new Date().toISOString()},{onConflict:"tool_id"});if(r.error)return reply({error:r.error.message},500)}return reply({success:true,synced:items.length})}
  }
  if(action==="admin_inventory_list"){
-  const check=await userClient.rpc("is_admin");
+  const check=await userDb.rpc("is_admin");
   if(check.error||check.data!==true)return reply({error:"Admin access required."},403);
   const listed=await db.from("working_tool_inventory").select("tool_id,tool_name,provider_price,delivery_payload,inventory_status,source_transaction_id,purchased_by,created_at,updated_at").order("updated_at",{ascending:false}).limit(300);
   if(listed.error)return reply({error:"Could not load saved Working Tools inventory."},500);
