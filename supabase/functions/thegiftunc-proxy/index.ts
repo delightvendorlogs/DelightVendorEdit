@@ -61,8 +61,8 @@ Deno.serve(async (req) => {
      if(metaUpdate.error) console.error("Could not save purchase metadata",metaUpdate.error.message);
    } catch(e) { console.error("Could not save purchase metadata",String(e)); }
    const now=new Date().toISOString();
-   const providerStatus=String(args.delivery?.status||args.delivery?.result?.status||"").toLowerCase();
-   const isPending=["pending","processing","queued","in_progress"].includes(providerStatus);
+   const providerStatus=String(args.delivery?.status||args.delivery?.result?.status||"").toLowerCase().replace(/[\s-]+/g,"_");
+   const isPending=["pending","processing","queued","in_progress","waiting","created","submitted"].includes(providerStatus);
    let orderData:any=null;
    try {
      const orderInsert=await admin.from("orders").insert({
