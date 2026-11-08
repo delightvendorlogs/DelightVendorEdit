@@ -209,7 +209,7 @@ async function main(req:Request){
        const itemInsert=await db.from("order_items").insert({order_id:order.data.id,item_source:"logsplug_log",provider_section:log.category_name+" (1)",provider_item_reference:id,item_title_snapshot:log.title+" (1)",quantity,unit_price:log.customer_price,platform_commission:0,seller_net_amount:0,fulfillment_status:status==="pending"?"processing":"completed",delivery_payload:placed.data}).select("id").single();
        if(itemInsert.error)console.error("LogsPlug order item insert failed",itemInsert.error.message);
        else{const profit=await db.rpc("queue_referral_profit_for_order_item",{p_order_item_id:itemInsert.data.id,p_provider_cost:log.provider_price*quantity,p_customer_price:total});if(profit.error)console.error("LogsPlug referral profit recording failed",profit.error.message);}
-       if(transactionId)await db.from("wallet_transactions").update({related_order_id:order.data.id,description:"Additional service purchase — "+log.title+" (1)",metadata:{source:"logsplug",category:log.category_name,log_id:id,provider_order_id:orderId,credentials}}).eq("id",transactionId);
+       if(transactionId)await db.from("wallet_transactions").update({related_order_id:order.data.id,description:"Additional service purchase — "+log.title+" (1)",metadata:{source:"logsplug",category:log.category_name,log_id:id,provider_order_id:orderId,credentials,delivery_payload:credentials??placed.data}}).eq("id",transactionId);
      }
      if(transactionId)await db.rpc("finish_product_wallet_purchase",{p_transaction_id:transactionId,p_success:true,p_note:"Additional service purchase completed — "+log.title+" (1)"});
    }
