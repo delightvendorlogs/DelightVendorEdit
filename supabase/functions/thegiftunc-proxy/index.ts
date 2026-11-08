@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
      if(itemInsert.error) console.error("Provider purchase order item insert failed",itemInsert.error.message);
      else {
        itemSaved=true;
-       const profitRecord=await admin.rpc("record_referral_profit_for_order_item",{
+       const profitRecord=await admin.rpc("queue_referral_profit_for_order_item",{
          p_order_item_id:itemInsert.data.id,
          p_provider_cost:Math.max(0,Number(args.providerCost)||0),
          p_customer_price:Math.max(0,Number(args.price)||0)
@@ -289,11 +289,10 @@ Deno.serve(async (req) => {
      if(!providerResponse.ok||failure) {
        console.error("TheGiftUNC service purchase rejected",JSON.stringify({status:providerResponse.status,serviceId,message:String(failure||raw).slice(0,300),responsePreview:String(raw||"").slice(0,700)}));
        if(isProviderBalanceFailure(raw,result)) {
-         const rollback=await admin.rpc("discard_failed_product_wallet_purchase",{p_transaction_id:transactionId});
-         if(!rollback.error&&rollback.data?.ok) {
-           return reply({error:"Insufficient fund. Please contact support.",walletRefunded:true,purchaseRecorded:false,providerStatus:providerResponse.status},402);
-         }
-         console.error("Silent service purchase rollback failed; using normal refund",rollback.error?.message||rollback.data);
+         let rollback=await admin.rpc("discard_failed_product_wallet_purchase",{p_transaction_id:transactionId});
+         if(rollback.error||!rollback.data?.ok) rollback=await admin.rpc("discard_failed_product_wallet_purchase",{p_transaction_id:transactionId});
+         if(rollback.error||!rollback.data?.ok) console.error("Provider-insufficient wallet rollback needs support review.",rollback.error?.message||rollback.data);
+         return reply({error:"Insufficient fund. Please contact support.",walletRestored:!rollback.error&&!!rollback.data?.ok,purchaseRecorded:false,providerStatus:providerResponse.status},402);
        }
        await admin.rpc("finish_product_wallet_purchase",{p_transaction_id:transactionId,p_success:false,p_note:"TheGiftUNC service purchase failed: "+String(failure||raw).slice(0,300)});
        const customerMessage=providerResponse.status===401?"Supplier authentication failed. Please ask admin to check the TheGiftUNC API credential.":providerResponse.status===403?"The supplier has denied access to this service. Please contact support.":customerProviderMessage(providerResponse.status,raw,result);
@@ -403,13 +402,10 @@ Deno.serve(async (req) => {
          // Restore the customer's debit and remove the temporary purchase row atomically.
          const providerBalanceFailure=isProviderBalanceFailure(raw,parsed)||providerResponse.status===500;
          if(providerBalanceFailure) {
-           const rollback=await admin.rpc("discard_failed_product_wallet_purchase",{p_transaction_id:transactionId});
-           if(rollback.error||!rollback.data?.ok) {
-             console.error("Silent Working Profile rollback failed; using normal refund",rollback.error?.message||rollback.data);
-             await admin.rpc("finish_product_wallet_purchase",{p_transaction_id:transactionId,p_success:false,p_note:"Provider rejected Working Profile purchase: "+String(providerFailure||raw||"HTTP "+providerResponse.status).slice(0,300)});
-             return reply({error:providerMessage,walletRefundRequested:true,providerStatus:providerResponse.status},502);
-           }
-           return reply({error:"Insufficient fund. Please contact support.",walletRefunded:true,purchaseRecorded:false,providerStatus:providerResponse.status},402);
+           let rollback=await admin.rpc("discard_failed_product_wallet_purchase",{p_transaction_id:transactionId});
+           if(rollback.error||!rollback.data?.ok) rollback=await admin.rpc("discard_failed_product_wallet_purchase",{p_transaction_id:transactionId});
+           if(rollback.error||!rollback.data?.ok) console.error("Working Profile provider-insufficient rollback needs support review.",rollback.error?.message||rollback.data);
+           return reply({error:"Insufficient fund. Please contact support.",walletRestored:!rollback.error&&!!rollback.data?.ok,purchaseRecorded:false,providerStatus:providerResponse.status},402);
          }
          await admin.rpc("finish_product_wallet_purchase",{p_transaction_id:transactionId,p_success:false,p_note:"Provider rejected Working Profile purchase: "+String(providerFailure||raw||"HTTP "+providerResponse.status).slice(0,300)});
          return reply({error:providerMessage,walletRefundRequested:true,providerStatus:providerResponse.status},502);
@@ -426,7 +422,7 @@ Deno.serve(async (req) => {
      }
    }
    const profileOrder=await recordProviderPurchase({
-     userId:user.id,category:route.category,action:input.action,price:finalPrice,providerCost:base,reference,transactionId,
+     userId:user.id,category:route.category,action:input.action,price:finalPrice,providerCost:claimed?0:base,reference,transactionId,
      title,providerRef:profileId,delivery
    });
    await admin.rpc("finish_product_wallet_purchase",{p_transaction_id:transactionId,p_success:true,p_note:(claimed?"Delivered saved inventory for ":"Purchased and delivered ")+title});
@@ -497,8 +493,13 @@ Deno.serve(async (req) => {
       try { result=JSON.parse(raw); } catch {}
       const providerFailure=providerFailureText(raw,result,providerResponse.ok);
       if(providerFailure) {
+        if(isProviderLowBalance(raw,result)) {
+          let rollback=await admin.rpc("discard_failed_product_wallet_purchase",{p_transaction_id:transactionId});
+          if(rollback.error||!rollback.data?.ok) rollback=await admin.rpc("discard_failed_product_wallet_purchase",{p_transaction_id:transactionId});
+          if(rollback.error||!rollback.data?.ok) console.error("Provider-insufficient wallet rollback needs support review.",rollback.error?.message||rollback.data);
+          return reply({error:"Insufficient fund. Please contact support.",walletRestored:!rollback.error&&!!rollback.data?.ok,purchaseRecorded:false},402);
+        }
         await admin.rpc("finish_product_wallet_purchase",{p_transaction_id:transactionId,p_success:false,p_note:"Provider rejected purchase: "+providerFailure.slice(0,300)});
-        const providerMessage=/insufficient|low balance|not enough (?:credit|funds?|balance)|balance too low/i.test(providerFailure);
         return reply({error:customerProviderMessage(providerResponse.status,raw,result),walletRefundRequested:true},502);
       }
       const titleMap:Record<string,string>={"tracking-number":"Tracking Number","flight-ticket":"Flight Ticket","ai-studio":"AI Studio"};
