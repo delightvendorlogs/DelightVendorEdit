@@ -7,6 +7,14 @@ const num=(v:any)=>{const n=Number(v);return Number.isFinite(n)&&n>=0?n:null};
 function normalize(raw:any){const rows=Array.isArray(raw)?raw:(Array.isArray(raw?.data)?raw.data:(Array.isArray(raw?.tools)?raw.tools:(Array.isArray(raw?.data?.tools)?raw.data.tools:[])));return rows.map((x:any)=>({tool_id:String(x.tool_id??x.id??x.uuid??"").trim(),tool_name:String(x.name??x.title??x.tool_name??x.service_name??("Tool "+(x.id??""))).trim(),provider_price:num(x.price??x.cost??x.amount??x.provider_price??x.selling_price),provider_currency:String(x.currency??x.price_currency??"NGN"),image_url:x.image?(/^https?:\/\//i.test(String(x.image))?String(x.image):"https://xclusiveplugs.com"+(String(x.image).startsWith("/")?"":"/")+String(x.image)):null,provider_snapshot:x})).filter((x:any)=>x.tool_id)}
 function calc(provider:number,g:any,i:any){const r=i&&i.pricing_mode!=="inherit"?i:g;const mode=r?.pricing_mode||"markup_amount";if(mode==="fixed")return num(r.fixed_price)??provider;if(mode==="markup_percent")return Math.ceil(provider*(1+Number(r.markup_percent||0)/100));if(mode==="markup_amount")return Math.ceil(provider+Number(r.markup_amount||0));return provider}
 function providerError(parsed:any){if(!parsed||typeof parsed!=="object")return null;const s=String(parsed.status??"").toLowerCase();if(parsed.success===false||parsed.status===false||["error","failed","failure","rejected"].includes(s)||parsed.error||parsed.errors?.length)return String(parsed.error?.message??parsed.error??parsed.errors?.[0]?.message??parsed.message??"Provider rejected this order.");return null}
+function hasDelivery(value:any):boolean{
+ if(value===null||value===undefined)return false;
+ if(typeof value==="string")return value.trim().length>0;
+ if(typeof value!=="object")return false;
+ if(Array.isArray(value))return value.some(hasDelivery);
+ const ignored=new Set(["status","success","message","error","errors","id","order_id","reference","provider","provider_name","tool_id","tool_name","name","title","price","amount","currency","quantity","created_at","updated_at"]);
+ return Object.entries(value).some(([key,val])=>!ignored.has(key.toLowerCase())&&hasDelivery(val));
+}
 Deno.serve(async(req)=>{
  if(req.method==="OPTIONS")return new Response("ok",{headers:cors});
  if(req.method!=="POST")return reply({error:"POST required"},405);
@@ -97,11 +105,15 @@ Deno.serve(async(req)=>{
     if(!response.ok||fail){const providerMessage=String(fail||result?.message||result?.error?.message||"");const providerInsufficient=/insufficient|not enough|low balance|insufficient funds/i.test(providerMessage)||response.status===402;await db.rpc("finish_product_wallet_purchase",{p_transaction_id:tx,p_success:false,p_note:"XclusivePlugs rejected order: "+(providerMessage||response.status)});return reply({error:providerInsufficient?"Insufficient funds. Please contact support.":(providerMessage||"Provider order failed. Your wallet has been refunded.")},502)}
   }
 
-  const meta={category:"working-tools",tool_id:toolId,title:tool.tool_name,customer_price:selling,delivery_payload:result,inventory_used:inventoryUsed};
+  const providerStatus=String(result?.status||result?.data?.status||"").toLowerCase();
+  const providerPending=["pending","processing","queued","in_progress"].includes(providerStatus);
+  const hasDeliveryResult=hasDelivery(result);
+  const isPending=providerPending||!hasDeliveryResult;
+  const meta={category:"working-tools",tool_id:toolId,title:tool.tool_name,customer_price:selling,delivery_payload:result,inventory_used:inventoryUsed,inventory_saved:!!saved||(!isPending&&hasDeliveryResult)};
   await db.from("wallet_transactions").update({metadata:meta,description:"Working Tools purchase — "+tool.tool_name}).eq("id",tx);
 
   let inventoryId=saved?.tool_id||null;
-  if(!inventoryUsed){
+  if(!inventoryUsed&&!isPending&&hasDeliveryResult){
     const inventoryInsert=await db.from("working_tool_inventory").insert({
       tool_id:toolId,tool_name:tool.tool_name,provider_price:basePrice,delivery_payload:result,
       inventory_status:"available",source_transaction_id:tx,purchased_by:user.id,updated_at:new Date().toISOString()
@@ -115,8 +127,6 @@ Deno.serve(async(req)=>{
   }
 
   await db.rpc("finish_product_wallet_purchase",{p_transaction_id:tx,p_success:true,p_note:"Working Tools purchase — "+tool.tool_name});
-  const orderStatus=String(result?.status||result?.data?.status||"").toLowerCase();
-  const isPending=["pending","processing","queued","in_progress"].includes(orderStatus);
   let orderId:string|null=null,orderNumber:string|null=null,itemId:string|null=null,orderRecorded=false;
   try{
     const order=await db.from("orders").insert({
@@ -142,7 +152,7 @@ Deno.serve(async(req)=>{
       related_order_id:orderId,metadata:{...meta,order_id:orderId,order_number:orderNumber,delivery_payload:result}
     }).eq("id",tx);
   }catch(e){console.error("Working Tools order history save failed",String(e))}
-  return reply({success:true,message:inventoryUsed?"Saved Working Tool inventory delivered.":"Working Tool order submitted.",delivery:result,customer_price:selling,provider_price:basePrice,inventory_used:inventoryUsed,inventory_id:inventoryId,reference:ref,order_id:orderId,order_number:orderNumber,order_recorded:orderRecorded});
+  return reply({success:true,message:inventoryUsed?"Saved Working Tool inventory delivered.":isPending?"Working Tool payment succeeded; delivery is still processing.":"Working Tool order submitted.",delivery:result,customer_price:selling,provider_price:basePrice,inventory_used:inventoryUsed,inventory_saved:!!inventoryId,inventory_id:inventoryId,reference:ref,order_id:orderId,order_number:orderNumber,order_recorded:orderRecorded});
 
  }
  return reply({error:"Unknown action."},400);
