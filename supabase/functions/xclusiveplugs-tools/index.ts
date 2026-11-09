@@ -36,11 +36,11 @@ Deno.serve(async(req)=>{
   const map=new Map((p.data||[]).map((x:any)=>[String(x.tool_id),x]));
   let items:any[]=[];
   try{items=await providerTools()}catch(e){
-    items=(saved||[]).map((x:any)=>({tool_id:x.tool_id,tool_name:x.tool_name,provider_price:Number(x.provider_price),provider_currency:"NGN",image_url:null,provider_snapshot:{}}));
+    items=(saved.data||[]).map((x:any)=>({tool_id:x.tool_id,tool_name:x.tool_name,provider_price:Number(x.provider_price),provider_currency:"NGN",image_url:null,provider_snapshot:{}}));
     if(!items.length)return reply({error:String((e as Error).message||e),code:key?"PROVIDER_ERROR":"PROVIDER_KEY_MISSING"},503);
   }
   const byId=new Map(items.map((x:any)=>[String(x.tool_id),x]));
-  for(const savedItem of (saved||[])){
+  for(const savedItem of (saved.data||[])){
     if(!byId.has(String(savedItem.tool_id))){
       const rule=map.get(String(savedItem.tool_id))||{};
       byId.set(String(savedItem.tool_id),{tool_id:savedItem.tool_id,tool_name:savedItem.tool_name,provider_price:Number(savedItem.provider_price),provider_currency:"NGN",image_url:rule.provider_snapshot?.image_url||null,provider_snapshot:rule.provider_snapshot||{}});
