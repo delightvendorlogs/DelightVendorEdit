@@ -51,6 +51,15 @@ grant insert, update, delete on public.admin_working_tools to authenticated;
 drop policy if exists admin_working_tools_public_read on public.admin_working_tools;
 create policy admin_working_tools_public_read on public.admin_working_tools
   for select to anon, authenticated using (is_active = true or public.is_admin());
+drop policy if exists admin_working_tool_inventory_admin_manage on public.admin_working_tool_inventory;
+create policy admin_working_tool_inventory_admin_manage
+on public.admin_working_tool_inventory for all to authenticated
+using (public.is_admin()) with check (public.is_admin());
+drop policy if exists admin_working_tool_purchase_requests_admin_manage on public.admin_working_tool_purchase_requests;
+create policy admin_working_tool_purchase_requests_admin_manage
+on public.admin_working_tool_purchase_requests for all to authenticated
+using (public.is_admin()) with check (public.is_admin());
+
 drop policy if exists admin_working_tools_admin_manage on public.admin_working_tools;
 create policy admin_working_tools_admin_manage on public.admin_working_tools
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
