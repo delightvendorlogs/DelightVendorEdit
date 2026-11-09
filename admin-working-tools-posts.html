@@ -71,7 +71,7 @@ async function saveTool(){
  const id=$("toolId").value||null,title=$("toolName").value.trim(),description=$("toolDescription").value.trim(),price=Number($("toolPrice").value),displayOrder=Number($("toolOrder").value||0),file=$("toolMedia").files?.[0],initial=splitInventory($("initialInventory").value);
  if(title.length<2||!Number.isFinite(price)||price<=0||!Number.isFinite(displayOrder)){status("Enter a tool name, a price greater than zero, and a valid display order.",true);return}
  if(!id&&!file){status("Choose a picture or video for this Working Tool.",true);return}
- const btn=$("saveTool");btn.disabled=true;btn.textContent="Saving…";let uploaded=null;
+ const btn=$("saveTool");btn.disabled=true;btn.textContent="Saving…";let uploaded=null,listingSaved=false;
  try{
   let imagePath=editingMediaType==="image"?editingMediaPath:null,videoPath=editingMediaType==="video"?editingMediaPath:null;
   if(file){uploaded=await uploadMedia(file);imagePath=uploaded.type==="image"?uploaded.path:null;videoPath=uploaded.type==="video"?uploaded.path:null}
@@ -80,11 +80,12 @@ async function saveTool(){
   if(id){result=await db.from("admin_working_tools").update(payload).eq("id",id).select("*").single()}
   else{payload.created_by=user.id;result=await db.from("admin_working_tools").insert(payload).select("*").single()}
   if(result.error)throw result.error;
+  listingSaved=true;
   const saved=result.data;
   if(initial.length){const stock=await db.rpc("admin_add_working_tool_inventory",{p_tool_id:saved.id,p_payloads:initial});if(stock.error)throw new Error("Listing saved, but inventory could not be added: "+stock.error.message)}
   if(file&&editingMediaPath&&editingMediaPath!==(uploaded?.path||null)){await db.storage.from(BUCKET).remove([editingMediaPath]).catch(()=>{})}
   resetForm();await loadTools();status("Working Tool saved successfully.");
- }catch(e){if(uploaded)await db.storage.from(BUCKET).remove([uploaded.path]).catch(()=>{});status(e.message||"Could not save this Working Tool.",true)}
+ }catch(e){if(uploaded&&!listingSaved)await db.storage.from(BUCKET).remove([uploaded.path]).catch(()=>{});status(e.message||"Could not save this Working Tool.",true)}
  finally{btn.disabled=false;btn.textContent=$("toolId").value?"Save changes":"Save Working Tool"}
 }
 function editTool(id){const x=rows.find(r=>r.id===id);if(!x)return;$("toolId").value=x.id;$("toolName").value=x.title;$("toolDescription").value=x.description||"";$("toolPrice").value=x.price;$("toolOrder").value=x.display_order||0;$("toolActive").checked=x.is_active!==false;$("toolMedia").value="";editingMediaPath=x.image_path||x.video_path||null;editingMediaType=x.video_path?"video":x.image_path?"image":null;$("mediaPreview").innerHTML="";if(editingMediaPath){const url=mediaUrl(editingMediaPath),el=document.createElement(editingMediaType==="video"?"video":"img");el.className="media";el.src=url;if(el.tagName==="VIDEO"){el.controls=true;el.playsInline=true}else el.alt=x.title;$("mediaPreview").appendChild(el)}$("formTitle").textContent="Edit Working Tool";$("saveTool").textContent="Save changes";$("mediaHint").textContent="Choose a new picture or video only if you want to replace the current media.";$("initialInventory").value="";window.scrollTo({top:0,behavior:"smooth"})}
