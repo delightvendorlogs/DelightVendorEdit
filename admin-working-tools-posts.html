@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Working Tools — DelightVendorEdit Admin</title>
+<link rel="icon" href="assets/dv-logo.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--g:#e9bd53;--bg:#090909;--panel:#141414;--line:#343434;--muted:#aaa69b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f7f4ec;font:15px/1.5 system-ui,sans-serif;padding:16px}
+.wrap{max-width:1050px;margin:auto}a{color:var(--g);text-decoration:none}h1{font-size:clamp(24px,5vw,34px);margin:14px 0 5px}
+.muted{color:var(--muted);font-size:13px}.panel,.tool,.status{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+label{display:block;font-size:13px;font-weight:700;margin:10px 0 5px}
+input,textarea,select{width:100%;background:#090909;color:#fff;border:1px solid #444;border-radius:9px;padding:11px;font:inherit}
+textarea{min-height:105px;resize:vertical}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:12px}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.btn{background:#262626;color:var(--g);border:1px solid #50452b;border-radius:9px;padding:10px 13px;font-weight:800;cursor:pointer}.primary{background:var(--g);color:#171208;border-color:var(--g)}.danger{color:#ffb4b4;border-color:#653737}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.tool h3{margin:9px 0 4px}.price{color:var(--g);font-size:20px;font-weight:850}.media{width:100%;aspect-ratio:16/10;object-fit:contain;background:#050505;border-radius:10px;display:block}
+.preview{margin-top:10px;max-width:420px}.stock{font-size:12px;color:var(--muted);margin-top:5px}.inventory-panel{display:none;border:1px solid #4a4029;border-radius:12px;padding:12px;margin-top:12px;background:#0d0d0d}.inventory-panel.show{display:block}
+.inventory-row{border-top:1px solid #333;padding:10px 0;overflow-wrap:anywhere}.inventory-row pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#ddd;font:12px/1.5 ui-monospace,monospace}
+@media(max-width:560px){body{padding:11px}.fields{grid-template-columns:1fr}.panel{padding:13px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<p><a href="admin.html">← Main Admin</a> · <a href="admin-working-tools.html">Provider Working Tools Pricing</a> · <a href="tools.html">Customer Working Tools</a></p>
+<h1>My Dynamic Working Tools</h1>
+<p class="muted">Create your own listings. They appear first on the customer Working Tools page, above provider tools. These listings are separate from provider-supplied tools.</p>
+<div id="status" class="status">Checking admin access…</div>
+<section id="app" hidden>
+<div class="panel">
+<h2 id="formTitle">Add a Working Tool</h2>
+<input id="toolId" type="hidden">
+<label for="toolName">Tool name</label><input id="toolName" maxlength="180" placeholder="Enter the Working Tool name">
+<label for="toolDescription">Description</label><textarea id="toolDescription" placeholder="Explain what the customer receives"></textarea>
+<div class="fields">
+<div><label for="toolPrice">Customer price (₦)</label><input id="toolPrice" type="number" min="0.01" step="0.01" placeholder="e.g. 5000"></div>
+<div><label for="toolOrder">Display order (lower numbers appear first)</label><input id="toolOrder" type="number" step="1" value="0"></div>
+</div>
+<label for="toolMedia">Choose one picture or video</label><input id="toolMedia" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime">
+<p id="mediaHint" class="muted">Choose one image or one video (maximum 50 MB). Video previews play on the customer page.</p>
+<div id="mediaPreview" class="preview"></div>
+<label><input id="toolActive" type="checkbox" checked style="width:auto;vertical-align:middle"> Publish this listing</label>
+<label for="initialInventory">Inventory / delivery items</label>
+<textarea id="initialInventory" placeholder="Paste the first delivery item here. Separate multiple items with a blank line. Each block becomes one available purchase."></textarea>
+<p class="muted">Inventory is delivered after successful wallet payment. Each purchase uses one available inventory item. You can add more stock later.</p>
+<div class="actions"><button id="saveTool" class="btn primary" type="button">Save Working Tool</button><button id="resetForm" class="btn" type="button">Clear form</button></div>
+</div>
+<h2>Your listings</h2><div id="toolList" class="grid"></div>
+<div class="panel" id="inventoryManager" hidden>
+<div class="actions" style="justify-content:space-between;align-items:center"><h2 id="inventoryTitle" style="margin:0">Manage inventory</h2><button id="closeInventory" class="btn" type="button">Close</button></div>
+<label for="moreInventory">Add more delivery items (separate each item with a blank line)</label>
+<textarea id="moreInventory" placeholder="Item 1&#10;&#10;Item 2&#10;&#10;Item 3"></textarea>
+<button id="addInventory" class="btn primary" type="button">Add inventory items</button>
+<div id="inventoryList" class="muted" style="margin-top:12px">Loading inventory…</div>
+</div>
+</section>
+</main>
+<script>
+const SUPABASE_URL="https://genlmqzkjouinofkitqt.supabase.co",KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv",BUCKET="seller-product-images";
+const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=n=>"₦"+Number(n||0).toLocaleString("en-NG",{maximumFractionDigits:2});
+let db,user,rows=[],editingMediaPath=null,editingMediaType=null,inventoryToolId=null,previewUrl=null;
+function status(message,error=false){$("status").textContent=message;$("status").style.borderColor=error?"#8b3a3a":"#343434"}
+function splitInventory(text){return String(text||"").split(/\n\s*\n+/).map(x=>x.trim()).filter(Boolean)}
+function mediaUrl(path){return path?db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl:""}
+function showPreview(file){const root=$("mediaPreview");root.innerHTML="";if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null}if(!file)return;previewUrl=URL.createObjectURL(file);const el=document.createElement(file.type.startsWith("video/")?"video":"img");el.className="media";el.src=previewUrl;if(el.tagName==="VIDEO"){el.muted=true;el.autoplay=true;el.loop=true;el.playsInline=true}else el.alt="Selected media preview";root.appendChild(el)}
+$("toolMedia").addEventListener("change",()=>{const f=$("toolMedia").files?.[0];if(f){if(f.size>50*1024*1024){$("toolMedia").value="";showPreview(null);status("Media must be 50 MB or smaller.",true);return}if(!(f.type.startsWith("image/")||["video/mp4","video/webm","video/quicktime"].includes(f.type))){$("toolMedia").value="";showPreview(null);status("Choose a supported image or MP4, WebM or MOV video.",true);return}showPreview(f);$("mediaHint").textContent=f.name}else showPreview(null)});
+function resetForm(){ $("toolId").value="";$("toolName").value="";$("toolDescription").value="";$("toolPrice").value="";$("toolOrder").value="0";$("toolMedia").value="";$("initialInventory").value="";$("toolActive").checked=true;editingMediaPath=null;editingMediaType=null;$("mediaPreview").innerHTML="";if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null}$("formTitle").textContent="Add a Working Tool";$("saveTool").textContent="Save Working Tool";$("mediaHint").textContent="Choose one image or one video (maximum 50 MB). Video previews play on the customer page."}
+async function uploadMedia(file){const ext=(file.name.split(".").pop()||"bin").replace(/[^a-z0-9]/gi,"").toLowerCase()||"bin";const path=user.id+"/admin-working-tools/"+crypto.randomUUID()+"."+ext;const {error}=await db.storage.from(BUCKET).upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});if(error)throw error;return {path,type:file.type.startsWith("video/")?"video":"image"}}
+async function saveTool(){
+ const id=$("toolId").value||null,title=$("toolName").value.trim(),description=$("toolDescription").value.trim(),price=Number($("toolPrice").value),displayOrder=Number($("toolOrder").value||0),file=$("toolMedia").files?.[0],initial=splitInventory($("initialInventory").value);
+ if(title.length<2||!Number.isFinite(price)||price<=0||!Number.isFinite(displayOrder)){status("Enter a tool name, a price greater than zero, and a valid display order.",true);return}
+ if(!id&&!file){status("Choose a picture or video for this Working Tool.",true);return}
+ const btn=$("saveTool");btn.disabled=true;btn.textContent="Saving…";let uploaded=null;
+ try{
+  let imagePath=editingMediaType==="image"?editingMediaPath:null,videoPath=editingMediaType==="video"?editingMediaPath:null;
+  if(file){uploaded=await uploadMedia(file);imagePath=uploaded.type==="image"?uploaded.path:null;videoPath=uploaded.type==="video"?uploaded.path:null}
+  const payload={title,description,price,image_path:imagePath,video_path:videoPath,is_active:$("toolActive").checked,display_order:Math.trunc(displayOrder),updated_at:new Date().toISOString()};
+  let result;
+  if(id){result=await db.from("admin_working_tools").update(payload).eq("id",id).select("*").single()}
+  else{payload.created_by=user.id;result=await db.from("admin_working_tools").insert(payload).select("*").single()}
+  if(result.error)throw result.error;
+  const saved=result.data;
+  if(initial.length){const stock=await db.rpc("admin_add_working_tool_inventory",{p_tool_id:saved.id,p_payloads:initial});if(stock.error)throw new Error("Listing saved, but inventory could not be added: "+stock.error.message)}
+  if(file&&editingMediaPath&&editingMediaPath!==(uploaded?.path||null)){await db.storage.from(BUCKET).remove([editingMediaPath]).catch(()=>{})}
+  resetForm();await loadTools();status("Working Tool saved successfully.");
+ }catch(e){if(uploaded)await db.storage.from(BUCKET).remove([uploaded.path]).catch(()=>{});status(e.message||"Could not save this Working Tool.",true)}
+ finally{btn.disabled=false;btn.textContent=$("toolId").value?"Save changes":"Save Working Tool"}
+}
+function editTool(id){const x=rows.find(r=>r.id===id);if(!x)return;$("toolId").value=x.id;$("toolName").value=x.title;$("toolDescription").value=x.description||"";$("toolPrice").value=x.price;$("toolOrder").value=x.display_order||0;$("toolActive").checked=x.is_active!==false;$("toolMedia").value="";editingMediaPath=x.image_path||x.video_path||null;editingMediaType=x.video_path?"video":x.image_path?"image":null;$("mediaPreview").innerHTML="";if(editingMediaPath){const url=mediaUrl(editingMediaPath),el=document.createElement(editingMediaType==="video"?"video":"img");el.className="media";el.src=url;if(el.tagName==="VIDEO"){el.controls=true;el.playsInline=true}else el.alt=x.title;$("mediaPreview").appendChild(el)}$("formTitle").textContent="Edit Working Tool";$("saveTool").textContent="Save changes";$("mediaHint").textContent="Choose a new picture or video only if you want to replace the current media.";$("initialInventory").value="";window.scrollTo({top:0,behavior:"smooth"})}
+async function loadTools(){const {data,error}=await db.from("admin_working_tools").select("*").order("display_order",{ascending:true}).order("created_at",{ascending:false});if(error)throw error;rows=data||[];renderTools()}
+function renderTools(){$("toolList").innerHTML=rows.map(x=>'<article class="tool">'+(x.video_path?'<video class="media" src="'+esc(mediaUrl(x.video_path))+'" muted autoplay loop playsinline preload="metadata"></video>':'<img class="media" src="'+esc(mediaUrl(x.image_path))+'" alt="'+esc(x.title)+'">')+'<h3>'+esc(x.title)+'</h3><p class="muted">'+esc(x.description||"")+'</p><div class="price">'+money(x.price)+'</div><div class="stock">'+Number(x.available_inventory||0)+' available inventory item(s) · '+(x.is_active?"Published":"Unpublished")+'</div><div class="actions"><button class="btn" data-edit="'+esc(x.id)+'">Edit</button><button class="btn" data-stock="'+esc(x.id)+'">Manage inventory</button><button class="btn '+(x.is_active?"danger":"primary")+'" data-toggle="'+esc(x.id)+'">'+(x.is_active?"Unpublish":"Publish")+'</button></div></article>').join("")||'<div class="tool">You have not created any admin Working Tools yet.</div>';$("toolList").querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editTool(b.dataset.edit));$("toolList").querySelectorAll("[data-stock]").forEach(b=>b.onclick=()=>openInventory(b.dataset.stock));$("toolList").querySelectorAll("[data-toggle]").forEach(b=>b.onclick=()=>toggleTool(b.dataset.toggle))}
+async function toggleTool(id){const x=rows.find(r=>r.id===id);if(!x)return;const {error}=await db.from("admin_working_tools").update({is_active:!x.is_active,updated_at:new Date().toISOString()}).eq("id",id);if(error){status(error.message,true);return}await loadTools();status(x.is_active?"Listing unpublished.":"Listing published.")}
+async function openInventory(id){inventoryToolId=id;const x=rows.find(r=>r.id===id);$("inventoryTitle").textContent="Inventory — "+(x?.title||"Working Tool");$("inventoryManager").hidden=false;$("moreInventory").value="";await loadInventory();$("inventoryManager").scrollIntoView({behavior:"smooth",block:"start"})}
+async function loadInventory(){const {data,error}=await db.rpc("admin_list_working_tool_inventory",{p_tool_id:inventoryToolId});if(error){$("inventoryList").textContent=error.message;return}const items=Array.isArray(data)?data:[];$("inventoryList").innerHTML=items.map(x=>'<div class="inventory-row"><strong>'+esc(x.inventory_status==="available"?"Available":"Sold")+'</strong> · <small>'+esc(new Date(x.created_at).toLocaleString())+'</small><pre>'+esc(x.delivery_payload)+'</pre>'+(x.inventory_status==="available"?'<button class="btn danger" data-remove-stock="'+esc(x.id)+'">Remove available item</button>':'<small class="muted">Purchased by: '+esc(x.purchased_by||"customer")+' · Order: '+esc(x.order_id||"")+'</small>')+'</div>').join("")||'<p class="muted">No inventory has been added for this listing.</p>';$("inventoryList").querySelectorAll("[data-remove-stock]").forEach(b=>b.onclick=async()=>{if(!confirm("Remove this available inventory item?"))return;const {error}=await db.rpc("admin_remove_working_tool_inventory",{p_inventory_id:b.dataset.removeStock});if(error){status(error.message,true);return}await loadInventory();await loadTools()})}
+$("addInventory").onclick=async()=>{const items=splitInventory($("moreInventory").value);if(!items.length){status("Paste at least one inventory item.",true);return}const {data,error}=await db.rpc("admin_add_working_tool_inventory",{p_tool_id:inventoryToolId,p_payloads:items});if(error){status(error.message,true);return}$("moreInventory").value="";status((data?.added||0)+" inventory item(s) added.");await loadInventory();await loadTools()};
+$("saveTool").onclick=saveTool;$("resetForm").onclick=resetForm;$("closeInventory").onclick=()=>{$("inventoryManager").hidden=true;inventoryToolId=null};
+(async()=>{try{db=supabase.createClient(SUPABASE_URL,KEY);const {data,error}=await db.auth.getUser();if(error)throw error;user=data.user;if(!user){location.href="login.html?redirect="+encodeURIComponent("admin-working-tools-posts.html");return}const admin=await db.rpc("is_admin");if(admin.error||admin.data!==true){status("Admin access required.",true);return}$("app").hidden=false;await loadTools();status("Admin access verified. Your listings will appear first on the customer Working Tools page.")}catch(e){status(e.message||"Could not open the admin Working Tools manager.",true)}})();
+</script>
+</body></html>
