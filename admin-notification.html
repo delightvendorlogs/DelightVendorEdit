@@ -35,6 +35,8 @@ main{width:min(1100px,95%);margin:26px auto 55px}h1{font-size:clamp(25px,5vw,35p
 <p class="hint" style="margin-top:12px">When you select specific users, only those accounts receive the message. Administrator accounts are excluded from the recipient list.</p>
 </section>
 </div>
+
+<section class="panel" style="margin-top:18px"><h2>Notification history</h2><p class="hint">Previously sent customer notifications.</p><button class="btn secondary" id="refreshHistory" type="button">Refresh history</button><div id="historyList" class="list" style="margin-top:12px">Loading notification history…</div></section>
 </main><footer class="foot">© <span id="year"></span> DelightVendorEdit</footer>
 <script>
 (() => {
@@ -67,6 +69,22 @@ function updateSummary(){
  $("recipientSummary").textContent=$("allUsers").checked?"All "+allUsers.length+" eligible user(s) selected.":n+" user(s) selected.";
  $("sendButton").textContent=$("allUsers").checked?"Send to all users":n?"Send to "+n+" selected user(s)":"Send notification";
 }
+
+async function loadHistory(){
+  const box=$("historyList");if(!box)return;box.textContent="Loading notification history…";
+  try{
+    const data=await invoke({action:"history"}),rows=data.notifications||[];box.replaceChildren();
+    if(!rows.length){box.textContent="No notifications have been sent yet.";return;}
+    rows.forEach(item=>{
+      const entry=document.createElement("div");entry.className="entry";
+      const heading=document.createElement("strong");heading.textContent=item.title||"Notification";
+      const body=document.createElement("p");body.style.whiteSpace="pre-wrap";body.style.margin="8px 0";body.textContent=item.message||"";
+      const meta=document.createElement("small");meta.textContent=(item.recipient_name||item.recipient_email||"Customer")+" · "+new Date(item.created_at).toLocaleString();
+      entry.append(heading,body,meta);box.append(entry);
+    });
+  }catch(error){box.textContent=error.message||"Could not load notification history.";}
+}
+
 async function loadUsers(){
  $("reloadUsers").disabled=true;$("users").textContent="Loading users…";setStatus("Loading users…");
  try{const data=await invoke({action:"list_users"});allUsers=data.users||[];selected=new Set([...selected].filter(id=>allUsers.some(u=>u.id===id)));renderUsers();setStatus("Loaded "+allUsers.length+" eligible user(s).","success");}
@@ -107,15 +125,16 @@ $("sendForm").addEventListener("submit",async event=>{
   setStatus("Success! Notification sent to "+result.sent+" user(s).","success");
   $("title").value="";$("message").value="";$("titleCount").textContent="0/160";$("messageCount").textContent="0/5000";
   $("image").value="";imageFile=null;$("imagePreview").removeAttribute("src");$("imagePreview").classList.remove("show");$("removeImage").style.display="none";
-  selected.clear();$("allUsers").checked=false;renderUsers();
+  selected.clear();$("allUsers").checked=false;renderUsers();await loadHistory();
  }catch(e){console.error(e);setStatus("Notification was not confirmed as sent: "+e.message,"error");}
  finally{sending=false;$("sendButton").disabled=false;$("reloadUsers").disabled=false;updateSummary();}
 });
+$("refreshHistory")?.addEventListener("click",loadHistory);
 async function init(){
  try{const {data,error}=await db.auth.getUser();if(error||!data?.user){location.replace("login.html");return;}
   const {data:role,error:roleError}=await db.from("user_roles").select("role").eq("user_id",data.user.id).eq("role","admin").maybeSingle();
   if(roleError)throw roleError;if(!role){setStatus("Access denied. This account is not marked as an administrator.","error");$("sendButton").disabled=true;return;}
-  isAdmin=true;await loadUsers();
+  isAdmin=true;await loadUsers();await loadHistory();
  }catch(e){console.error(e);setStatus("Could not verify admin access: "+e.message,"error");}
 }
 init();
