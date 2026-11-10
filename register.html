@@ -109,6 +109,15 @@ const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_K
   auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
 });
 
+
+async function sendWelcomeForRegistration(userId) {
+  try {
+    const { data, error } = await client.functions.invoke("welcome-registration", { body: { user_id: userId } });
+    if (error) console.warn("Welcome email/notification:", error.message);
+    else if (data && data.emailSent === false) console.warn("Welcome email was not delivered:", data.emailError);
+  } catch (error) { console.warn("Welcome email/notification failed:", error); }
+}
+
 async function notifyAdminAuthActivity(eventType) {
   try { const { data, error } = await client.functions.invoke("auth-activity-alert", { body: { event: eventType } }); if (error) console.warn("Admin activity alert:", error.message); else if (data && data.emailSent === false && data.telegramSent === false) console.warn("Admin alerts not delivered:", data.emailError, data.telegramError); } catch (e) { console.warn("Admin activity alert failed:", e); }
 }
@@ -139,6 +148,7 @@ form.addEventListener("submit", async event => {
       options: { data: { full_name: fullName, referral_code_entered: referralCode || null } }
     });
     if (error) throw error;
+    if (data && data.user && data.user.id) await sendWelcomeForRegistration(data.user.id);
     if (data && data.session) {
       void notifyAdminAuthActivity("signup");
       showMessage("success", "Your account has been created. Opening the page you requested…");
