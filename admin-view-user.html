@@ -32,7 +32,9 @@ async function loginAsCustomer(userId){
   backup={site:"edit",admin:{access_token:sessionData.session.access_token,refresh_token:sessionData.session.refresh_token},target_user_id:targetId,return_to:"admin-view-user.html",started_at:new Date().toISOString()};
   sessionStorage.setItem("dv-admin-impersonation",JSON.stringify(backup));
   const {data,error}=await db.functions.invoke("admin-user-control",{body:{action:"impersonate",user_id:targetId}});
-  if(error)throw error;if(!data||!data.token_hash)throw new Error(data&&data.error||"Could not create the temporary customer session.");
+  if(error)throw error;if(!data||!data.token_hash||!data.session_id)throw new Error(data&&data.error||"Could not create the temporary customer session.");
+  backup.session_id=data.session_id;
+  sessionStorage.setItem("dv-admin-impersonation",JSON.stringify(backup));
   const {error:verifyError}=await db.auth.verifyOtp({token_hash:data.token_hash,type:"magiclink"});if(verifyError)throw verifyError;
   location.assign("dashboard.html");
  }catch(e){
