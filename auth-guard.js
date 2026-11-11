@@ -55,6 +55,38 @@
   var base = new URL("./", location.href);
   var redirecting = false;
 
+  var activeAuthClient = null;
+  function isAdminRoute() {
+    var file = location.pathname.split("/").pop().toLowerCase();
+    return file.indexOf("admin") === 0 || ["view-user.html","delete-users.html","override-price.html","pending.html"].indexOf(file) >= 0;
+  }
+  function readAdminImpersonation() {
+    try { return JSON.parse(sessionStorage.getItem("dv-admin-impersonation") || "null"); } catch (_) { return null; }
+  }
+  async function restoreAdminSession(client) {
+    var saved = readAdminImpersonation();
+    if (!saved || saved.site !== "edit" || !saved.admin || !saved.admin.access_token || !saved.admin.refresh_token) return false;
+    try {
+      var restored = await client.auth.setSession({access_token:saved.admin.access_token,refresh_token:saved.admin.refresh_token});
+      if (restored.error) throw restored.error;
+      try {
+        await fetch("https://genlmqzkjouinofkitqt.supabase.co/functions/v1/admin-user-control", {
+          method:"POST",
+          headers:{"Content-Type":"application/json","apikey":"sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv","Authorization":"Bearer "+saved.admin.access_token},
+          body:JSON.stringify({action:"end",target_user_id:saved.target_user_id})
+        });
+      } catch (auditError) { console.warn("Could not write admin session-end audit:",auditError); }
+      sessionStorage.removeItem("dv-admin-impersonation");
+      return true;
+    } catch (error) {
+      console.error("Could not restore administrator session:",error);
+      return false;
+    }
+  }
+  window.addEventListener("pageshow",function(event){
+    if(event.persisted && isAdminRoute() && activeAuthClient) restoreAdminSession(activeAuthClient);
+  });
+
   function login() {
     if (redirecting) return;
     redirecting = true;
@@ -117,6 +149,8 @@
           }
         }
       );
+      activeAuthClient = client;
+      if (isAdminRoute()) await restoreAdminSession(client);
 
       // For a browser-only site, getSession reads the session persisted by the
       // login page. Avoid getUser() here: a temporary network failure during
@@ -135,7 +169,15 @@
       finishAuthLoading();
 
       client.auth.onAuthStateChange(function (event) {
-        if (event === "SIGNED_OUT") login();
+        if (event === "SIGNED_OUT") {
+          var saved = readAdminImpersonation();
+          if (saved && saved.site === "edit" && !isAdminRoute()) {
+            var returnTo = saved.return_to || "admin-view-user.html";
+            restoreAdminSession(client).then(function(ok){ location.replace(ok ? returnTo : "login.html"); });
+            return;
+          }
+          login();
+        }
       });
     } catch (error) {
       showConnectionError(error);
