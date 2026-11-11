@@ -23,6 +23,24 @@ function roleNames(rows,id){return rows.filter(r=>r.user_id===id).map(r=>r.role)
 function renderUsers(){const q=$("search").value.trim().toLowerCase();const rows=users.filter(u=>[u.display_name,u.email,u.phone,u.id,u.referral_code].some(v=>String(v||"").toLowerCase().includes(q)));$("userCount").textContent=users.length;$("userCountNote").textContent=q?("Showing "+rows.length+" of "+users.length+" registered users"):"Total registered users: "+users.length;if(!rows.length){$("userList").innerHTML='<div class="empty">No matching users found.</div>';return}$("userList").innerHTML=rows.map(u=>'<button type="button" class="userrow '+(u.id===selectedId?"active":"")+'" data-user="'+esc(u.id)+'"><strong>'+esc(u.display_name||"Unnamed user")+'</strong><small>'+esc(u.email||"No email")+'<br>'+esc(u.phone||"No phone")+'</small><span class="badge">'+esc((u.roles||[]).join(" · ")||"customer")+'</span></button>').join("");$("userList").querySelectorAll("[data-user]").forEach(b=>b.addEventListener("click",()=>selectUser(b.dataset.user)))}
 async function loadUsers(){const [p,r]=await Promise.all([db.from("profiles").select("id,display_name,email,phone,account_status,referral_code,referred_by,created_at").order("created_at",{ascending:false}).limit(5000),db.from("user_roles").select("user_id,role")]);if(p.error)throw p.error;if(r.error)throw r.error;const map={};(r.data||[]).forEach(x=>(map[x.user_id]??=[]).push(x.role));users=(p.data||[]).map(u=>({...u,roles:map[u.id]||[]}));renderUsers();if(selectedId&&users.some(u=>u.id===selectedId))await selectUser(selectedId);else if(users.length)await selectUser(users[0].id);else $("detail").innerHTML='<div class="empty">No user profiles were found.</div>'}
 function table(headers,rows){if(!rows.length)return '<div class="empty">No records found.</div>';return '<div class="tablewrap"><table><thead><tr>'+headers.map(h=>'<th>'+esc(h)+'</th>').join("")+'</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>'}
+async function loginAsCustomer(userId){
+ const targetId=String(userId||selectedId||"");if(!targetId)return;
+ const button=$("loginAsCustomerButton");if(button){button.disabled=true;button.textContent="Opening customer account…"}
+ let backup=null;
+ try{
+  const {data:sessionData,error:sessionError}=await db.auth.getSession();if(sessionError||!sessionData.session)throw sessionError||new Error("Your admin session has expired. Sign in again.");
+  backup={site:"edit",admin:{access_token:sessionData.session.access_token,refresh_token:sessionData.session.refresh_token},target_user_id:targetId,return_to:"admin-view-user.html",started_at:new Date().toISOString()};
+  sessionStorage.setItem("dv-admin-impersonation",JSON.stringify(backup));
+  const {data,error}=await db.functions.invoke("admin-user-control",{body:{action:"impersonate",user_id:targetId}});
+  if(error)throw error;if(!data||!data.token_hash)throw new Error(data&&data.error||"Could not create the temporary customer session.");
+  const {error:verifyError}=await db.auth.verifyOtp({token_hash:data.token_hash,type:"magiclink"});if(verifyError)throw verifyError;
+  location.assign("dashboard.html");
+ }catch(e){
+  if(backup){try{await db.auth.setSession({access_token:backup.admin.access_token,refresh_token:backup.admin.refresh_token})}catch(_){}sessionStorage.removeItem("dv-admin-impersonation")}
+  setStatus(e.message||"Could not open customer account.","error");
+  if(button){button.disabled=false;button.textContent="Login as Customer"}
+ }
+}
 async function selectUser(id){selectedId=id;renderUsers();const u=users.find(x=>x.id===id);if(!u)return;$("detail").innerHTML='<div class="empty">Loading '+esc(u.display_name||u.email||"user")+'…</div>';try{
 const queries=await Promise.all([
 db.from("wallets").select("id,user_id,wallet_type,currency,available_balance,pending_balance,reserved_balance,updated_at").eq("user_id",id),
@@ -56,6 +74,7 @@ const productRows=products.map(p=>'<tr><td>'+esc(p.title)+'</td><td>'+money(p.pr
 const withdrawRows=withdrawals.map(w=>'<tr><td>'+esc(date(w.requested_at))+'</td><td>'+money(w.amount)+'</td><td>'+esc(w.withdrawal_type||"—")+' / '+esc(w.status)+'</td><td>'+esc(w.bank_name||"—")+' · '+esc(w.account_name||"—")+' · '+esc(w.account_number||"—")+'</td></tr>');
 $("detail").innerHTML='<div class="subhead"><div><div class="eyebrow">USER PROFILE</div><h2>'+esc(u.display_name||"Unnamed user")+'</h2><div class="muted">'+esc(u.email||"No email")+' · '+esc(u.id)+'</div></div><span class="badge">'+esc(u.account_status||"active")+'</span></div>'+
 '<div>'+roles.map(r=>'<span class="badge">'+esc(r)+'</span>').join("")+'</div>'+
+'<div class="actions"><button class="primary" id="loginAsCustomerButton" type="button">Login as Customer</button></div>'+
 '<div class="stats"><div class="stat"><span>SHOPPING WALLET</span><strong>'+money(shopping&&shopping.available_balance)+'</strong></div><div class="stat"><span>REFERRAL WALLET</span><strong>'+money(refWallet&&refWallet.available_balance)+'</strong></div><div class="stat"><span>ORDERS</span><strong>'+orders.length+'</strong></div></div>'+
 '<section class="section"><h2>Account details</h2><div class="twocol"><div class="info"><label>Phone</label>'+esc(u.phone||"Not provided")+'</div><div class="info"><label>Joined</label>'+esc(date(u.created_at))+'</div><div class="info"><label>Referral code</label>'+esc(u.referral_code||"None")+'</div><div class="info"><label>Referred by user ID</label>'+esc(u.referred_by||"Direct signup / unknown")+'</div><div class="info"><label>Wallet pending / reserved</label>'+money(shopping&&shopping.pending_balance)+' / '+money(shopping&&shopping.reserved_balance)+'</div><div class="info"><label>Seller status</label>'+esc(seller?seller.seller_status:"Not a seller")+(seller&&seller.business_name?" · "+esc(seller.business_name):"")+'</div></div></section>'+
 '<section class="section panel"><h2>Adjust shopping wallet</h2><p class="muted">Changes the existing shopping wallet and writes a completed adjustment transaction plus an admin audit record. Referral wallet is displayed separately and is not changed here.</p><div class="formgrid"><div class="field"><label for="direction">Action</label><select id="direction"><option value="add">＋ Add funds</option><option value="deduct">− Deduct funds</option></select></div><div class="field"><label for="amount">Amount (NGN)</label><input id="amount" type="number" min="0.01" max="100000000" step="0.01" placeholder="e.g. 5000"></div><div class="field full"><label for="reason">Reason (required)</label><textarea id="reason" rows="2" maxlength="300" placeholder="Explain why this wallet adjustment is needed"></textarea></div></div><div class="actions"><button class="primary" id="applyAdjustment" type="button">Confirm adjustment</button><button id="reloadDetail" type="button">Refresh user details</button></div><p class="warn">Deduction cannot exceed the available shopping-wallet balance. The action is permanent and recorded against your admin account.</p><div id="adjustStatus" class="status hidden"></div></section>'+
@@ -69,6 +88,7 @@ $("detail").innerHTML='<div class="subhead"><div><div class="eyebrow">USER PROFI
 '<section class="section"><h2>People referred ('+referrals.length+')</h2>'+table(["Name","Email","Joined","User ID"],referralRows)+'</section>'+
 '<section class="section"><h2>Referral withdrawals ('+withdrawals.length+')</h2>'+table(["Requested","Amount","Type / status","Bank details"],withdrawRows)+'</section>';
 
+const loginButton=$("loginAsCustomerButton");if(loginButton)loginButton.addEventListener("click",()=>loginAsCustomer(id));
 const detailRoot=$("detail");
 const tabGroups=[
 {id:"overview",label:"Overview",match:["Account details","Adjust shopping wallet"]},
