@@ -63,6 +63,31 @@
   function readAdminImpersonation() {
     try { return JSON.parse(sessionStorage.getItem("dv-admin-impersonation") || "null"); } catch (_) { return null; }
   }
+
+  // Tag database requests with this one browser session so database audit triggers
+  // can distinguish admin-assisted writes from the customer's own activity.
+  var originalDvFetch = window.fetch.bind(window);
+  window.fetch = function(input, init) {
+    var saved = readAdminImpersonation();
+    var requestUrl = typeof input === "string" ? input : (input && input.url) || "";
+    if (saved && saved.site === "edit" && saved.session_id && requestUrl.indexOf("https://genlmqzkjouinofkitqt.supabase.co/") === 0) {
+      var headers = new Headers(input instanceof Request ? input.headers : undefined);
+      if (init && init.headers) new Headers(init.headers).forEach(function(value,key){headers.set(key,value);});
+      headers.set("x-dv-admin-session-id", saved.session_id);
+      init = Object.assign({}, init || {}, {headers:headers});
+    }
+    return originalDvFetch(input, init);
+  };
+  document.addEventListener("keydown",function(event){
+    if(event.ctrlKey && event.shiftKey && String(event.key).toLowerCase()==="e" && !isAdminRoute() && activeAuthClient){
+      var saved=readAdminImpersonation();
+      if(!saved || saved.site!=="edit")return;
+      event.preventDefault();
+      restoreAdminSession(activeAuthClient).then(function(ok){
+        if(ok)location.replace(saved.return_to || "admin-view-user.html");
+      });
+    }
+  });
   async function restoreAdminSession(client) {
     var saved = readAdminImpersonation();
     if (!saved || saved.site !== "edit" || !saved.admin || !saved.admin.access_token || !saved.admin.refresh_token) return false;
@@ -73,7 +98,7 @@
         await fetch("https://genlmqzkjouinofkitqt.supabase.co/functions/v1/admin-user-control", {
           method:"POST",
           headers:{"Content-Type":"application/json","apikey":"sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHHOkNv","Authorization":"Bearer "+saved.admin.access_token},
-          body:JSON.stringify({action:"end",target_user_id:saved.target_user_id})
+          body:JSON.stringify({action:"end",target_user_id:saved.target_user_id,session_id:saved.session_id})
         });
       } catch (auditError) { console.warn("Could not write admin session-end audit:",auditError); }
       sessionStorage.removeItem("dv-admin-impersonation");
