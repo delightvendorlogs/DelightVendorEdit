@@ -226,7 +226,16 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
     setTimeout(()=>$("reviewText").focus(),80);
   }
 
-  function cancelReview() {\n    if($("reviewSubmit").disabled) return;\n    if(activeReview) { try { localStorage.setItem(activeReview.key,JSON.stringify({state:"never",dismissedAt:Date.now()})); } catch(_) {} }\n    hideReviewModal();\n    reviewQueue=[];\n  }\n\n  function remindReviewLater() {
+  function cancelReview() {
+    if($("reviewSubmit").disabled) return;
+    if(activeReview) {
+      try { localStorage.setItem(activeReview.key,JSON.stringify({state:"never",dismissedAt:Date.now()})); } catch(_) {}
+    }
+    hideReviewModal();
+    reviewQueue=[];
+  }
+
+  function remindReviewLater() {
     if($("reviewSubmit").disabled) return;
     if(activeReview) {
       try { localStorage.setItem(activeReview.key,JSON.stringify({state:"later",nextAt:Date.now()+3*24*60*60*1000})); } catch(_) {}
@@ -265,12 +274,12 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
       try { localStorage.setItem(current.key,JSON.stringify({state:"submitted",submittedAt:Date.now()})); } catch(_) {}
       hideReviewModal();
       showStatus("Thank you! Your review has been submitted for approval.","ok");
-      showNextReview();
+      reviewQueue=[];
     } catch(error) {
       if(/already been submitted/i.test(error.message||"")) {
         try { localStorage.setItem(current.key,JSON.stringify({state:"submitted",submittedAt:Date.now()})); } catch(_) {}
         hideReviewModal();
-        showNextReview();
+        reviewQueue=[];
       } else {
         $("reviewHint").className="review-hint error";
         $("reviewHint").textContent=error.message||"Your review could not be submitted. Please try again.";
