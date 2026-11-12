@@ -58,3 +58,57 @@ html[data-theme="light"] [class*="gold"] { color:#815b0b; }
 html[data-theme="light"] img,
 html[data-theme="light"] video,
 html[data-theme="light"] canvas { filter:none!important; }
+
+
+/* Readable, polished light theme shared across customer-facing pages. */
+html[data-theme="light"] body {
+  background: #f5f6f8 !important;
+  color: #17191d !important;
+}
+html[data-theme="light"] :is(header, nav, footer, aside, .topbar, .navbar, .sidebar, .bottom-nav) {
+  background-color: rgba(255,255,255,.96) !important;
+  color: #17191d !important;
+  border-color: #dce1e7 !important;
+}
+html[data-theme="light"] :is(.card, .panel, .section, .metric, .order, .seller-card, .product-card, .service-card, .stat-card, .summary-card, .modal, .dialog, .dropdown-menu, .menu-panel, .form-card, .empty, .delivery-details, .setting-row, .list-item) {
+  background: #ffffff !important;
+  color: #20242a !important;
+  border-color: #dce1e7 !important;
+  box-shadow: 0 8px 24px rgba(25,35,50,.055) !important;
+}
+html[data-theme="light"] :is(h1,h2,h3,h4,h5,h6,p,label,li,td,th,strong,b,span,small, .title, .subtitle, .description, .order-meta, .hint, .metric-label) {
+  text-shadow: none !important;
+}
+html[data-theme="light"] :is(p, .subtitle, .description, .hint, .muted, small, .metric-label, .order-meta, .text-muted) {
+  color: #5d6570 !important;
+}
+html[data-theme="light"] :is(h1,h2,h3,h4,h5,h6,.title,.order-title,.brand-name) {
+  color: #17191d;
+}
+html[data-theme="light"] :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea, .control, .search-input) {
+  background: #ffffff !important;
+  color: #17191d !important;
+  border-color: #cbd2da !important;
+  caret-color: #17191d;
+}
+html[data-theme="light"] :is(input,textarea,select)::placeholder { color:#727b86 !important; opacity:1; }
+html[data-theme="light"] :is(table, th, td, tr, .divider, hr) { border-color:#dce1e7 !important; }
+html[data-theme="light"] :is(.btn-secondary,.secondary,.icon-btn,.nav a,.tab, .filter-button) {
+  background:#f0f2f5 !important;
+  color:#303640 !important;
+  border-color:#d5dbe2 !important;
+}
+html[data-theme="light"] :is(.btn-primary,.primary,.submit-btn,.buy-btn) {
+  color:#171107 !important;
+}
+html[data-theme="light"] :is(.status.success,.message.success,.badge.complete,.badge.completed,.badge.success,.badge.delivered) {
+  color:#176b3a !important; background:#e8f6ed !important; border-color:#b9e2c7 !important;
+}
+html[data-theme="light"] :is(.status.error,.message.error,.badge.failed,.badge.cancelled,.badge.rejected,.badge.refunded) {
+  color:#a32626 !important; background:#fff0f0 !important; border-color:#efcaca !important;
+}
+html[data-theme="light"] :is(.status.info,.message.info) {
+  color:#77580e !important; background:#fff8e5 !important; border-color:#ead9a8 !important;
+}
+html[data-theme="light"] a { color:#815b0b; }
+html[data-theme="light"] img, html[data-theme="light"] video, html[data-theme="light"] canvas { filter:none !important; }
