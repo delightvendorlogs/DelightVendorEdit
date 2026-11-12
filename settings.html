@@ -372,15 +372,15 @@
 
       async function init() {
         try {
-          const { data, error } = await supabase.auth.getUser();
+          const { data, error } = await supabase.auth.getSession();
 
-          if (error || !data.user) {
+          if (error || !data.session?.user) {
             window.location.replace("login.html");
             return;
           }
 
           document.getElementById("accountEmail").textContent =
-            data.user.email || "No email available";
+            data.session.user.email || "No email available";
           loading.hidden = true;
           content.hidden = false;
         } catch (error) {
