@@ -298,14 +298,31 @@
       </section>
 
       <section class="section">
-        <h2>Password and security</h2>
+        <h2>Change Password</h2>
         <p class="section-description">
-          If you want to change your password, use the secure password
-          reset flow sent to your registered email address.
+          Change your password directly here. Enter your current password,
+          then choose and confirm your new password.
         </p>
-        <button class="btn" id="resetPasswordButton" type="button">
-          Send Password Reset Link
-        </button>
+        <form id="changePasswordForm">
+          <div class="field">
+            <label for="currentPassword">Current password</label>
+            <input id="currentPassword" type="password" autocomplete="current-password"
+                   placeholder="Enter your current password" required>
+          </div>
+          <div class="field">
+            <label for="newPassword">New password</label>
+            <input id="newPassword" type="password" autocomplete="new-password"
+                   placeholder="Enter your new password" minlength="6" required>
+          </div>
+          <div class="field">
+            <label for="confirmPassword">Confirm new password</label>
+            <input id="confirmPassword" type="password" autocomplete="new-password"
+                   placeholder="Re-enter your new password" minlength="6" required>
+          </div>
+          <button class="btn" id="changePasswordButton" type="submit">
+            Update Password
+          </button>
+        </form>
       </section>
 
       <section class="section">
@@ -405,43 +422,59 @@
         savePreference("dve_product_announcements", event.target.checked);
       });
 
-      document.getElementById("resetPasswordButton").addEventListener("click", async (event) => {
-        const button = event.currentTarget;
+      document.getElementById("changePasswordForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const button = document.getElementById("changePasswordButton");
+        const currentPassword = document.getElementById("currentPassword").value;
+        const newPassword = document.getElementById("newPassword").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+          showMessage("Please complete all password fields.", "error");
+          return;
+        }
+        if (newPassword.length < 6) {
+          showMessage("Your new password must contain at least 6 characters.", "error");
+          return;
+        }
+        if (newPassword !== confirmPassword) {
+          showMessage("The new password and confirmation do not match.", "error");
+          document.getElementById("confirmPassword").focus();
+          return;
+        }
+        if (currentPassword === newPassword) {
+          showMessage("Your new password must be different from your current password.", "error");
+          return;
+        }
+
         button.disabled = true;
-        button.textContent = "Sending…";
+        button.textContent = "Updating…";
 
         try {
           const { data, error: userError } = await supabase.auth.getUser();
-
           if (userError || !data.user?.email) {
-            throw new Error("We could not find your account email. Please sign in again.");
+            throw new Error("Your session has expired. Please sign in again.");
           }
 
-          const redirectUrl = new URL(
-            "forgot-password.html",
-            window.location.href
-          ).href;
+          // Verify the current password before allowing a password change.
+          const { error: verifyError } = await supabase.auth.signInWithPassword({
+            email: data.user.email,
+            password: currentPassword
+          });
+          if (verifyError) throw new Error("Your current password is incorrect.");
 
-          const { error } = await supabase.auth.resetPasswordForEmail(
-            data.user.email,
-            { redirectTo: redirectUrl }
-          );
-
+          const { error } = await supabase.auth.updateUser({ password: newPassword });
           if (error) throw error;
 
-          showMessage(
-            "If an account exists for this email, a password-reset link has been sent. Check your inbox and spam folder.",
-            "success"
-          );
+          document.getElementById("changePasswordForm").reset();
+          showMessage("Your password has been changed successfully.", "success");
         } catch (error) {
-          console.error("Password reset request failed:", error);
-          showMessage(
-            error.message || "Could not send the reset email. Please try again.",
-            "error"
-          );
+          console.error("Password change failed:", error);
+          showMessage(error.message || "Could not update your password. Please try again.", "error");
         } finally {
           button.disabled = false;
-          button.textContent = "Send Password Reset Link";
+          button.textContent = "Update Password";
         }
       });
 
