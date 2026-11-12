@@ -5,6 +5,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080808">
+  <script>
+    try {
+      const savedTheme = localStorage.getItem("dve_appearance");
+      if (savedTheme === "light" || savedTheme === "dark") {
+        document.documentElement.setAttribute("data-theme", savedTheme);
+      }
+    } catch (_) {}
+  </script>
   <meta name="description" content="Manage your DelightVendorEdit account settings.">
   <title>Account Settings — DelightVendorEdit</title>
 
@@ -15,6 +23,7 @@
 
   <style>
     :root {
+      color-scheme: dark;
       --bg: #080808;
       --panel: #111;
       --panel2: #191919;
@@ -27,14 +36,29 @@
       --danger: #ff9292;
     }
 
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f4f4f2;
+      --panel: #ffffff;
+      --panel2: #eeeeeb;
+      --gold: #a87912;
+      --gold-light: #8b650e;
+      --text: #191919;
+      --muted: #666660;
+      --border: #deded8;
+      --success: #176b37;
+      --danger: #a32626;
+    }
+
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
       min-height: 100vh;
       min-height: 100dvh;
-      background: radial-gradient(ellipse at top, #211b0c, transparent 48%), var(--bg);
+      background: radial-gradient(ellipse at top, rgba(183, 143, 45, .13), transparent 48%), var(--bg);
       color: var(--text);
+      transition: background .2s, color .2s;
       font-family: Arial, Helvetica, sans-serif;
     }
 
@@ -47,7 +71,7 @@
       justify-content: space-between;
       gap: 14px;
       padding: 16px clamp(15px, 4vw, 48px);
-      border-bottom: 1px solid #29251a;
+      border-bottom: 1px solid var(--border);
     }
 
     .brand {
@@ -91,7 +115,7 @@
     .section {
       padding: clamp(20px, 4vw, 28px);
       margin-bottom: 18px;
-      background: rgba(17,17,17,.97);
+      background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 17px;
     }
@@ -111,7 +135,7 @@
       justify-content: space-between;
       gap: 20px;
       padding: 17px 0;
-      border-top: 1px solid #292929;
+      border-top: 1px solid var(--border);
     }
 
     .setting-copy { min-width: 0; }
@@ -129,46 +153,37 @@
       line-height: 1.6;
     }
 
-    .toggle {
-      position: relative;
-      width: 48px;
-      height: 27px;
-      flex-shrink: 0;
+    .appearance-options {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
-    .toggle input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-    }
-
-    .toggle-track {
-      position: absolute;
-      inset: 0;
-      border-radius: 20px;
-      background: #414141;
+    .appearance-choice {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-width: 125px;
+      min-height: 46px;
+      padding: 11px 16px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--panel2);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
       cursor: pointer;
-      transition: background .2s;
+      transition: border-color .2s, background .2s;
     }
 
-    .toggle-track::before {
-      content: "";
-      position: absolute;
-      left: 3px;
-      top: 3px;
-      width: 21px;
-      height: 21px;
-      border-radius: 50%;
-      background: white;
-      transition: transform .2s;
+    .appearance-choice[aria-pressed="true"] {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(183, 143, 45, .12);
     }
 
-    .toggle input:checked + .toggle-track { background: #b68a28; }
-    .toggle input:checked + .toggle-track::before { transform: translateX(21px); }
-
-    .toggle input:focus-visible + .toggle-track {
-      outline: 2px solid var(--gold-light);
+    .appearance-choice:focus-visible {
+      outline: 2px solid var(--gold);
       outline-offset: 3px;
     }
 
@@ -189,14 +204,14 @@
       padding: 13px 14px;
       border: 1px solid #383838;
       border-radius: 11px;
-      background: #0b0b0b;
+      background: var(--bg);
       color: var(--text);
       font-size: 14px;
       outline: none;
       appearance: none;
       -webkit-appearance: none;
       box-shadow: none;
-      color-scheme: dark;
+      color-scheme: inherit;
       transition: border-color .2s, box-shadow .2s;
     }
 
@@ -211,7 +226,7 @@
     .password-field input:-webkit-autofill:hover,
     .password-field input:-webkit-autofill:focus {
       -webkit-text-fill-color: var(--text);
-      box-shadow: 0 0 0 1000px #0b0b0b inset;
+      box-shadow: 0 0 0 1000px var(--bg) inset;
       caret-color: var(--text);
       border: 1px solid #383838;
     }
@@ -268,7 +283,7 @@
 
     footer {
       padding: 20px;
-      color: #777;
+      color: var(--muted);
       text-align: center;
       font-size: 12px;
     }
@@ -304,32 +319,17 @@
       <div id="message" class="message" role="status"></div>
 
       <section class="section">
-        <h2>Preferences</h2>
+        <h2>Appearance</h2>
         <p class="section-description">
-          These preferences are stored on this device in this browser.
-          They do not change your account security settings.
+          Choose how DelightVendorEdit looks on this device. Your choice will be remembered in this browser.
         </p>
-
-        <div class="setting-row">
-          <div class="setting-copy">
-            <strong>Marketing updates</strong>
-            <p>Choose whether this browser remembers your preference for marketing messages.</p>
-          </div>
-          <label class="toggle" aria-label="Marketing updates preference">
-            <input type="checkbox" id="marketingToggle">
-            <span class="toggle-track"></span>
-          </label>
-        </div>
-
-        <div class="setting-row">
-          <div class="setting-copy">
-            <strong>Product announcements</strong>
-            <p>Remember whether you want product announcement prompts on this device.</p>
-          </div>
-          <label class="toggle" aria-label="Product announcements preference">
-            <input type="checkbox" id="announcementsToggle">
-            <span class="toggle-track"></span>
-          </label>
+        <div class="appearance-options" role="group" aria-label="Appearance theme">
+          <button class="appearance-choice" id="darkThemeButton" type="button" aria-pressed="true">
+            <span aria-hidden="true">◐</span> Dark
+          </button>
+          <button class="appearance-choice" id="lightThemeButton" type="button" aria-pressed="false">
+            <span aria-hidden="true">☼</span> Light
+          </button>
         </div>
       </section>
 
@@ -406,28 +406,41 @@
         message.className = "message show " + type;
       }
 
-      function loadPreferences() {
-        try {
-          document.getElementById("marketingToggle").checked =
-            localStorage.getItem("dve_marketing_updates") === "true";
+      function applyAppearance(theme, save = true) {
+        const selectedTheme = theme === "light" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", selectedTheme);
 
-          document.getElementById("announcementsToggle").checked =
-            localStorage.getItem("dve_product_announcements") === "true";
-        } catch (error) {
-          console.warn("Browser preferences unavailable:", error);
+        document.getElementById("darkThemeButton").setAttribute(
+          "aria-pressed", String(selectedTheme === "dark")
+        );
+        document.getElementById("lightThemeButton").setAttribute(
+          "aria-pressed", String(selectedTheme === "light")
+        );
+
+        const themeColor = document.querySelector('meta[name="theme-color"]');
+        if (themeColor) themeColor.setAttribute(
+          "content", selectedTheme === "light" ? "#f4f4f2" : "#080808"
+        );
+
+        if (save) {
+          try {
+            localStorage.setItem("dve_appearance", selectedTheme);
+            showMessage("Appearance preference saved on this device.", "success");
+          } catch (error) {
+            showMessage("The appearance changed, but your browser could not save the preference.", "error");
+          }
         }
       }
 
-      function savePreference(key, value) {
+      function loadAppearance() {
+        let theme = "dark";
         try {
-          localStorage.setItem(key, String(value));
-          showMessage("Your preference has been saved on this device.", "success");
+          const saved = localStorage.getItem("dve_appearance");
+          if (saved === "light" || saved === "dark") theme = saved;
         } catch (error) {
-          showMessage(
-            "Your browser could not save this preference. Check browser storage settings.",
-            "error"
-          );
+          console.warn("Appearance preference unavailable:", error);
         }
+        applyAppearance(theme, false);
       }
 
       async function init() {
@@ -442,7 +455,7 @@
           document.getElementById("accountEmail").textContent =
             data.user.email || "No email available";
 
-          loadPreferences();
+          loadAppearance();
           loading.hidden = true;
           content.hidden = false;
         } catch (error) {
@@ -452,12 +465,12 @@
         }
       }
 
-      document.getElementById("marketingToggle").addEventListener("change", (event) => {
-        savePreference("dve_marketing_updates", event.target.checked);
+      document.getElementById("darkThemeButton").addEventListener("click", () => {
+        applyAppearance("dark");
       });
 
-      document.getElementById("announcementsToggle").addEventListener("change", (event) => {
-        savePreference("dve_product_announcements", event.target.checked);
+      document.getElementById("lightThemeButton").addEventListener("click", () => {
+        applyAppearance("light");
       });
 
       document.getElementById("changePasswordForm").addEventListener("submit", async (event) => {
