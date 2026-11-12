@@ -172,6 +172,50 @@
       outline-offset: 3px;
     }
 
+    .password-field { margin-bottom: 18px; }
+
+    .password-field label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .password-field input {
+      display: block;
+      width: 100%;
+      min-height: 49px;
+      padding: 13px 14px;
+      border: 1px solid #383838;
+      border-radius: 11px;
+      background: #0b0b0b;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      box-shadow: none;
+      color-scheme: dark;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .password-field input::placeholder { color: #777; opacity: 1; }
+
+    .password-field input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(231, 185, 74, .1);
+    }
+
+    .password-field input:-webkit-autofill,
+    .password-field input:-webkit-autofill:hover,
+    .password-field input:-webkit-autofill:focus {
+      -webkit-text-fill-color: var(--text);
+      box-shadow: 0 0 0 1000px #0b0b0b inset;
+      caret-color: var(--text);
+      border: 1px solid #383838;
+    }
+
     .btn {
       display: inline-flex;
       justify-content: center;
@@ -300,24 +344,18 @@
       <section class="section">
         <h2>Change Password</h2>
         <p class="section-description">
-          Change your password directly here. Enter your current password,
-          then choose and confirm your new password.
+          Choose a new password and confirm it below. No email reset is needed.
         </p>
         <form id="changePasswordForm">
-          <div class="field">
-            <label for="currentPassword">Current password</label>
-            <input id="currentPassword" type="password" autocomplete="current-password"
-                   placeholder="Enter your current password" required>
-          </div>
-          <div class="field">
+          <div class="password-field">
             <label for="newPassword">New password</label>
             <input id="newPassword" type="password" autocomplete="new-password"
                    placeholder="Enter your new password" minlength="6" required>
           </div>
-          <div class="field">
+          <div class="password-field">
             <label for="confirmPassword">Confirm new password</label>
             <input id="confirmPassword" type="password" autocomplete="new-password"
-                   placeholder="Re-enter your new password" minlength="6" required>
+                   placeholder="Confirm your new password" minlength="6" required>
           </div>
           <button class="btn" id="changePasswordButton" type="submit">
             Update Password
@@ -426,12 +464,11 @@
         event.preventDefault();
 
         const button = document.getElementById("changePasswordButton");
-        const currentPassword = document.getElementById("currentPassword").value;
         const newPassword = document.getElementById("newPassword").value;
         const confirmPassword = document.getElementById("confirmPassword").value;
 
-        if (!currentPassword || !newPassword || !confirmPassword) {
-          showMessage("Please complete all password fields.", "error");
+        if (!newPassword || !confirmPassword) {
+          showMessage("Please complete both password fields.", "error");
           return;
         }
         if (newPassword.length < 6) {
@@ -443,27 +480,17 @@
           document.getElementById("confirmPassword").focus();
           return;
         }
-        if (currentPassword === newPassword) {
-          showMessage("Your new password must be different from your current password.", "error");
-          return;
-        }
 
         button.disabled = true;
         button.textContent = "Updating…";
 
         try {
           const { data, error: userError } = await supabase.auth.getUser();
-          if (userError || !data.user?.email) {
+          if (userError || !data.user) {
             throw new Error("Your session has expired. Please sign in again.");
           }
 
-          // Verify the current password before allowing a password change.
-          const { error: verifyError } = await supabase.auth.signInWithPassword({
-            email: data.user.email,
-            password: currentPassword
-          });
-          if (verifyError) throw new Error("Your current password is incorrect.");
-
+          // Supabase updates the password for the currently authenticated account.
           const { error } = await supabase.auth.updateUser({ password: newPassword });
           if (error) throw error;
 
