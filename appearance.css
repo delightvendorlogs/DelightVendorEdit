@@ -112,3 +112,28 @@ html[data-theme="light"] :is(.status.info,.message.info) {
 }
 html[data-theme="light"] a { color:#815b0b; }
 html[data-theme="light"] img, html[data-theme="light"] video, html[data-theme="light"] canvas { filter:none !important; }
+
+
+/* Strong black-on-white light mode defaults for page-specific legacy styles. */
+html[data-theme="light"] body,
+html[data-theme="light"] body :is(h1,h2,h3,h4,h5,h6,p,li,label,dt,dd,th,td,legend,summary,output,figcaption),
+html[data-theme="light"] body :is(.title,.name,.description,.details,.meta,.order-title,.order-meta,.metric-value,.metric-label,.form-label,.field-label,.nav a,.tab) {
+  color:#17191d !important;
+  text-shadow:none !important;
+}
+html[data-theme="light"] body :is(main,section,article,form,fieldset,[class*="card"],[class*="panel"],[class*="modal"],[class*="dialog"],[class*="box"],[class*="tile"],[class*="item"],[class*="row"],[class*="dropdown"],[class*="menu"],[class*="table-wrap"]) {
+  border-color:#d9dee5 !important;
+}
+html[data-theme="light"] body :is(.card,.panel,.modal,.dialog,.box,.tile,.metric,.order,.product,.product-card,.seller-card,.form-card,.dropdown-menu,.menu-panel,.empty,.list-item,.delivery-details,.review-dialog,.reviewbox) {
+  background:#fff !important;
+  color:#17191d !important;
+}
+html[data-theme="light"] body :is(button,.btn,.button,input[type="button"],input[type="submit"]) { 
+  text-shadow:none !important;
+}
+html[data-theme="light"] body :is(.brand,.eyebrow,.gold,.price,.amount,.metric-value,.review-kicker,.review-stars button.active,.rating-number) { color:#815b0b !important; }
+html[data-theme="light"] body :is(.badge,.status,.status *,[class*="badge"],[class*="status"],.success,.error,.warning,.alert,.toast) { text-shadow:none !important; }
+html[data-theme="light"] body :is(input,select,textarea,option) { color:#17191d !important; background:#fff !important; border-color:#c7ced7 !important; }
+html[data-theme="light"] body :is(input,textarea,select)::placeholder { color:#68717d !important; opacity:1 !important; }
+html[data-theme="light"] body :is(.muted,.subtitle,.hint,.help-text,.text-muted,small) { color:#59616c !important; }
+html[data-theme="light"] body :is(.btn-primary,.button.primary,.primary,.buy,.buy-btn,.submit-btn) { color:#171107 !important; }
