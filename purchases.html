@@ -69,7 +69,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
     <textarea class="review-textarea" id="reviewText" maxlength="1500" placeholder="Tell us about your experience…"></textarea>
     <div class="review-hint" id="reviewHint">Your review will be checked by our team before it is published.</div>
     <div class="review-actions">
-      <button type="button" id="reviewLater">Remind me later</button>
+      <button type="button" id="reviewCancel">Cancel</button>\n      <button type="button" id="reviewLater">Remind me later</button>
       <button type="button" class="primary" id="reviewSubmit">Submit review</button>
     </div>
   </section>
@@ -300,6 +300,9 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
       let state={};
       try { state=JSON.parse(localStorage.getItem(key)||"{}"); } catch(_) {}
       if(state.state==="submitted" || state.state==="never" || (state.state==="later"&&Number(state.nextAt)>Date.now())) return;
+      const purchaseTime=Date.parse(purchasedAt||"");
+      const eligibleAt=Number.isFinite(purchaseTime)?purchaseTime+3*24*60*60*1000:Date.now()+3*24*60*60*1000;
+      if(Date.now()<eligibleAt) return;
       reviewQueue.push({key,kind,title,maxLength,submit});
     };
 
@@ -313,12 +316,12 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
           queueReview("dv-seller-review-item-"+item.id,"seller",title,1500,async(rating,text)=>{
             const {error}=await db.rpc("submit_seller_review",{p_order_item_id:item.id,p_rating:rating,p_review_text:text});
             if(error) throw error;
-          });
+          },order.created_at);
         } else {
           queueReview("dv-website-review-item-"+item.id,"website",title,1200,async(rating,text)=>{
             const {error}=await db.rpc("submit_website_review",{p_order_item_id:item.id,p_rating:rating,p_review_text:text});
             if(error) throw error;
-          });
+          },order.created_at);
         }
       }
     }
@@ -330,10 +333,13 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
       if(tx.metadata && tx.metadata.seller_marketplace) continue;
       if(tx.related_order_id && orderIds.has(String(tx.related_order_id))) continue;
       if(tx.reference && orderReferences.has(String(tx.reference))) continue;
+      const meta=tx.metadata&&typeof tx.metadata==="object"?tx.metadata:{};
+      const label=String(meta.category||meta.service||meta.product_type||"")+" "+String(tx.description||"");
+      if(!(meta.category||meta.service||meta.product_type||/DelightVendorEdit|flight.?ticket|flight itinerary|tracking.?number|tracking reveal|AI Studio|aiSwap|aiLipsync|working.?profile|profile purchase/i.test(label))) continue;
       queueReview("dv-website-review-tx-"+tx.id,"website",tx.description||"your purchase",1200,async(rating,text)=>{
         const {error}=await db.rpc("submit_website_transaction_review",{p_transaction_id:tx.id,p_rating:rating,p_review_text:text});
         if(error) throw error;
-      });
+      },tx.completed_at||tx.created_at);
     }
     showNextReview();
   }
