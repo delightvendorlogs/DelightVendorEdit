@@ -1,6 +1,4 @@
 <head>
-<link rel="stylesheet" href="appearance.css?v=3">
-<script src="appearance.js?v=2"></script>
 <script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script><style>.dve-banner-dots,#dvBannerDots{display:none!important}</style></head>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,14 +6,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080808">
-  <script>
-    try {
-      const savedTheme = localStorage.getItem("dve_appearance");
-      if (savedTheme === "light" || savedTheme === "dark") {
-        document.documentElement.setAttribute("data-theme", savedTheme);
-      }
-    } catch (_) {}
-  </script>
   <meta name="description" content="Manage your DelightVendorEdit account settings.">
   <title>Account Settings — DelightVendorEdit</title>
 
@@ -39,21 +29,7 @@
       --danger: #ff9292;
     }
 
-    :root[data-theme="light"] {
-      color-scheme: light;
-      --bg: #f4f4f2;
-      --panel: #ffffff;
-      --panel2: #eeeeeb;
-      --gold: #a87912;
-      --gold-light: #8b650e;
-      --text: #191919;
-      --muted: #666660;
-      --border: #deded8;
-      --success: #176b37;
-      --danger: #a32626;
-    }
-
-    * { box-sizing: border-box; }
+* { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -322,21 +298,6 @@
       <div id="message" class="message" role="status"></div>
 
       <section class="section">
-        <h2>Appearance</h2>
-        <p class="section-description">
-          Choose how DelightVendorEdit looks on this device. Your choice will be remembered in this browser.
-        </p>
-        <div class="appearance-options" role="group" aria-label="Appearance theme">
-          <button class="appearance-choice" id="darkThemeButton" type="button" aria-pressed="true">
-            <span aria-hidden="true">◐</span> Dark
-          </button>
-          <button class="appearance-choice" id="lightThemeButton" type="button" aria-pressed="false">
-            <span aria-hidden="true">☼</span> Light
-          </button>
-        </div>
-      </section>
-
-      <section class="section">
         <h2>Account information</h2>
         <p class="section-description">
           Your account email.
@@ -409,43 +370,6 @@
         message.className = "message show " + type;
       }
 
-      function applyAppearance(theme, save = true) {
-        const selectedTheme = theme === "light" ? "light" : "dark";
-        document.documentElement.setAttribute("data-theme", selectedTheme);
-
-        document.getElementById("darkThemeButton").setAttribute(
-          "aria-pressed", String(selectedTheme === "dark")
-        );
-        document.getElementById("lightThemeButton").setAttribute(
-          "aria-pressed", String(selectedTheme === "light")
-        );
-
-        const themeColor = document.querySelector('meta[name="theme-color"]');
-        if (themeColor) themeColor.setAttribute(
-          "content", selectedTheme === "light" ? "#f4f4f2" : "#080808"
-        );
-
-        if (save) {
-          try {
-            localStorage.setItem("dve_appearance", selectedTheme);
-            showMessage("Appearance preference saved on this device.", "success");
-          } catch (error) {
-            showMessage("The appearance changed, but your browser could not save the preference.", "error");
-          }
-        }
-      }
-
-      function loadAppearance() {
-        let theme = "dark";
-        try {
-          const saved = localStorage.getItem("dve_appearance");
-          if (saved === "light" || saved === "dark") theme = saved;
-        } catch (error) {
-          console.warn("Appearance preference unavailable:", error);
-        }
-        applyAppearance(theme, false);
-      }
-
       async function init() {
         try {
           const { data, error } = await supabase.auth.getUser();
@@ -457,8 +381,6 @@
 
           document.getElementById("accountEmail").textContent =
             data.user.email || "No email available";
-
-          loadAppearance();
           loading.hidden = true;
           content.hidden = false;
         } catch (error) {
@@ -468,13 +390,7 @@
         }
       }
 
-      document.getElementById("darkThemeButton").addEventListener("click", () => {
-        applyAppearance("dark");
-      });
-
-      document.getElementById("lightThemeButton").addEventListener("click", () => {
-        applyAppearance("light");
-      });
+});
 
       document.getElementById("changePasswordForm").addEventListener("submit", async (event) => {
         event.preventDefault();
