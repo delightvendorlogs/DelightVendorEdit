@@ -1,0 +1,60 @@
+/* DelightVendorEdit shared appearance themes. Dark remains the default. */
+:root {
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg:#f5f6f8; --panel:#ffffff; --panel-2:#f0f2f5; --panel2:#f0f2f5;
+  --panel-3:#e8ebef; --card:#ffffff; --gold:#9b7014; --gold-2:#815b0b;
+  --gold2:#815b0b; --gold-dark:#815b0b; --gold-light:#815b0b;
+  --text:#17191d; --muted:#5d6570; --line:#dce1e7; --border:#dce1e7;
+  --success:#176b3a; --green:#176b3a; --danger:#b42332; --red:#b42332;
+  --shadow:0 12px 32px rgba(25,35,50,.08);
+}
+html[data-theme="light"] body {
+  color:var(--text)!important;
+  background:var(--bg)!important;
+}
+html[data-theme="light"] header,
+html[data-theme="light"] nav,
+html[data-theme="light"] footer,
+html[data-theme="light"] aside,
+html[data-theme="light"] [class*="header"],
+html[data-theme="light"] [class*="navbar"],
+html[data-theme="light"] [class*="sidebar"] {
+  color:var(--text);
+  border-color:var(--line)!important;
+}
+html[data-theme="light"] main,
+html[data-theme="light"] section,
+html[data-theme="light"] [class*="card"],
+html[data-theme="light"] [class*="panel"],
+html[data-theme="light"] [class*="tile"],
+html[data-theme="light"] [class*="modal"],
+html[data-theme="light"] [class*="box"],
+html[data-theme="light"] [class*="container"],
+html[data-theme="light"] [class*="surface"] {
+  border-color:var(--line);
+}
+html[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="light"] select,
+html[data-theme="light"] textarea {
+  color:#17191d!important;
+  background:#fff!important;
+  border-color:#cbd2da!important;
+}
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder {color:#727b86!important;opacity:1}
+html[data-theme="light"] button,
+html[data-theme="light"] a { -webkit-tap-highlight-color:transparent; }
+html[data-theme="light"] table,
+html[data-theme="light"] th,
+html[data-theme="light"] td { border-color:var(--line)!important; }
+html[data-theme="light"] small,
+html[data-theme="light"] .muted,
+html[data-theme="light"] [class*="muted"] { color:var(--muted); }
+html[data-theme="light"] .gold,
+html[data-theme="light"] [class*="gold"] { color:#815b0b; }
+html[data-theme="light"] img,
+html[data-theme="light"] video,
+html[data-theme="light"] canvas { filter:none!important; }
