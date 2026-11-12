@@ -137,3 +137,82 @@ html[data-theme="light"] body :is(input,select,textarea,option) { color:#17191d 
 html[data-theme="light"] body :is(input,textarea,select)::placeholder { color:#68717d !important; opacity:1 !important; }
 html[data-theme="light"] body :is(.muted,.subtitle,.hint,.help-text,.text-muted,small) { color:#59616c !important; }
 html[data-theme="light"] body :is(.btn-primary,.button.primary,.primary,.buy,.buy-btn,.submit-btn) { color:#171107 !important; }
+
+
+/* Light mode: neutralize legacy dark surfaces consistently on every customer page. */
+html[data-theme="light"] body :is(
+  [class*="card"],[class*="panel"],[class*="tile"],[class*="box"],
+  [class*="quick"],[class*="select"],[class*="dropdown"],[class*="menu"],
+  [class*="notification"],[class*="notice"],[class*="toast"],
+  [class*="stat"],[class*="summary"],[class*="option"],[class*="item"],
+  [class*="widget"],[class*="feature"],[class*="action"],[class*="shortcut"],
+  [class*="history"],[class*="activity"],[class*="transaction"]
+) {
+  background-color:#ffffff !important;
+  color:#17191d !important;
+  border-color:#d9dee5 !important;
+  box-shadow:0 5px 18px rgba(20,28,40,.055) !important;
+}
+html[data-theme="light"] body :is(
+  [class*="card"],[class*="panel"],[class*="tile"],[class*="box"],
+  [class*="quick"],[class*="select"],[class*="dropdown"],[class*="menu"],
+  [class*="notification"],[class*="notice"],[class*="toast"],
+  [class*="stat"],[class*="summary"],[class*="option"],[class*="item"],
+  [class*="widget"],[class*="feature"],[class*="action"],[class*="shortcut"],
+  [class*="history"],[class*="activity"],[class*="transaction"]
+) :is(h1,h2,h3,h4,h5,h6,p,span,strong,b,label,small,div,a,li,td,th) {
+  color:#17191d !important;
+  text-shadow:none !important;
+}
+html[data-theme="light"] body :is(
+  button,.btn,.button,[role="button"],input[type="button"],input[type="submit"],
+  .quick-select,.quick-option,.select-option,.dropdown-item,.menu-item,
+  .filter-chip,.tab-button,.icon-button
+) {
+  background-color:#f0f2f5 !important;
+  color:#20242a !important;
+  border-color:#d2d8e0 !important;
+  box-shadow:none !important;
+}
+html[data-theme="light"] body :is(
+  button.primary,button.btn-primary,.btn-primary,.button.primary,
+  .primary,.submit-btn,.buy-btn,.buy,.action-primary,
+  [class*="primary-btn"],[class*="gold-btn"]
+) {
+  background-color:#d5aa45 !important;
+  color:#171107 !important;
+  border-color:#bd9130 !important;
+}
+html[data-theme="light"] body :is(
+  .btn-danger,.danger-button,.delete-btn,.remove-btn,
+  button.danger,[class*="danger-btn"]
+) {
+  background-color:#fff0f0 !important;
+  color:#a32626 !important;
+  border-color:#efcaca !important;
+}
+html[data-theme="light"] body :is(
+  select,option,[role="listbox"],[role="option"],
+  [class*="select-menu"],[class*="select-list"],[class*="dropdown-content"],
+  [class*="dropdown-list"],[class*="quick-select"]
+) {
+  background-color:#ffffff !important;
+  color:#17191d !important;
+  border-color:#d2d8e0 !important;
+}
+html[data-theme="light"] body :is(
+  .notification,.notification-item,.notification-card,.notice,.toast,
+  [class*="notification"],[class*="notice"],[class*="toast"]
+) :is(h1,h2,h3,h4,p,span,strong,b,small,div,a) {
+  color:#17191d !important;
+}
+html[data-theme="light"] body :is(
+  .badge,.status,.success,.error,.warning,.alert,
+  [class*="badge"],[class*="status"]
+) {
+  box-shadow:none !important;
+}
+html[data-theme="light"] body :is(button,[role="button"],a,select):focus-visible {
+  outline:2px solid #9b7014 !important;
+  outline-offset:2px !important;
+}
