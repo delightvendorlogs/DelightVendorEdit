@@ -1,4 +1,29 @@
-<head><script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script><style>.dve-banner-dots,#dvBannerDots{display:none!important}</style>
+<head><script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script><style>.dve-banner-dots,#dvBannerDots{display:none!important}
+/* Compact branded flight cards */
+#flightResults.results{display:grid;grid-template-columns:1fr;gap:14px;margin-top:18px;align-items:start}
+#flightResults .flight-result{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"top top" "route route" "meta meta" "details details" "action action";gap:0;min-height:0;height:auto;align-content:start;padding:17px 18px;border:1px solid #59451c;border-radius:17px;background:linear-gradient(145deg,#17140d 0%,#0d0d0c 72%);box-shadow:0 9px 24px #0006;overflow:hidden}
+#flightResults .flight-result-top{grid-area:top;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:13px;border-bottom:1px solid #332a19}
+#flightResults .flight-result-top>div:first-child{display:flex;align-items:center;gap:11px;min-width:0}
+#flightResults .flight-result-top h3{font-size:16px;line-height:1.25;margin:0;color:#fff;overflow-wrap:anywhere}
+#flightResults .flight-kicker{font-size:9px;color:var(--gold);letter-spacing:.12em;margin-bottom:3px}
+#flightResults .flight-fare{flex:0 0 auto;text-align:right}
+#flightResults .flight-fare strong{font-size:19px;line-height:1.2;color:var(--gold);white-space:nowrap}
+#flightResults .flight-fare small{display:block;font-size:10px;color:#aaa}
+#flightResults .flight-route-summary{grid-area:route;grid-template-columns:minmax(0,1fr) minmax(76px,.7fr) minmax(0,1fr);gap:8px;padding:17px 0 12px;align-items:center}
+#flightResults .flight-route-summary strong{font-size:21px;color:#fff;margin:3px 0}
+#flightResults .flight-route-summary span{font-size:11px;line-height:1.4;color:#c8c1b2;overflow-wrap:anywhere}
+#flightResults .flight-route-summary small{font-size:9px;color:var(--gold);letter-spacing:.1em}
+#flightResults .flight-route-middle{min-width:0}
+#flightResults .flight-route-middle small{font-size:11px;color:#d4c28d;white-space:nowrap}
+#flightResults .flight-route-line{background:linear-gradient(90deg,#765b24,#e9bd53,#765b24);height:2px;border-radius:4px}
+#flightResults .flight-meta{grid-area:meta;gap:7px;padding:0 0 12px}
+#flightResults .flight-meta span{font-size:10px;padding:4px 9px;background:#211b0e;border-color:#59451c;color:#f0d58c}
+#flightResults .flight-details{grid-area:details;margin:0 0 4px;padding-top:10px;border-top:1px solid #332a19}
+#flightResults .flight-select{grid-area:action;width:100%;margin-top:11px;min-height:43px;background:var(--gold);border:1px solid var(--gold);border-radius:11px;color:#171208;font-size:14px;font-weight:800}
+#flightResults .flight-select:active{transform:scale(.99)}
+@media(min-width:760px){#flightResults .flight-result{padding:18px 21px}#flightResults .flight-select{width:auto;min-width:190px;justify-self:end}}
+@media(max-width:430px){#flightResults .flight-result{padding:14px 13px}#flightResults .flight-result-top h3{font-size:14px}#flightResults .flight-fare strong{font-size:17px}#flightResults .flight-route-summary{grid-template-columns:minmax(0,1fr) 72px minmax(0,1fr);gap:5px}#flightResults .flight-route-summary strong{font-size:18px}#flightResults .flight-route-summary span{font-size:10px}}
+</style>
   </head><!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080808"><meta name="description" content="Flight Ticket on DelightVendorEdit."><title>Flight Ticket — DelightVendorEdit</title><link rel="icon" type="image/png" href="assets/dv-logo.png"><link rel="apple-touch-icon" href="assets/dv-logo.png"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
