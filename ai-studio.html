@@ -74,5 +74,54 @@ document.getElementById("audioMode").addEventListener("change",()=>{syncAudioMod
 const voiceSelect=document.getElementById("voiceId");
 voiceSelect.addEventListener("focus",()=>ensureAIVoices());
 voiceSelect.addEventListener("pointerdown",()=>ensureAIVoices());document.getElementById("startAI").onclick=async()=>{const tool=activeTool;if(!tool){msg("aiMsg","Choose an AI service first.","error");return}let body={};if(tool==="aiSwapFace")body={sourceImageUrl:"",targetImageUrl:""};if(tool==="aiSwapVideo")body={sourceImageUrl:"",targetVideoUrl:""};if(tool==="aiLipsync")body={faceVideoUrl:"",audio:{type:document.getElementById("audioMode").value}};msg("aiMsg","Uploading your files…");try{if(tool==="aiSwapFace"){body.sourceImageUrl=await uploadMedia("sourceImageFile","sourceImageUrl");body.targetImageUrl=await uploadMedia("targetImageFile","targetImageUrl")}if(tool==="aiSwapVideo"){body.sourceImageUrl=await uploadMedia("sourceImageFile","sourceImageUrl");body.targetVideoUrl=await uploadMedia("targetVideoFile","targetVideoUrl")}if(tool==="aiLipsync"){body.faceVideoUrl=await uploadMedia("faceVideoFile","faceVideoUrl");if(body.audio.type==="upload"){body.audio.audioUrl=await uploadMedia("audioFile","audioUrl")}else{body.audio.voiceId=document.getElementById("voiceId").value;body.audio.script=document.getElementById("speechScript").value.trim();if(!body.audio.voiceId)throw Error("Please select a provider voice.");if(!body.audio.script)throw Error("Enter the speech text for the selected voice.");}}msg("aiMsg","Files uploaded. Submitting generation and processing payment…");const d=await api(tool,body);msg("aiMsg","Generation submitted. Status: "+(d.result?.status||"PROCESSING")+". Charged "+money(d.sellingPrice)+".","ok");await loadBalance();loadHistory()}catch(e){msg("aiMsg",e.message,"error")}};
-async function loadHistory(){try{const d=await api("aiHistory");const a=Array.isArray(d.result)?d.result:[];document.getElementById("aiResults").innerHTML=a.map(g=>"<article class='result'><h3>"+safe(g.tool||"Generation")+"</h3><p>Status: "+safe(g.status)+"</p>"+(g.resultUrl&&/^https:\///i.test(g.resultUrl)?"<a href='"+safe(g.resultUrl)+"' target='_blank' rel='noopener'>Open result</a>":"")+"</article>").join("")||"No generations found."}catch(e){msg("aiMsg",e.message,"error")}}document.getElementById("aiHistory").onclick=loadHistory;loadAiPrices();</script><script src="assets/site-announcement.js" defer></script>
+const activeGenerationPolls=new Set();
+function generationId(g){return String(g?.id||g?.generationId||g?.generation_id||"")}
+function generationUrl(g){return String(g?.resultUrl||g?.result_url||g?.outputUrl||g?.output_url||"")}
+function updateGenerationCard(g){
+ const id=generationId(g);if(!id)return;
+ const card=[...document.querySelectorAll("[data-generation-id]")].find(x=>x.dataset.generationId===id);if(!card)return;
+ const status=String(g.status||"UNKNOWN").toUpperCase();
+ const statusNode=card.querySelector(".generation-status");if(statusNode)statusNode.textContent="Status: "+status;
+ const url=generationUrl(g);let link=card.querySelector(".generation-result-link");
+ if(url&&/^https:\/\//i.test(url)){
+  if(!link){link=document.createElement("a");link.className="generation-result-link";link.target="_blank";link.rel="noopener";link.textContent="Open result";card.append(link)}
+  link.href=url;
+ }else if(link)link.remove();
+}
+async function pollGeneration(id){
+ if(!id||activeGenerationPolls.has(id))return;
+ activeGenerationPolls.add(id);
+ try{
+  for(let attempt=0;attempt<30;attempt++){
+   const response=await api("aiGeneration",{}, {id});
+   const g=response.result?.generation||response.result?.data||response.result;
+   if(!g||typeof g!=="object")throw Error("The provider returned an invalid generation status.");
+   updateGenerationCard(g);
+   const status=String(g.status||"").toUpperCase();
+   if(["COMPLETED","FAILED","ERROR","CANCELLED","CANCELED"].includes(status))return;
+   await new Promise(resolve=>setTimeout(resolve,4000));
+  }
+  const card=[...document.querySelectorAll("[data-generation-id]")].find(x=>x.dataset.generationId===id);
+  const node=card?.querySelector(".generation-status");if(node)node.textContent="Still processing — refresh history to check again.";
+ }catch(e){
+  const card=[...document.querySelectorAll("[data-generation-id]")].find(x=>x.dataset.generationId===id);
+  const node=card?.querySelector(".generation-status");if(node)node.textContent="Status check unavailable — refresh history to retry.";
+ }finally{activeGenerationPolls.delete(id)}
+}
+async function loadHistory(){
+ try{
+  const d=await api("aiHistory");
+  const a=Array.isArray(d.result)?d.result:[];
+  const box=document.getElementById("aiResults");
+  box.innerHTML=a.map(g=>{
+   const id=generationId(g),url=generationUrl(g);
+   return "<article class='result' data-generation-id='"+safe(id)+"'><h3>"+safe(g.tool||"Generation")+"</h3><p class='generation-status'>Status: "+safe(g.status||"UNKNOWN")+"</p>"+(url&&/^https:\/\//i.test(url)?"<a class='generation-result-link' href='"+safe(url)+"' target='_blank' rel='noopener'>Open result</a>":"")+"</article>";
+  }).join("")||"No generations found.";
+  a.forEach(g=>{
+   const status=String(g.status||"").toUpperCase();
+   if(generationId(g)&&!["COMPLETED","FAILED","ERROR","CANCELLED","CANCELED"].includes(status))pollGeneration(generationId(g));
+  });
+ }catch(e){msg("aiMsg",e.message,"error")}
+}
+document.getElementById("aiHistory").onclick=loadHistory;loadAiPrices();</script><script src="assets/site-announcement.js" defer></script>
 </body></html>
