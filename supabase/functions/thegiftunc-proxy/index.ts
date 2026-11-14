@@ -121,11 +121,11 @@ Deno.serve(async (req) => {
   trackingSearch:{method:"POST",path:"/trackingNo/search",category:"tracking-number",purchase:false},
   trackingReveal:{method:"POST",path:"/trackingNo/reveal",category:"tracking-number",purchase:true,pricePath:"/trackingNo/price"},
   trackingHistory:{method:"GET",path:"/trackingNo/history",category:"tracking-number",purchase:false},
-  flightPrice:{method:"GET",path:"/flight-ticket/priceno",category:"flight-ticket",purchase:false},
+  flightPrice:{method:"GET",path:"/flight-ticket/price",category:"flight-ticket",purchase:false},
   airlines:{method:"GET",path:"/flight-ticket/airlines",category:"flight-ticket",purchase:false},
   airportSearch:{method:"GET",path:"/flight-ticket/airport-search",category:"flight-ticket",purchase:false},
   flightsSearch:{method:"POST",path:"/flight-ticket/flights-search",category:"flight-ticket",purchase:false},
-  flightBook:{method:"POST",path:"/flight-ticket/book",category:"flight-ticket",purchase:true,pricePath:"/flight-ticket/priceno"},
+  flightBook:{method:"POST",path:"/flight-ticket/book",category:"flight-ticket",purchase:true,pricePath:"/flight-ticket/price"},
   flightHistory:{method:"GET",path:"/flight-ticket/history",category:"flight-ticket",purchase:false},
   profileList:{method:"GET",path:"/working-profile/list",category:"working-profile",purchase:false},
   profileDetail:{method:"GET",path:"/working-profile/",category:"working-profile",purchase:false},
@@ -226,7 +226,34 @@ Deno.serve(async (req) => {
    if(!id||id.includes("/")||id.includes("..")) return reply({error:"A valid item ID is required."},400);
    path += id;
  }
- const publicActions=["trackingPrice","flightPrice","airlines","airportSearch","profileList","profileDetail","aiPricing","aiVoices","serviceList","serviceCategories","serviceDetail"]; if(!token&&!publicActions.includes(input.action)) return reply({error:"The provider API key is not configured. Please contact support."},503);
+ if(input.action==="flightsSearch") {
+   const b=input.body&&typeof input.body==="object"?input.body:{};
+   const origin=String(b.origin||"").trim().toUpperCase();
+   const destination=String(b.destination||"").trim().toUpperCase();
+   const parseDate=(value:any)=>{
+     const raw=String(value||"").trim();
+     let m=raw.match(/^(\\d{2})\\/(\\d{2})\\/(\\d{4})$/);
+     if(m)return {day:Number(m[1]),month:Number(m[2]),year:Number(m[3])};
+     m=raw.match(/^(\\d{4})-(\\d{2})-(\\d{2})$/);
+     if(m)return {day:Number(m[3]),month:Number(m[2]),year:Number(m[1])};
+     return null;
+   };
+   const formatDate=(value:any)=>{
+     const parts=parseDate(value);if(!parts)return null;
+     const date=new Date(Date.UTC(parts.year,parts.month-1,parts.day));
+     if(date.getUTCFullYear()!==parts.year||date.getUTCMonth()!==parts.month-1||date.getUTCDate()!==parts.day)return null;
+     return {formatted:String(parts.day).padStart(2,"0")+"/"+String(parts.month).padStart(2,"0")+"/"+parts.year,key:parts.year+"-"+String(parts.month).padStart(2,"0")+"-"+String(parts.day).padStart(2,"0")};
+   };
+   const departure=formatDate(b.departureDate),returning=b.returnDate?formatDate(b.returnDate):null;
+   const adults=Number(b.adults??1),children=Number(b.children??0),infants=Number(b.infants??0);
+   if(!/^[A-Z]{3}$/.test(origin)||!/^[A-Z]{3}$/.test(destination)||origin===destination)return reply({error:"Choose two different valid 3-letter airport codes."},400);
+   if(!departure)return reply({error:"Enter a valid departure date."},400);
+   if(b.returnDate&&!returning)return reply({error:"Enter a valid return date."},400);
+   if(returning&&returning.key<=departure.key)return reply({error:"Return date must be after departure date."},400);
+   if(!Number.isInteger(adults)||!Number.isInteger(children)||!Number.isInteger(infants)||adults<1||children<0||infants<0||adults+children+infants>9||infants>adults)return reply({error:"Enter valid passenger counts: 1–9 travellers, with no more infants than adults."},400);
+   input.body={...b,origin,destination,departureDate:departure.formatted,returnDate:returning?.formatted||undefined,adults,children,infants};
+ }
+ const publicActions=["trackingPrice","flightPrice","airlines","airportSearch","flightsSearch","profileList","profileDetail","aiPricing","aiVoices","serviceList","serviceCategories","serviceDetail"]; if(!token&&!publicActions.includes(input.action)) return reply({error:"The provider API key is not configured. Please contact support."},503);
  if(input.action==="aiVoices") {
    let voiceResponse:Response;
    let voiceRaw="";
@@ -519,7 +546,9 @@ Deno.serve(async (req) => {
  try {
    const requestHeaders={...(publicActions.includes(input.action)?{}:{Authorization:"Bearer "+token}),Accept:"application/json",...(route.method==="POST"?{"Content-Type":"application/json"}:{})};
    const requestBody=input.body||{};
-   response=await fetch(BASE+path,{method:route.method,headers:requestHeaders,...(route.method==="POST"?{body:JSON.stringify(requestBody)}:{})});
+   const requestOptions:any={method:route.method,headers:requestHeaders,...(route.method==="POST"?{body:JSON.stringify(requestBody)}:{})};
+   if(input.action==="flightsSearch") requestOptions.signal=AbortSignal.timeout(45000);
+   response=await fetch(BASE+path,requestOptions);
    raw=await response.text();
 
    
