@@ -232,10 +232,10 @@ Deno.serve(async (req) => {
    const destination=String(b.destination||"").trim().toUpperCase();
    const parseDate=(value:any)=>{
      const raw=String(value||"").trim();
-     let m=raw.match(/^(\\d{2})\\/(\\d{2})\\/(\\d{4})$/);
-     if(m)return {day:Number(m[1]),month:Number(m[2]),year:Number(m[3])};
-     m=raw.match(/^(\\d{4})-(\\d{2})-(\\d{2})$/);
-     if(m)return {day:Number(m[3]),month:Number(m[2]),year:Number(m[1])};
+     const slash=raw.split("/");
+     const dash=raw.split("-");
+     if(slash.length===3&&slash.every(x=>x.length>0))return {day:Number(slash[0]),month:Number(slash[1]),year:Number(slash[2])};
+     if(dash.length===3&&dash.every(x=>x.length>0))return {day:Number(dash[2]),month:Number(dash[1]),year:Number(dash[0])};
      return null;
    };
    const formatDate=(value:any)=>{
