@@ -117,9 +117,9 @@ Deno.serve(async (req) => {
  }
  
  const routes:Record<string,{method:string,path:string,category:string,purchase:boolean,pricePath?:string}> = {
-  trackingPrice:{method:"GET",path:"/trackingNo/price",category:"tracking-number",purchase:false},
+  trackingPrice:{method:"GET",path:"/trackingNo/priceno",category:"tracking-number",purchase:false},
   trackingSearch:{method:"POST",path:"/trackingNo/search",category:"tracking-number",purchase:false},
-  trackingReveal:{method:"POST",path:"/trackingNo/reveal",category:"tracking-number",purchase:true,pricePath:"/trackingNo/price"},
+  trackingReveal:{method:"POST",path:"/trackingNo/reveal",category:"tracking-number",purchase:true,pricePath:"/trackingNo/priceno"},
   trackingHistory:{method:"GET",path:"/trackingNo/history",category:"tracking-number",purchase:false},
   flightPrice:{method:"GET",path:"/flight-ticket/price",category:"flight-ticket",purchase:false},
   airlines:{method:"GET",path:"/flight-ticket/airlines",category:"flight-ticket",purchase:false},
