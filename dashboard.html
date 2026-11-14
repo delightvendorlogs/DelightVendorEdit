@@ -1967,8 +1967,8 @@ async function loadWallet(userId) {
               const listingLink = "explore-sellers.html#product-"+encodeURIComponent(p.id);
               const media = (img ? '<img src="' + escapeHTML(img) + '" alt="" loading="lazy" style="width:100%;max-height:180px;aspect-ratio:16/9;object-fit:contain;background:#080808;border-radius:10px">' : '') +
                 (video ? '<video class="dve-dashboard-product-video" src="' + escapeHTML(video) + '" muted playsinline loop preload="metadata" style="display:block;width:100%;max-height:190px;aspect-ratio:16/9;object-fit:contain;background:#080808;border-radius:10px;margin-top:8px" aria-label="Video preview for ' + escapeHTML(p.title) + '"></video>' : '');
-              return '<article id="dashboard-product-' + escapeHTML(p.id) + '" style="position:relative;border:1px solid var(--line);border-radius:13px;background:#0b0b0b;overflow:visible;min-width:0;padding:10px">' +
-                '<div style="display:flex;flex-direction:column;gap:8px">' + (media || '<div style="aspect-ratio:16/9;background:#181818;border-radius:10px;display:grid;place-items:center;color:var(--muted)">No product media</div>') + '</div>' +
+              return '<article id="dashboard-product-' + escapeHTML(p.id) + '" data-open-seller="' + escapeHTML(sellerLink) + '" tabindex="0" aria-label="Open ' + escapeHTML(sellerName) + ' seller storefront" style="position:relative;border:1px solid var(--line);border-radius:13px;background:#0b0b0b;overflow:visible;min-width:0;padding:10px;cursor:pointer">' +
+                (media ? '<div style="display:flex;flex-direction:column;gap:8px">' + media + '</div>' : '');
                 '<div style="padding:9px 2px 2px"><strong style="display:block;overflow-wrap:anywhere">' + escapeHTML(p.title) + '</strong>' +
                 '<div style="font-size:11px;color:var(--muted);margin-top:5px"><a href="' + sellerLink + '" style="color:var(--gold);text-decoration:none">' + medal + (medal ? " " : "") + escapeHTML(sellerName) + '</a></div>' +
                 (p.description ? '<p style="font-size:12px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere">' + escapeHTML(p.description) + '</p>' : '') +
@@ -1976,6 +1976,18 @@ async function loadWallet(userId) {
                 '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><a class="text-link" href="' + listingLink + '">View &amp; buy ↗</a>' +
                 '<details class="dve-listing-menu" style="position:relative"><summary aria-label="More listing actions" title="More actions" style="list-style:none;cursor:pointer;color:var(--gold);font-size:22px;line-height:1;padding:5px 9px;border:1px solid var(--line);border-radius:9px">⋮</summary><div style="position:absolute;right:0;bottom:38px;z-index:30;min-width:155px;padding:7px;background:#171717;border:1px solid #514322;border-radius:10px;box-shadow:0 10px 25px #0009"><a href="' + sellerLink + '" style="display:block;padding:9px;color:#f5d47e;text-decoration:none;font-size:12px">View seller</a><button type="button" data-copy-listing="' + escapeHTML(p.id) + '" style="width:100%;padding:9px;background:transparent;color:#f5d47e;text-align:left;font-size:12px">Copy listing link</button></div></details></div></div></article>';
             }).join("") + '</div><div style="margin-top:14px"><a class="text-link" href="explore-sellers.html">Explore all seller products ↗</a></div>';
+          resultNode.querySelectorAll("[data-open-seller]").forEach(function(card){
+            function openSeller(){ if(card.dataset.openSeller) location.href=card.dataset.openSeller; }
+            card.addEventListener("click",function(event){
+              if(event.target.closest("a,button,details,summary,video")) return;
+              openSeller();
+            });
+            card.addEventListener("keydown",function(event){
+              if(event.key!=="Enter" && event.key!==" ") return;
+              if(event.target!==card || event.target.closest("a,button,details,summary,video")) return;
+              event.preventDefault(); openSeller();
+            });
+          });
           resultNode.querySelectorAll("[data-copy-listing]").forEach(function(button){button.addEventListener("click",async function(){const p=listings.find(x=>x.id===button.dataset.copyListing);if(!p)return;const url=new URL("explore-sellers.html#product-"+p.id,location.href).href;try{await navigator.clipboard.writeText(url);button.textContent="Copied!";}catch(_){window.prompt("Copy listing link",url);} });});
           const previewVideos=[...resultNode.querySelectorAll(".dve-dashboard-product-video")];
           previewVideos.forEach(function(video){video.addEventListener("click",function(){video.currentTime=0;video.muted=false;video.controls=true;video.loop=false;video.play().catch(()=>{});});});
