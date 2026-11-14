@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head>
+<script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080808">
+<title>Admin Alert Delivery — DelightVendorEdit</title><link rel="icon" href="assets/dv-logo.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--gold:#e9bd53;--line:#302b20;--muted:#aaa69b;--green:#9ce8b1;--red:#ffb4b4}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#211a0b,#080808 48%);color:#f7f4ec;font:14px/1.55 system-ui,sans-serif}
+header{padding:14px;border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:center;flex-wrap:wrap}header a{color:var(--gold);text-decoration:none;font-weight:800}
+main{max-width:1000px;margin:24px auto;padding:0 14px 50px}h1{margin:0;font-size:clamp(25px,5vw,36px)}p{color:var(--muted)}.panel,.entry{background:#121212;border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.muted{color:var(--muted);font-size:12px}
+button{border:1px solid #59471e;border-radius:10px;padding:10px 14px;background:#1a1a1a;color:#f5d77e;font:inherit;font-weight:800;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}
+button.primary{background:linear-gradient(135deg,#ffe39a,#e9bd53 70%,#c58a22);color:#171208}
+.status{padding:10px;border-radius:9px;background:#151515;border:1px solid #333;white-space:pre-wrap}.status.error{color:var(--red);border-color:#713737}.status.ok{color:var(--green);border-color:#356846}
+.badge{display:inline-block;border:1px solid #59471e;border-radius:99px;padding:3px 8px;color:#f0d27a;font-size:11px;font-weight:800}.badge.good{color:var(--green);border-color:#285b3a}.badge.bad{color:var(--red);border-color:#703737}
+.entry h3{margin:0 0 6px;font-size:16px}.entry p{white-space:pre-wrap;margin:7px 0}.channels{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:12px 0}.channel{padding:9px;border-radius:9px;background:#090909;border:1px solid #302b20}.channel strong{display:block}.channel small{color:var(--muted)}
+a{color:var(--gold)}@media(max-width:550px){.panel,.entry{padding:12px}}
+</style></head><body>
+<header><a href="admin.html">← Admin dashboard</a><a href="admin-notification.html">Send notifications</a><a href="admin-alert-settings.html">Alert settings</a></header>
+<main>
+<div class="row"><div><h1>Admin alert delivery</h1><p>Monitor Gmail, Telegram and browser-push delivery. Retry failed Gmail or Telegram alerts without resending channels already confirmed as delivered.</p></div><button id="refresh" class="primary">Refresh history</button></div>
+<div id="status" class="status">Checking administrator access…</div>
+<section id="history" aria-live="polite"></section>
+</main>
+<script>
+(async function(){
+"use strict";
+const URL="https://genlmqzkjouinofkitqt.supabase.co",KEY="sb_publishable_8uj618f_n35zeF3Fcyt5VA_xLHOkNv";
+const $=id=>document.getElementById(id),esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const db=window.supabase.createClient(URL,KEY);let ready=false;
+function status(text,kind){$("status").textContent=text||"";$("status").className="status"+(kind?" "+kind:"")}
+function when(v){return v?new Date(v).toLocaleString("en-NG"):"—"}
+async function load(){
+ if(!ready)return;
+ $("refresh").disabled=true;status("Loading delivery history…");
+ try{
+  const {data,error}=await db.rpc("admin_alert_delivery_history",{p_notification_id:null});if(error)throw error;
+  const rows=Array.isArray(data)?data:[];
+  if(!rows.length){$("history").innerHTML='<div class="panel">No external admin alert delivery attempts have been recorded yet. New eligible alerts will appear here.</div>';status("Delivery history loaded.","ok");return}
+  const grouped=new Map();rows.forEach(r=>{if(!grouped.has(r.notification_id))grouped.set(r.notification_id,[]);grouped.get(r.notification_id).push(r)});
+  $("history").innerHTML=[...grouped.entries()].map(([id,items])=>{
+   const latest=new Map();items.forEach(r=>{if(!latest.has(r.channel))latest.set(r.channel,r)});
+   const title=items[0].notification_title||"Admin alert";const message=items[0].notification_message||"";
+   const failed=["email","telegram"].some(ch=>latest.has(ch)&&latest.get(ch).delivery_status==="failed");
+   const channels=[...latest.values()].map(r=>'<div class="channel"><strong>'+esc(r.channel.toUpperCase())+' · '+esc(r.delivery_status)+'</strong><small>Attempt '+esc(r.attempt_no)+' · '+esc(when(r.attempted_at))+(r.http_status?' · HTTP '+esc(r.http_status):"")+'</small>'+(r.error_message?'<p>'+esc(r.error_message)+'</p>':"")+'</div>').join("");
+   return '<article class="entry"><div class="row"><div><h3>'+esc(title)+'</h3><div class="muted">Notification '+esc(id)+' · '+esc(items[0].category)+'</div></div>'+(failed?'<button class="primary" data-retry="'+esc(id)+'">Retry failed channels</button>':'<span class="badge good">No failed email/Telegram channel</span>')+'</div><p>'+esc(message)+'</p><div class="channels">'+channels+'</div><div class="muted">Push is recorded separately. Retry resends only email/Telegram channels that have not been confirmed delivered.</div></article>';
+  }).join("");
+  $("history").querySelectorAll("[data-retry]").forEach(btn=>btn.addEventListener("click",async()=>{
+   if(btn.disabled)return;btn.disabled=true;btn.textContent="Queueing…";
+   try{const {data,error}=await db.rpc("admin_retry_alert_delivery",{p_notification_id:btn.dataset.retry});if(error)throw error;status("Retry queued. Refresh in a moment to see the new delivery result.","ok");}
+   catch(e){status(e.message||"Could not queue retry.","error");btn.disabled=false;btn.textContent="Retry failed channels";}
+  }));
+  status("Loaded "+rows.length+" delivery record(s) across "+grouped.size+" alert(s).","ok");
+ }catch(e){status(e.message||"Could not load delivery history.","error")}
+ finally{$("refresh").disabled=false}
+}
+$("refresh").addEventListener("click",load);
+try{
+ const {data:{user},error}=await db.auth.getUser();if(error||!user){location.replace("login.html");return}
+ const {data:role,error:roleError}=await db.from("user_roles").select("role").eq("user_id",user.id).eq("role","admin").maybeSingle();
+ if(roleError)throw roleError;if(!role){status("Access denied. Administrator access is required.","error");return}
+ ready=true;await load();
+}catch(e){status(e.message||"Could not verify administrator access.","error")}
+})();
+</script><script src="assets/site-announcement.js" defer></script></body></html>
