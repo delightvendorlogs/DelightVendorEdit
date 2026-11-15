@@ -30,6 +30,7 @@ async function loadSelectedAiPrice(tool){
  const value=document.getElementById("selectedServicePriceValue");
  box.classList.remove("hidden");value.textContent="Checking price…";
  try{
+  if(tool==="aiImageVideo"){const p=await api("liveSwapPrice");value.textContent=money(p.sellingPrice);return;}
   const d=await api("aiPricing");
   aiPricingRule=d?.pricing||{pricing_mode:"markup",markup_percent:0,fixed_price:null};
   const raw=d?.providerPrice??d?.result??d;
