@@ -94,9 +94,25 @@ function setBusy(busy) {
   submitButton.textContent = busy ? "Creating account…" : "Create account";
 }
 const params = new URLSearchParams(window.location.search);
-// New accounts always enter the private dashboard after signup.
-// Ignore stale redirect parameters that may point back to the public homepage.
-const signupDestination = new URL("dashboard.html", window.location.href).href;
+// Keep the selected marketplace destination through registration.
+function safeSignupDestination() {
+  const requested = params.get("next") || "dashboard.html";
+  try {
+    const target = new URL(requested, window.location.href);
+    const file = target.pathname.split("/").pop().toLowerCase();
+    const blocked = ["login.html", "register.html", "forgot-password.html"];
+    if (target.origin !== window.location.origin || !file || blocked.includes(file)) {
+      return new URL("dashboard.html", window.location.href).href;
+    }
+    return target.href;
+  } catch (_) {
+    return new URL("dashboard.html", window.location.href).href;
+  }
+}
+const signupDestination = safeSignupDestination();
+const nextValue = new URL(signupDestination).pathname.split("/").pop() + new URL(signupDestination).search + new URL(signupDestination).hash;
+const loginUrl = "login.html?next=" + encodeURIComponent(nextValue);
+document.querySelectorAll('a[href="login.html"]').forEach(link => { link.href = loginUrl; });
 const urlReferral = (params.get("ref") || params.get("referral") || "").trim().slice(0, 50);
 if (urlReferral) referralInput.value = urlReferral;
 
