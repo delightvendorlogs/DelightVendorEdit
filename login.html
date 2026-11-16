@@ -114,9 +114,25 @@ const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_K
   auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
 }); 
 
-// Successful sign-in always opens the private dashboard. Public pages
-// are never used as post-login destinations.
-const destination = new URL("dashboard.html", window.location.href).href;
+// Return the visitor to the feature they originally selected after authentication.
+function safeNextDestination() {
+  const requested = new URLSearchParams(window.location.search).get("next") || "dashboard.html";
+  try {
+    const target = new URL(requested, window.location.href);
+    const file = target.pathname.split("/").pop().toLowerCase();
+    const blocked = ["login.html", "register.html", "forgot-password.html"];
+    if (target.origin !== window.location.origin || !file || blocked.includes(file)) {
+      return new URL("dashboard.html", window.location.href).href;
+    }
+    return target.href;
+  } catch (_) {
+    return new URL("dashboard.html", window.location.href).href;
+  }
+}
+const destination = safeNextDestination();
+const nextValue = new URL(destination).pathname.split("/").pop() + new URL(destination).search + new URL(destination).hash;
+const registerUrl = "register.html?next=" + encodeURIComponent(nextValue);
+document.querySelectorAll('a[href="register.html"]').forEach(link => { link.href = registerUrl; });
 client.auth.getUser().then(({ data, error }) => {
   if (!error && data && data.user) window.location.replace(destination);
 }).catch(() => {});
