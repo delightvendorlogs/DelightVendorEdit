@@ -23,7 +23,7 @@ function findProviderPrice(raw,aliases){
   if(typeof v!=="object")return null;
   for(const [k,val] of Object.entries(v)){if(wanted.includes(k.toLowerCase())){const n=walk(val,depth+1);if(n!==null)return n}}
   for(const key of ["data","result","pricing","prices","services"]){if(v[key]&&typeof v[key]==="object"){const n=walk(v[key],depth+1);if(n!==null)return n}}
-  for(const [k,val] of Object.entries(v)){if(["price","amount","cost","sellingprice","selling_price"].includes(k.toLowerCase())){const n=walk(val,depth+1);if(n!==null)return n}}
+  for(const [k,val] of Object.entries(v)){if(["price","amount","cost"].includes(k.toLowerCase())){const n=walk(val,depth+1);if(n!==null)return n}}
   return null;
  }
  return walk(raw);
