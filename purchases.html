@@ -133,13 +133,14 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
     }
     $("ordersList").innerHTML=filtered.map(row=>{
       const items=Array.isArray(row.order_items)?row.order_items:[];
-      const name=items.map(item=>item.item_title_snapshot).filter(Boolean).join(", ") || "Marketplace order";
+      const name=cleanCustomerFacingText(items.map(item=>item.item_title_snapshot).filter(Boolean).join(", ")) || "Marketplace order";
       const id=pick(row,["order_number","id"],"");
       const status=pick(row,["order_status","payment_status"],"Pending");
       const date=pick(row,["created_at"],"");
       const amount=pick(row,["total"],null);
       const extra=items.length ? items.length+" item"+(items.length===1?"":"s") : "";
-      function cleanDelivery(value) {
+      function cleanCustomerFacingText(value){return String(value??'').replace(/\\b(?:logsplug|logs\\s*plug|thegiftunc|giftunc|gift\\s*unc|exclusive|varsha\\s*sms|varsha|text\\s*verified|textverified|fetch\\s*sms|fetchsms|virtual\\s*sms|virtualsms|sms\\s*bower|smsbower|grizzly\\s*sms|grizzlysms|grizzly|5sim)\\b/gi,'').replace(/\\s{2,}/g,' ').trim()}
+function cleanDelivery(value) {
         if (value === null || value === undefined || value === "") return "";
         let payload = value;
         if (typeof payload === "string") {
@@ -147,12 +148,12 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
           if (!trimmed) return "";
           if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
             try { payload = JSON.parse(trimmed); } catch (_) { return trimmed; }
-          } else return trimmed;
+          } else return cleanCustomerFacingText(trimmed);
         }
         if (Array.isArray(payload)) return payload.map(entry => cleanDelivery(entry)).filter(Boolean).join("\n\n");
         if (payload && typeof payload === "object") {
           if (Object.prototype.hasOwnProperty.call(payload, "delivery_info")) return cleanDelivery(payload.delivery_info);
-          const hiddenKeys = new Set(["product_id","category","reference","provider","provider_name","provider_order_id","provider_reference","provider_order","source","vendor","service_provider","provider_label","provider_code","api_provider","raw_response","provider_item_reference","order_id","order_item_id","id","created_at","updated_at"]);
+          const hiddenKeys = new Set(["product_id","category","reference","provider","provider_name","provider_order_id","provider_reference","provider_order","source","vendor","service_provider","provider_label","provider_code","api_provider","raw_response","provider_item_reference","server","server_name","server_id","server_key","api_server","backend","order_id","order_item_id","id","created_at","updated_at"]);
           return Object.entries(payload).filter(([key,val]) => !hiddenKeys.has(key.toLowerCase()) && val !== null && val !== "")
             .map(([key,val]) => {
               const label = key.replace(/_/g," ").replace(/\b\w/g,ch=>ch.toUpperCase());
@@ -393,7 +394,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
         .map(tx => {
           const meta = tx.metadata && typeof tx.metadata === "object" ? tx.metadata : {};
           const status = String(tx.status || "").toLowerCase();
-          const title = String(meta.title || tx.description || meta.category || "Provider purchase");
+          const title = String(meta.title || tx.description || meta.category || "Service purchase");
           return {
             id: tx.id,
             order_number: tx.reference || tx.id,
