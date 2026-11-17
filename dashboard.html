@@ -265,6 +265,11 @@
 
     .support-options a:hover { color: var(--gold-2); }
 
+    .service-category-options { display:none; padding:2px 0 7px 47px; gap:4px; }
+    .service-category-options.open { display:grid; }
+    .service-category-options a { display:block; padding:8px 0; color:var(--muted); font-size:12px; }
+    .service-category-options a:hover { color:var(--gold-2); }
+
     .sidebar-bottom {
       margin-top: 25px;
       padding: 17px 14px;
@@ -1659,6 +1664,21 @@ try {
         ).join("");
 
         return links + `
+          <button class="support-toggle" type="button" data-category-toggle aria-expanded="false">
+            <span class="nav-icon">▦</span>
+            <span>Service Categories</span>
+            <span class="chevron">⌄</span>
+          </button>
+          <div class="service-category-options">
+            <a href="flight-ticket.html">✈ Flight Ticket ↗</a>
+            <a href="tracking-number.html">⌁ Tracking Number ↗</a>
+            <a href="ai-studio.html">✧ AI Studio ↗</a>
+            <a href="gift.html">🎁 Gift ↗</a>
+            <a href="tools.html">⚙ Working Tools ↗</a>
+            <a href="services-v2.html">▦ Services ↗</a>
+            <a href="working-profile.html">◉ Working Profile ↗</a>
+          </div>
+
           <button class="support-toggle" type="button" data-support-toggle aria-expanded="false">
             <span class="nav-icon">♡</span>
             <span>Support</span>
@@ -1766,6 +1786,16 @@ try {
       });
 
       document.addEventListener("click", async event => {
+        const categoryButton = event.target.closest("[data-category-toggle]");
+        if (categoryButton) {
+          const panel = categoryButton.nextElementSibling;
+          const open = panel.classList.toggle("open");
+          categoryButton.setAttribute("aria-expanded", String(open));
+          const chevron = categoryButton.querySelector(".chevron");
+          if (chevron) chevron.textContent = open ? "⌃" : "⌄";
+          return;
+        }
+
         const supportButton = event.target.closest("[data-support-toggle]");
 
         if (supportButton) {
