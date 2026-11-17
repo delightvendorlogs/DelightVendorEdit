@@ -15,5 +15,27 @@ async function load(){try{msg("Loading all saved gifts…");const d=await call("
 $("sync").onclick=async()=>{try{$("sync").disabled=true;msg("Refreshing provider catalogue, provider prices and categories…");const d=await call("giftAdminSync");msg("Provider sync finished: "+d.saved+" gifts refreshed"+(d.failed?", "+d.failed+" failed":"")+". Reloading saved markup amounts…");await load()}catch(e){msg(e.message)}finally{$("sync").disabled=false}};
 $("reload").onclick=load;$("search").oninput=render;$("category").onchange=render;
 $("apply").onclick=()=>{const raw=$("bulkValue").value;if(raw.trim()===""||!Number.isFinite(Number(raw))||Number(raw)<0){msg("Enter a valid markup amount of ₦0 or more.");return}document.querySelectorAll("#list .item[data-index]").forEach(row=>{const i=Number(row.dataset.index),input=row.querySelector(".markup");input.value=raw;items[i]._draftMarkup=raw;row.classList.add("changed");row.querySelector(".row-state").textContent="Unsaved";dirty.add(i);const price=row.querySelector(".price");price.textContent=money(Math.ceil(Number(items[i].provider_price||0)+Number(raw)))});$("saveAll").disabled=dirty.size===0;msg("₦"+Number(raw).toLocaleString()+" markup filled into all visible gifts. Review and save when ready.")};
-$("saveAll").onclick=async()=>{const ids=[...dirty];if(!ids.length){msg("There are no changed markup amounts to save.");return}const invalid=ids.filter(i=>items[i]._draftMarkup===undefined||String(items[i]._draftMarkup).trim()===""||!Number.isFinite(Number(items[i]._draftMarkup))||Number(items[i]._draftMarkup)<0);if(invalid.length){msg("One or more changed gifts have an invalid markup amount.");return}$("saveAll").disabled=true;let saved=0,failed=[];for(let start=0;start<ids.length;start+=10){const batch=ids.slice(start,start+10);const results=await Promise.allSettled(batch.map(i=>call("giftAdminUpdate",{productId:items[i].provider_product_id,markupAmount:Number(items[i]._draftMarkup),enabled:true})));results.forEach((r,j)=>{const i=batch[j],row=document.querySelector('#list .item[data-index="'+i+'"]');if(r.status==="fulfilled"){items[i].markup_amount=Number(items[i]._draftMarkup);delete items[i]._draftMarkup;dirty.delete(i);saved++;if(row){row.classList.remove("changed");row.querySelector(".row-state").textContent="Saved"}}else{failed.push(items[i].product_name||items[i].provider_product_id);if(row)row.querySelector(".row-state").textContent="Failed"}});msg("Saving markup amounts… "+saved+"/"+ids.length)}updateStats();$("saveAll").disabled=dirty.size===0;if(failed.length){msg(saved+" markup amounts saved; "+failed.length+" failed: "+failed.slice(0,5).join(", ")+". You can retry the failed rows.");return}msg("Successfully saved "+saved+" markup amounts. Customer prices will now follow provider price changes automatically.")};
+$("saveAll").onclick=async()=>{
+ const ids=[...dirty].sort((a,b)=>a-b);
+ if(!ids.length){msg("There are no changed markup amounts to save.");return}
+ const invalid=ids.filter(i=>items[i]._draftMarkup===undefined||String(items[i]._draftMarkup).trim()===""||!Number.isFinite(Number(items[i]._draftMarkup))||Number(items[i]._draftMarkup)<0);
+ if(invalid.length){msg("One or more changed gifts have an invalid markup amount. Nothing was saved.");return}
+ $("saveAll").disabled=true;let saved=0;const failed=[];
+ for(let n=0;n<ids.length;n++){
+  const i=ids[n],p=items[i],markup=Number(p._draftMarkup),row=document.querySelector('#list .item[data-index="'+i+'"]');
+  if(row)row.querySelector(".row-state").textContent="Saving…";
+  msg("Saving and verifying gift "+(n+1)+" of "+ids.length+"…");
+  try{
+   const response=await call("giftAdminUpdate",{productId:p.provider_product_id,markupAmount:markup,enabled:true});
+   const confirmed=response?.saved;
+   if(!response?.success||!confirmed||String(confirmed.provider_product_id)!==String(p.provider_product_id)||Number(confirmed.markup_amount)!==markup)throw Error("The server did not confirm this exact markup amount.");
+   p.markup_amount=Number(confirmed.markup_amount);p.provider_price=Number(confirmed.provider_price??p.provider_price);p.enabled=confirmed.enabled!==false;delete p._draftMarkup;dirty.delete(i);saved++;
+   if(row){row.classList.remove("changed");row.querySelector(".row-state").textContent="Saved ✓"}
+   const price=row?.querySelector(".price");if(price)price.textContent=money(Math.ceil(Number(p.provider_price||0)+markup));
+  }catch(e){failed.push((p.product_name||p.provider_product_id)+": "+(e.message||"save failed"));if(row)row.querySelector(".row-state").textContent="Not saved — retry"}
+ }
+ updateStats();$("saveAll").disabled=dirty.size===0;
+ if(failed.length){msg(saved+" of "+ids.length+" markup amounts were confirmed saved. "+failed.length+" failed; their drafts are retained. "+failed.slice(0,4).join(" | "));return}
+ msg("All "+saved+" changed markup amounts were saved and individually verified by the server. Customer prices use provider cost + these exact naira amounts.");
+};
 load()})();</script></body></html>
