@@ -139,7 +139,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
       const date=pick(row,["created_at"],"");
       const amount=pick(row,["total"],null);
       const extra=items.length ? items.length+" item"+(items.length===1?"":"s") : "";
-      function cleanCustomerFacingText(value){return String(value??'').replace(/\\b(?:logsplug|logs\\s*plug|thegiftunc|giftunc|gift\\s*unc|exclusive|varsha\\s*sms|varsha|text\\s*verified|textverified|fetch\\s*sms|fetchsms|virtual\\s*sms|virtualsms|sms\\s*bower|smsbower|grizzly\\s*sms|grizzlysms|grizzly|5sim)\\b/gi,'').replace(/\\s{2,}/g,' ').trim()}
+      function cleanCustomerFacingText(value){return String(value??'').replace(/\b(?:logsplug|logs\s*plug|thegiftunc|giftunc|gift\s*unc|exclusive|varsha\s*sms|varsha|text\s*verified|textverified|fetch\s*sms|fetchsms|virtual\s*sms|virtualsms|sms\s*bower|smsbower|grizzly\s*sms|grizzlysms|grizzly|5sim)\b/gi,'').replace(/\s{2,}/g,' ').trim()}
 function cleanDelivery(value) {
         if (value === null || value === undefined || value === "") return "";
         let payload = value;
