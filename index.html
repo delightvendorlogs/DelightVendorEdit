@@ -779,6 +779,62 @@ html{background:#080808;color:#f7f7f7}body{background:#080808;color:#f7f7f7}
 .chip-esim{top:10px;right:0}.chip-gift{bottom:5px;left:0}
 @media(max-width:760px){.hero-frame{grid-template-columns:1fr}.dve-hero-visual{min-height:190px;margin-top:5px}.hero-ticket{width:min(90%,340px)}.hero-route strong{font-size:30px}}
 
+
+/* Premium black-and-gold landing-page refinement */
+:root{--gold:#d4af37;--gold-light:#f3d77f;--border:rgba(212,175,55,.28)}
+body{background:radial-gradient(ellipse at 50% -15%,rgba(212,175,55,.07),transparent 36%),#080808}
+.site-header{background:rgba(8,8,8,.94);border-bottom:1px solid rgba(212,175,55,.2);backdrop-filter:blur(18px)}
+.hero{padding:clamp(28px,5vw,58px) 0 34px}
+.hero-frame{position:relative;overflow:hidden;border:1px solid rgba(212,175,55,.28);background:radial-gradient(ellipse at 78% 42%,rgba(212,175,55,.13),transparent 38%),linear-gradient(135deg,#171612 0%,#0b0b0b 68%);box-shadow:0 28px 75px rgba(0,0,0,.45),inset 0 1px rgba(255,255,255,.04)}
+.hero-under h1{font-size:clamp(39px,5.4vw,66px);line-height:1.04;letter-spacing:-.045em}
+.hero-under h1 .gold{color:#f3d77f;text-shadow:0 0 30px rgba(212,175,55,.15)}
+.hero-under>p{max-width:570px;color:#c5c1b7;font-size:clamp(15px,1.5vw,18px);line-height:1.8}
+.hero-buttons{gap:12px;flex-wrap:wrap}
+.hero-buttons .btn{min-height:48px}
+.dve-hero-visual{min-height:300px}
+.hero-ticket{border:1px solid rgba(212,175,55,.35);background:linear-gradient(145deg,#201e18,#101010 75%);box-shadow:0 28px 65px rgba(0,0,0,.6),inset 0 1px rgba(255,255,255,.06)}
+.hero-route strong{color:#fff}.hero-route small{color:#c5b994}
+.hero-ticket-bottom{border-color:#6b5421}
+.hero-float-chip{border:1px solid rgba(212,175,55,.32);background:linear-gradient(145deg,#1d1b16,#0d0d0d);box-shadow:0 14px 34px #0009}
+.chip-esim{top:8px;right:-2px}.chip-gift{bottom:5px;left:-2px}
+.chip-tracking{top:48%;right:-12px;transform:translateY(-50%)}.chip-ai{bottom:4px;right:7%}
+.trust-strip{margin-top:22px;border:1px solid rgba(212,175,55,.2);border-radius:15px;background:linear-gradient(90deg,#111,#17150f,#111);padding:14px 18px}
+.trust-item{color:#d3cdbd;font-weight:650}.trust-item span{color:var(--gold-light)}
+.section{padding:clamp(54px,7vw,84px) 0}
+.section-heading{margin-bottom:38px}
+.section-heading .eyebrow{letter-spacing:.16em}
+.section-heading h2{letter-spacing:-.035em}
+.dve-category-grid{align-items:stretch;gap:19px}
+.dve-category-card{height:100%;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(212,175,55,.23);border-radius:19px;background:linear-gradient(155deg,#191919,#0c0c0c);box-shadow:0 14px 35px #0004;transition:transform .22s,border-color .22s,box-shadow .22s}
+.dve-category-card:hover{transform:translateY(-5px);border-color:rgba(243,215,127,.72);box-shadow:0 20px 42px #0008,0 0 25px rgba(212,175,55,.08)}
+.dve-card-art{flex:0 0 165px;filter:saturate(.72)}
+.dve-card-copy{display:flex;flex:1;flex-direction:column;padding:19px 20px 21px}
+.dve-card-copy h3{font-size:18px;letter-spacing:-.02em}.dve-card-copy p{flex:1;color:#bdbab1;line-height:1.7}
+.dve-card-label{color:var(--gold-light);letter-spacing:.15em}
+.category-link{color:var(--gold-light);font-weight:750}
+.steps-grid{align-items:stretch;gap:18px}
+.step-card{height:100%;position:relative;overflow:hidden;border:1px solid rgba(212,175,55,.25);border-radius:18px;background:linear-gradient(145deg,#171612,#0c0c0c);padding:25px;box-shadow:0 15px 35px #0004}
+.step-number{width:48px;height:48px;border:1px solid rgba(212,175,55,.4);border-radius:14px;background:#d4af3718;color:#f3d77f;font-weight:900}
+.step-card h3{margin-top:18px}
+.faq-list{max-width:850px;margin-inline:auto}
+.faq-item{border:1px solid rgba(212,175,55,.22);border-radius:14px;background:linear-gradient(145deg,#151515,#0d0d0d);margin:10px 0;padding:0 19px;transition:border-color .2s}
+.faq-item[open]{border-color:rgba(212,175,55,.65);background:#15140f}
+.faq-item summary{padding:18px 26px 18px 0;color:#f0e6c9;font-weight:750;cursor:pointer}
+.faq-answer{padding:0 0 17px;color:#bdbab1;line-height:1.75}
+.support-grid{align-items:stretch;gap:17px}
+.support-card{height:100%;border:1px solid rgba(212,175,55,.23);border-radius:18px;background:linear-gradient(145deg,#171612,#0c0c0c);padding:23px;transition:transform .2s,border-color .2s}
+.support-card:hover{transform:translateY(-4px);border-color:rgba(212,175,55,.65)}
+.support-symbol{color:var(--gold-light)}
+.seller-area{border-top:1px solid rgba(212,175,55,.2);border-bottom:1px solid rgba(212,175,55,.12);background:radial-gradient(ellipse at 50% 0%,rgba(212,175,55,.06),transparent 55%)}
+.empty-state{border:1px solid rgba(212,175,55,.28);border-radius:20px;background:linear-gradient(145deg,#171612,#0c0c0c);padding:clamp(25px,4vw,42px)}
+.sell-panel{border:1px solid rgba(212,175,55,.3);border-radius:22px;background:radial-gradient(ellipse at 85% 15%,rgba(212,175,55,.1),transparent 45%),linear-gradient(145deg,#171612,#0b0b0b);box-shadow:0 22px 55px #0006}
+.commission-card{border:1px solid rgba(212,175,55,.42);border-radius:18px;background:linear-gradient(145deg,#1d1a12,#0c0c0c);box-shadow:0 15px 38px #0006}
+.commission-number{color:#f3d77f;text-shadow:0 0 28px rgba(212,175,55,.18)}
+.btn-primary{box-shadow:0 10px 26px rgba(212,175,55,.17)}
+.site-footer{border-top:1px solid rgba(212,175,55,.2);background:#080808}
+@media(max-width:760px){.hero-frame{grid-template-columns:1fr}.dve-hero-visual{min-height:245px;margin-top:12px}.hero-ticket{width:min(86%,340px)}.chip-tracking{right:-3px}.chip-ai{right:5%}}
+@media(max-width:560px){.hero{padding-top:15px}.hero-frame{padding:24px 18px;border-radius:20px}.hero-under h1{font-size:clamp(37px,11vw,52px)}.dve-hero-visual{min-height:225px}.hero-ticket{padding:15px 17px;width:86%}.hero-route{margin:18px 0}.hero-route strong{font-size:29px}.hero-float-chip{padding:8px 10px;font-size:9px}.chip-esim{top:0;right:0}.chip-gift{left:0;bottom:0}.chip-tracking{right:-4px;top:49%}.chip-ai{right:3%;bottom:0}.trust-strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dve-card-art{flex-basis:145px}}
+
 </style>
 </head>
 
@@ -827,7 +883,7 @@ html{background:#080808;color:#f7f7f7}body{background:#080808;color:#f7f7f7}
             <div class="eyebrow">Your Digital Marketplace</div>
             <h1>Find what you need.<br><span class="gold">Get it done.</span></h1>
             <p>
-              Explore flight tickets, digital services, eSIM, gifts and useful online tools — all from one simple dashboard.
+              Shop digital services, explore flight and tracking options, discover gifts, or build your own seller storefront — all from one marketplace.
             </p>
             <div class="hero-buttons">
               <a href="#services" class="btn btn-primary">Explore Categories ↓</a>
@@ -842,6 +898,8 @@ html{background:#080808;color:#f7f7f7}body{background:#080808;color:#f7f7f7}
             </div>
             <div class="hero-float-chip chip-esim"><b>eSIM</b><span>Stay connected</span></div>
             <div class="hero-float-chip chip-gift"><b>✦</b><span>Send a gift</span></div>
+            <div class="hero-float-chip chip-tracking"><b>⌁</b><span>Track deliveries</span></div>
+            <div class="hero-float-chip chip-ai"><b>✧</b><span>AI Studio</span></div>
           </div>
         </div>
 
@@ -864,16 +922,16 @@ html{background:#080808;color:#f7f7f7}body{background:#080808;color:#f7f7f7}
         </div>
 
         <div class="category-grid dve-category-grid">
-          <a class="category-card dve-category-card" href="flight-ticket.html"><div class="dve-card-art flight-art"><span class="art-kicker">TRAVEL</span><div class="ticket-art"><strong>BOARDING PASS</strong><div class="ticket-route"><b>LOS</b><span>✈</span><b>LHR</b></div><small>Lagos · London</small></div></div><div class="dve-card-copy"><span class="dve-card-label">TRAVEL</span><h3>Flight Tickets</h3><p>Compare available routes and ticket options for your next trip.</p><span class="category-link">Explore flights ↗</span></div></a>
-          <a class="category-card dve-category-card" href="tracking-number.html"><div class="dve-card-art tracking-art"><span class="art-kicker">DELIVERY</span><div class="tracking-visual"><span>TRACKING ID</span><strong>DV · 2048 · NG</strong><div class="track-line"><i></i><i></i><i></i><i></i></div><small>Order progress at a glance</small></div></div><div class="dve-card-copy"><span class="dve-card-label">DELIVERY</span><h3>Tracking Numbers</h3><p>Find tracking-number options to help monitor deliveries and shipment progress.</p><span class="category-link">Explore tracking ↗</span></div></a>
-          <a class="category-card dve-category-card" href="services-v2.html"><div class="dve-card-art services-art"><span class="art-kicker">DIGITAL SERVICES</span><div class="service-tiles"><span>eSIM</span><span>VPN</span><span>STREAMING</span><span>SOCIAL</span></div><small>Everyday online essentials</small></div><div class="dve-card-copy"><span class="dve-card-label">DIGITAL SERVICES</span><h3>Services</h3><p>eSIM, VPN, streaming subscriptions, social services and useful online tools.</p><div class="dve-chips"><span>eSIM</span><span>VPN</span><span>Streaming</span><span>Social</span></div><span class="category-link">Browse services ↗</span></div></a>
-          <a class="category-card dve-category-card" href="working-profile.html"><div class="dve-card-art profile-art"><span class="art-kicker">PROFILES</span><div class="profile-window"><div class="profile-avatar">DV</div><div><b>Profile workspace</b><small>Ready to explore</small></div><span class="profile-check">✓</span></div></div><div class="dve-card-copy"><span class="dve-card-label">PROFILES</span><h3>Working Profiles</h3><p>Browse available profile listings and review their details before choosing.</p><span class="category-link">View profiles ↗</span></div></a>
-          <a class="category-card dve-category-card" href="ai-studio.html"><div class="dve-card-art ai-art"><span class="art-kicker">CREATIVE TOOLS</span><div class="ai-orbit"><span>✦</span><i></i><b></b></div><strong>AI STUDIO</strong><small>Create with intelligent tools</small></div><div class="dve-card-copy"><span class="dve-card-label">CREATIVE TOOLS</span><h3>AI Studio</h3><p>Create face swaps, animate photos with lip-sync, and explore AI-powered video tools.</p><span class="category-link">Open AI Studio ↗</span></div></a>
-          <a class="category-card dve-category-card" href="tools.html"><div class="dve-card-art tools-art"><span class="art-kicker">PRODUCTIVITY</span><div class="tool-stack"><span>✧</span><span>▤</span><span>⌘</span></div><strong>WORKING TOOLS</strong><small>Useful tools in one place</small></div><div class="dve-card-copy"><span class="dve-card-label">PRODUCTIVITY</span><h3>Working Tools</h3><p>Explore practical digital tools for everyday tasks, productivity and online work.</p><span class="category-link">Explore tools ↗</span></div></a>
+          <a class="category-card dve-category-card" href="flight-ticket.html"><div class="dve-card-art flight-art"><span class="art-kicker">TRAVEL</span><div class="ticket-art"><strong>BOARDING PASS</strong><div class="ticket-route"><b>LOS</b><span>✈</span><b>LHR</b></div><small>Lagos · London</small></div></div><div class="dve-card-copy"><span class="dve-card-label">TRAVEL</span><h3>Flight Tickets</h3><p>Explore available flight options and review route details before you make your travel plans.</p><span class="category-link">Explore flights ↗</span></div></a>
+          <a class="category-card dve-category-card" href="tracking-number.html"><div class="dve-card-art tracking-art"><span class="art-kicker">DELIVERY</span><div class="tracking-visual"><span>TRACKING ID</span><strong>DV · 2048 · NG</strong><div class="track-line"><i></i><i></i><i></i><i></i></div><small>Order progress at a glance</small></div></div><div class="dve-card-copy"><span class="dve-card-label">DELIVERY</span><h3>Tracking Numbers</h3><p>Explore tracking-number options and keep important delivery details close at hand.</p><span class="category-link">Explore tracking ↗</span></div></a>
+          <a class="category-card dve-category-card" href="services-v2.html"><div class="dve-card-art services-art"><span class="art-kicker">DIGITAL SERVICES</span><div class="service-tiles"><span>eSIM</span><span>VPN</span><span>STREAMING</span><span>SOCIAL</span></div><small>Everyday online essentials</small></div><div class="dve-card-copy"><span class="dve-card-label">DIGITAL SERVICES</span><h3>Services</h3><p>Find everyday digital essentials, from eSIM and VPN to streaming and social services.</p><div class="dve-chips"><span>eSIM</span><span>VPN</span><span>Streaming</span><span>Social</span></div><span class="category-link">Browse services ↗</span></div></a>
+          <a class="category-card dve-category-card" href="working-profile.html"><div class="dve-card-art profile-art"><span class="art-kicker">PROFILES</span><div class="profile-window"><div class="profile-avatar">DV</div><div><b>Profile workspace</b><small>Ready to explore</small></div><span class="profile-check">✓</span></div></div><div class="dve-card-copy"><span class="dve-card-label">PROFILES</span><h3>Working Profiles</h3><p>Explore profile listings, compare the available details and choose the option that fits your needs.</p><span class="category-link">View profiles ↗</span></div></a>
+          <a class="category-card dve-category-card" href="ai-studio.html"><div class="dve-card-art ai-art"><span class="art-kicker">CREATIVE TOOLS</span><div class="ai-orbit"><span>✦</span><i></i><b></b></div><strong>AI STUDIO</strong><small>Create with intelligent tools</small></div><div class="dve-card-copy"><span class="dve-card-label">CREATIVE TOOLS</span><h3>AI Studio</h3><p>Bring creative ideas to life with AI-powered image and video tools, including face swaps and lip-sync.</p><span class="category-link">Open AI Studio ↗</span></div></a>
+          <a class="category-card dve-category-card" href="tools.html"><div class="dve-card-art tools-art"><span class="art-kicker">PRODUCTIVITY</span><div class="tool-stack"><span>✧</span><span>▤</span><span>⌘</span></div><strong>WORKING TOOLS</strong><small>Useful tools in one place</small></div><div class="dve-card-copy"><span class="dve-card-label">PRODUCTIVITY</span><h3>Working Tools</h3><p>Discover useful tools designed to make everyday digital tasks and online work easier.</p><span class="category-link">Explore tools ↗</span></div></a>
           <a class="category-card dve-category-card" href="gift.html"><div class="dve-card-art gift-art">
             <span class="art-kicker">SEND SOMETHING SPECIAL</span>
             <strong>GIFTS, DELIVERED</strong><small>Thoughtful surprises across borders</small>
-          </div><div class="dve-card-copy"><span class="dve-card-label">GIFTING</span><h3>Gift</h3><p>Choose thoughtful gifts like flowers, pizza, cream and other available gift options.</p><span class="category-link">Explore gifts ↗</span></div></a>
+          </div><div class="dve-card-copy"><span class="dve-card-label">GIFTING</span><h3>Gift</h3><p>Send thoughtful gifts and surprises, with available options for different moments and occasions.</p><span class="category-link">Explore gifts ↗</span></div></a>
         </div>
       </div>
     </section>
