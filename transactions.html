@@ -61,10 +61,22 @@ function safe(v){return String(v??"")}
 function dateOf(row){return row.created_at||row.updated_at||row.completed_at||row.createdAt||row.timestamp||null}
 function fmtDate(value){if(!value)return "Date unavailable";const d=new Date(value);return Number.isNaN(d.getTime())?safe(value):d.toLocaleString()}
 function fmtMoney(value,currency="NGN"){const n=Number(value);if(!Number.isFinite(n))return safe(value)||"—";try{return new Intl.NumberFormat("en-NG",{style:"currency",currency:/^[A-Z]{3}$/.test(currency)?currency:"NGN",minimumFractionDigits:2,maximumFractionDigits:2}).format(n)}catch{return "₦"+n.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})}}
-function getType(row){return safe(row.transaction_type||row.type||row.transactionType||"Transaction").toLowerCase()}
-function getStatus(row){return safe(row.status||row.payment_status||row.state||"unknown").toLowerCase()}
+function getType(row){
+ const raw=safe(row.transaction_type||row.type||row.transactionType||'').toLowerCase();
+ if(/refund|revers/.test(raw))return 'refund';
+ if(/deposit|fund|credit|top.?up/.test(raw))return 'deposit';
+ if(/withdraw/.test(raw))return 'withdrawal';
+ return 'purchase';
+}
+function getStatus(row){
+ const raw=safe(row.status||row.payment_status||row.state||'').toLowerCase();
+ if(/refund|revers/.test(raw))return 'refunded';
+ if(/fail|reject|declin/.test(raw))return 'failed';
+ if(/pend|process|wait/.test(raw))return 'pending';
+ return 'completed';
+}
 function getAmount(row){return row.amount??row.amount_ngn??row.total_amount??row.value??null}
-function getReference(row){return row.reference||row.transaction_reference||row.paystack_reference||row.id||"—"}
+function getReference(row){return getType(row)==="purchase"?"—":(row.reference||row.transaction_reference||row.paystack_reference||"—")}
 function isDeposit(row){return getType(row).includes("deposit")}
 function render(){
  const type=$("typeFilter").value,status=$("statusFilter").value;
