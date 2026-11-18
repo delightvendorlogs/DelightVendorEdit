@@ -1,5 +1,30 @@
 <head>
-<script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script><style>.dve-banner-dots,#dvBannerDots{display:none!important}</style></head>
+<script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script><style>.dve-banner-dots,#dvBannerDots{display:none!important}
+    .profile-sections{min-width:0}
+    .merged-section{margin-top:18px}
+    .merged-section h2{margin:0 0 8px;font-size:20px}
+    .merged-description{margin:0 0 20px;color:var(--muted);font-size:13px;line-height:1.7}
+    .merged-field{margin-bottom:18px}
+    .merged-field label{display:block;margin-bottom:8px;font-size:13px;font-weight:700}
+    .merged-field input{width:100%;min-height:49px;padding:13px 14px;border:1px solid #383838;border-radius:11px;background:#0b0b0b;color:white;outline:none}
+    .merged-field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(231,185,74,.1)}
+    .merged-actions{display:flex;flex-wrap:wrap;gap:10px}
+    .merged-btn{display:inline-flex;justify-content:center;align-items:center;min-height:46px;padding:12px 18px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#171107;font-size:13px;font-weight:800;cursor:pointer}
+    .merged-btn:disabled{opacity:.6;cursor:not-allowed}
+    .merged-danger{background:#251313;border:1px solid #643131;color:#ffb1b1}
+    .mobile-bottom-nav{display:none}
+    @media(max-width:900px){
+      .mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:35;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:9px 8px calc(9px + env(safe-area-inset-bottom));background:rgba(14,14,14,.97);border-top:1px solid rgba(231,184,75,.22);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+      .mobile-bottom-link{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:3px 2px;color:#aaa69c;font-size:10px;font-weight:700;line-height:1.2;text-align:center}
+      .mobile-bottom-icon{height:23px;display:flex;align-items:center;justify-content:center;color:currentColor;font-size:22px;line-height:1}
+      .mobile-bottom-link.active{color:#f5d47e}
+      .mobile-bottom-link.active .mobile-bottom-icon{color:#e7b84b}
+      main{padding-bottom:115px}
+    }
+    @media(min-width:901px){.mobile-bottom-nav{display:none!important}}
+    @media(max-width:700px){.merged-actions .merged-btn{width:100%}}
+
+  </style></head>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -325,6 +350,7 @@
         <span class="status">Account Profile</span>
       </section>
 
+      <div class="profile-sections">
       <section class="card form-card">
         <h2>Personal Information</h2>
         <p class="form-description">
@@ -385,9 +411,33 @@
           </div>
         </form>
       </section>
+
+      <section class="card merged-section">
+        <h2>Account Security</h2>
+        <p class="merged-description">Change your password securely. Enter a new password and confirm it below.</p>
+        <form id="changePasswordForm">
+          <div class="merged-field"><label for="newPassword">New Password</label><input id="newPassword" type="password" autocomplete="new-password" placeholder="Enter your new password" minlength="6" required></div>
+          <div class="merged-field"><label for="confirmPassword">Confirm New Password</label><input id="confirmPassword" type="password" autocomplete="new-password" placeholder="Confirm your new password" minlength="6" required></div>
+          <button class="merged-btn" id="changePasswordButton" type="submit">Update Password</button>
+        </form>
+      </section>
+      <section class="card merged-section">
+        <h2>Sign Out</h2>
+        <p class="merged-description">Sign out of your account on this device.</p>
+        <button class="merged-btn merged-danger" id="logoutButton" type="button">Sign Out</button>
+      </section>
+      </div>
     </div>
   </main>
 
+
+  <nav class="mobile-bottom-nav" aria-label="Quick navigation">
+    <a class="mobile-bottom-link" href="dashboard.html"><span class="mobile-bottom-icon" aria-hidden="true">⌂</span><span>Home</span></a>
+    <a class="mobile-bottom-link" href="purchases.html"><span class="mobile-bottom-icon" aria-hidden="true">▤</span><span>Purchases</span></a>
+    <a class="mobile-bottom-link" href="wallet.html"><span class="mobile-bottom-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 9h18M16 14h2"/><path d="M6 6V4.5A1.5 1.5 0 0 1 7.5 3H19"/></svg></span><span>Wallet</span></a>
+    <a class="mobile-bottom-link" href="notifications.html?v=ef8c9aa"><span class="mobile-bottom-icon" aria-hidden="true">♧</span><span>Notifications</span></a>
+    <a class="mobile-bottom-link active" href="profile.html" aria-current="page"><span class="mobile-bottom-icon" aria-hidden="true">◉</span><span>Profile</span></a>
+  </nav>
   <footer>
     &copy; <span id="year"></span> DelightVendorEdit. All rights reserved.
   </footer>
@@ -452,10 +502,10 @@
           const parts = value.split(/\s+/);
           return parts.length > 1
             ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-            : parts[0].slice(0, 2).toUpperCase();
+            : parts[0].slice(0, 1).toUpperCase();
         }
 
-        return (email || "DV").slice(0, 2).toUpperCase();
+        return "A";
       }
 
       function renderProfile(user) {
@@ -574,6 +624,45 @@
         fullNameInput.value = originalName;
         phoneInput.value = originalPhone;
         clearMessage();
+      });
+
+
+      document.getElementById("changePasswordForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        clearMessage();
+        const button = document.getElementById("changePasswordButton");
+        const newPassword = document.getElementById("newPassword").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        if (!newPassword || !confirmPassword) { showMessage("Please complete both password fields.", "error"); return; }
+        if (newPassword.length < 6) { showMessage("Your new password must contain at least 6 characters.", "error"); return; }
+        if (newPassword !== confirmPassword) { showMessage("The new password and confirmation do not match.", "error"); document.getElementById("confirmPassword").focus(); return; }
+        button.disabled = true; button.textContent = "Updating…";
+        try {
+          const { data, error: userError } = await supabase.auth.getUser();
+          if (userError || !data.user) throw new Error("Your session has expired. Please sign in again.");
+          const { error } = await supabase.auth.updateUser({ password: newPassword });
+          if (error) throw error;
+          document.getElementById("changePasswordForm").reset();
+          showMessage("Your password has been changed successfully.", "success");
+        } catch (error) {
+          console.error("Password change failed:", error);
+          showMessage(error.message || "Could not update your password. Please try again.", "error");
+        } finally { button.disabled = false; button.textContent = "Update Password"; }
+      });
+
+      document.getElementById("logoutButton").addEventListener("click", async (event) => {
+        const button = event.currentTarget;
+        if (!window.confirm("Are you sure you want to sign out?")) return;
+        button.disabled = true; button.textContent = "Signing out…";
+        try {
+          const { error } = await supabase.auth.signOut();
+          if (error) throw error;
+          window.location.replace("login.html");
+        } catch (error) {
+          console.error("Sign out failed:", error);
+          showMessage(error.message || "Could not sign out. Please try again.", "error");
+          button.disabled = false; button.textContent = "Sign Out";
+        }
       });
 
       loadProfile();
