@@ -23,15 +23,34 @@ h1{font-size:clamp(25px,4vw,34px);margin:0 0 10px;letter-spacing:-.02em}.muted{c
 .modal{display:none;position:fixed;inset:0;z-index:1000;background:#000b;align-items:center;justify-content:center;padding:16px}.modal.open{display:flex}.detail{width:min(620px,100%);max-height:88dvh;overflow:auto;background:#101010;border:1px solid #493b1c;border-radius:16px;padding:clamp(16px,3vw,24px);padding-bottom:max(18px,env(safe-area-inset-bottom));box-shadow:0 18px 60px #0009}.detail-top{display:flex;gap:10px;align-items:flex-start}.detail-top h2{color:#f5df8d;margin:0;flex:1;overflow-wrap:anywhere;font-size:clamp(18px,3vw,24px)}.close{background:#211d10;border:1px solid #665323;color:var(--gold);border-radius:8px;font-size:20px;width:34px;height:34px;cursor:pointer;flex:0 0 34px}.detail-message{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;color:#eee5cd;font-size:14px;margin:16px 0}.detail-message a,.detail-message a:visited{color:#36a5ff;text-decoration:underline;text-underline-offset:3px;font-weight:700}.detail-message a:hover{color:#75c1ff}.detail-message a{cursor:pointer;pointer-events:auto;display:inline-block;position:relative;z-index:2}.detail-image{display:block;width:auto;max-width:100%;max-height:48vh;object-fit:contain;border-radius:9px;margin:14px auto}.detail-image[hidden]{display:none!important}.detail-date{font-size:11px;color:var(--muted);margin-top:7px}
 @media(max-width:520px){.top{padding:10px 12px;gap:10px}.back{padding:8px 10px;font-size:12px}.brand{gap:7px}.brand img{width:30px;height:30px}.brand strong{font-size:13px}.wrap{padding:0 10px;margin:14px auto 28px}.panel{padding:15px;border-radius:13px}.actions{gap:6px;margin:16px 0 12px}.filter{padding:8px 11px;font-size:11px}.btn{font-size:11px;padding:8px 10px}.item{padding:11px;border-radius:10px;gap:8px}.thumb{width:48px;height:48px;flex-basis:48px}.detail{border-radius:13px;padding:16px;max-height:90dvh}.detail-message{font-size:14px;margin:14px 0}}
 @media(max-width:360px){.brand strong{font-size:12px}.brand img{width:27px;height:27px}.back{font-size:11px;padding:7px 8px}.panel{padding:12px}.item{padding:9px}.thumb{width:42px;height:42px;flex-basis:42px}}
- .detail-message a{color:#4da3ff;text-decoration:underline;font-weight:800} </style>
+ .detail-message a{color:#4da3ff;text-decoration:underline;font-weight:800} 
+.mobile-bottom-nav{display:none}
+@media(max-width:900px){
+.mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:35;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:9px 8px calc(9px + env(safe-area-inset-bottom));background:rgba(14,14,14,.97);border-top:1px solid rgba(231,184,75,.22);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 -10px 30px rgba(0,0,0,.25)}
+.mobile-bottom-link{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:3px 2px;color:#aaa69c;font-size:10px;font-weight:700;line-height:1.2;text-align:center;text-decoration:none}
+.mobile-bottom-icon{height:23px;display:flex;align-items:center;justify-content:center;color:currentColor;font-size:22px;line-height:1}
+.mobile-bottom-link.active{color:#f5d47e}
+.mobile-bottom-link.active .mobile-bottom-icon{color:#e7b84b}
+body{padding-bottom:75px}
+}
+@media(min-width:901px){.mobile-bottom-nav{display:none!important}}
+</style>
 </head>
 <body>
-<header class="top"><a class="back" href="dashboard.html">⌂ Home</a><div class="brand"><img src="assets/dv-logo.png" alt="DV logo"><strong>DelightVendorEdit</strong></div></header>
+<header class="top"><a class="back" href="dashboard.html">← Back</a><div class="brand"><img src="assets/dv-logo.png" alt="DV logo"><strong>DelightVendorEdit</strong></div></header>
 <main class="wrap"><section class="panel"><p class="eyebrow">YOUR ACCOUNT</p><h1>Notifications</h1>
 <p class="muted">Updates sent to you by DelightVendorEdit. Tap any notification to read the full message.</p>
 <div id="notice" class="notice" role="status" aria-live="polite"></div>
 <div class="actions"><button class="filter active" data-filter="all" type="button">All</button><button class="filter" data-filter="unread" type="button">Unread</button><button class="filter" data-filter="read" type="button">Read</button><button class="btn" id="markAll" type="button">Mark all as read</button></div>
 <div id="notificationList" class="list"><div class="empty">Loading your notifications…</div></div></section></main>
+
+<nav class="mobile-bottom-nav" aria-label="Quick navigation">
+<a class="mobile-bottom-link" href="dashboard.html"><span class="mobile-bottom-icon" aria-hidden="true">⌂</span><span>Home</span></a>
+<a class="mobile-bottom-link" href="purchases.html"><span class="mobile-bottom-icon" aria-hidden="true">▤</span><span>Purchases</span></a>
+<a class="mobile-bottom-link" href="wallet.html"><span class="mobile-bottom-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 9h18M16 14h2"/><path d="M6 6V4.5A1.5 1.5 0 0 1 7.5 3H19"/></svg></span><span>Wallet</span></a>
+<a class="mobile-bottom-link active" href="notifications.html?v=ef8c9aa" aria-current="page"><span class="mobile-bottom-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></span><span>Notifications</span></a>
+<a class="mobile-bottom-link" href="profile.html"><span class="mobile-bottom-icon" aria-hidden="true">◉</span><span>Profile</span></a>
+</nav>
 <div id="detailModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle"><article class="detail"><div class="detail-top"><h2 id="detailTitle">Notification</h2><button class="close" id="closeDetail" type="button" aria-label="Close">×</button></div><div id="detailDate" class="detail-date"></div><div id="detailMessage" class="detail-message"></div><img id="detailImage" class="detail-image" alt="Image attached to this notification" hidden><div class="actions"><button class="btn" id="detailDone" type="button">Done</button></div></article></div>
 <script>
 (()=>{"use strict";
