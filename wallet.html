@@ -1,5 +1,3 @@
-<head>
-<script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script><style>.dve-banner-dots,#dvBannerDots{display:none!important}</style></head>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,276 +12,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root {
-  --bg:#080808;
-  --card:#111111;
-  --gold:#f0cf68;
-  --gold-dark:#c49a24;
-  --muted:#a3a3a3;
-  --border:rgba(212,175,55,.2);
-  --danger:#ff7777;
-  --success:#6ee7a0;
-}
-* { box-sizing:border-box; }
-html { min-height:100%; }
-body {
-  margin:0;
-  min-height:100vh;
-  color:#fff;
-  background:radial-gradient(ellipse at top,#211b0b 0%,#0a0a0a 42%,#050505 100%);
-  font-family:Arial,Helvetica,sans-serif;
-}
-button,input { font:inherit; }
-button { -webkit-tap-highlight-color:transparent; }
-.topbar {
-  position:sticky;
-  top:0;
-  z-index:5;
-  background:rgba(8,8,8,.94);
-  border-bottom:1px solid var(--border);
-  backdrop-filter:blur(14px);
-}
-.topbar-inner {
-  max-width:1100px;
-  margin:auto;
-  padding:15px 22px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-}
-.brand {
-  display:flex;
-  align-items:center;
-  gap:10px;
-  min-width:0;
-  color:var(--gold);
-  font-size:clamp(16px,2.5vw,21px);
-  font-weight:800;
-  text-decoration:none;
-}
-.brand img {
-  width:39px;
-  height:39px;
-  object-fit:contain;
-  flex-shrink:0;
-}
-.brand span { overflow-wrap:anywhere; }
-.top-actions { display:flex; gap:9px; }
-.small-link {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:10px 13px;
-  border:1px solid var(--border);
-  border-radius:10px;
-  color:var(--gold);
-  text-decoration:none;
-  font-size:13px;
-  font-weight:700;
-  white-space:nowrap;
-}
-.small-link:hover { background:#191509; }
-main {
-  width:min(100% - 32px,1000px);
-  margin:34px auto 55px;
-}
-.page-heading { margin-bottom:24px; }
-.eyebrow {
-  margin:0 0 8px;
-  color:var(--gold);
-  text-transform:uppercase;
-  letter-spacing:2px;
-  font-size:11px;
-  font-weight:800;
-}
-h1 { margin:0; font-size:clamp(27px,5vw,38px); }
-.subtitle {
-  margin:10px 0 0;
-  color:var(--muted);
-  line-height:1.65;
-  font-size:14px;
-}
-.layout {
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:20px;
-  align-items:start;
-}
-.card {
-  min-width:0;
-  padding:25px;
-  border:1px solid var(--border);
-  border-radius:21px;
-  background:linear-gradient(145deg,rgba(25,25,25,.98),rgba(9,9,9,.98));
-  box-shadow:0 15px 40px rgba(0,0,0,.25);
-}
-.balance-card {
-  position:relative;
-  overflow:hidden;
-  background:
-    radial-gradient(circle at 90% 8%,rgba(212,175,55,.19),transparent 38%),
-    linear-gradient(145deg,#1b1609,#0b0b0b);
-}
-.balance-top {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-}
-.balance-label { color:#c0bba9; font-size:14px; margin:0; }
-.balance-icon {
-  display:grid;
-  place-items:center;
-  width:43px;
-  height:43px;
-  border-radius:14px;
-  color:var(--gold);
-  background:rgba(212,175,55,.1);
-  border:1px solid var(--border);
-  font-size:22px;
-}
-.balance-value {
-  position:relative;
-  overflow-wrap:anywhere;
-  margin:20px 0 10px;
-  color:var(--gold);
-  font-size:clamp(29px,4vw,39px);
-  font-weight:800;
-  letter-spacing:-.5px;
-}
-.balance-note { color:var(--muted); font-size:12px; line-height:1.6; }
-.card h2 { margin:0 0 8px; font-size:21px; }
-.card-description { margin:0 0 22px; color:var(--muted); font-size:13px; line-height:1.6; }
-.field-label {
-  display:block;
-  margin:0 0 9px;
-  font-size:13px;
-  font-weight:700;
-}
-.input-wrap { position:relative; }
-.currency {
-  position:absolute;
-  top:50%;
-  left:15px;
-  transform:translateY(-50%);
-  color:var(--gold);
-  font-weight:800;
-}
-#amount {
-  width:100%;
-  min-height:55px;
-  padding:15px 15px 15px 43px;
-  border:1px solid #333;
-  border-radius:13px;
-  outline:none;
-  background:#080808;
-  color:#fff;
-  font-size:19px;
-}
-#amount:focus {
-  border-color:var(--gold-dark);
-  box-shadow:0 0 0 3px rgba(212,175,55,.08);
-}
-.quick-select {
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:9px;
-  margin-top:13px;
-}
-.quick-amount {
-  min-width:0;
-  padding:12px 3px;
-  border:1px solid #303030;
-  border-radius:10px;
-  background:#0b0b0b;
-  color:var(--gold);
-  font-size:13px;
-  font-weight:800;
-  cursor:pointer;
-}
-.quick-amount:hover,.quick-amount.active {
-  border-color:var(--gold-dark);
-  background:#1b1609;
-}
-.primary-btn {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  width:100%;
-  min-height:54px;
-  margin-top:19px;
-  padding:15px;
-  border:0;
-  border-radius:13px;
-  background:linear-gradient(135deg,var(--gold),var(--gold-dark));
-  color:#090909;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 8px 22px rgba(212,175,55,.12);
-}
-.primary-btn:hover { filter:brightness(1.06); }
-.primary-btn:disabled { opacity:.6; cursor:not-allowed; }
-#message {
-  min-height:24px;
-  margin:15px 0 0;
-  font-size:13px;
-  line-height:1.6;
-  overflow-wrap:anywhere;
-}
-.info-list { display:grid; gap:16px; margin-top:24px; }
-.info-item { display:flex; align-items:flex-start; gap:12px; }
-.info-icon {
-  flex-shrink:0;
-  display:grid;
-  place-items:center;
-  width:35px;
-  height:35px;
-  border-radius:11px;
-  background:rgba(212,175,55,.09);
-  color:var(--gold);
-}
-.info-item strong { display:block; margin-bottom:5px; font-size:13px; }
-.info-item p { margin:0; color:var(--muted); font-size:12px; line-height:1.6; }
-.security-note {
-  margin-top:20px;
-  padding:14px;
-  border:1px solid rgba(212,175,55,.13);
-  border-radius:12px;
-  color:#bdb7a6;
-  font-size:12px;
-  line-height:1.7;
-}
-footer {
-  padding:22px 15px;
-  text-align:center;
-  border-top:1px solid rgba(212,175,55,.12);
-  color:#777;
-  font-size:12px;
-}
-footer img {
-  width:22px;
-  height:22px;
-  vertical-align:middle;
-  object-fit:contain;
-  margin-right:6px;
-}
-@media(max-width:720px) {
-  .topbar-inner { padding:13px 15px; }
-  .brand { gap:8px; font-size:15px; }
-  .brand img { width:34px; height:34px; }
-  .small-link { padding:9px 10px; font-size:12px; }
-  main { width:calc(100% - 28px); margin:25px auto 38px; }
-  .layout { grid-template-columns:1fr; }
-  .card { padding:21px; border-radius:18px; }
-}
-@media(max-width:380px) {
-  .brand { font-size:13px; }
-  .top-actions { gap:5px; }
-  .small-link { padding:8px; font-size:11px; }
-  .quick-select { grid-template-columns:repeat(2,minmax(0,1fr)); }
-}
+:root{--bg:#090909;--card:#171717;--gold:#e9bd53;--gold-dark:#bd9236;--muted:#aaa69b;--border:rgba(233,189,83,.2);--danger:#ff7777;--success:#6ee7a0}*{box-sizing:border-box}html{min-height:100%;background:#090909}body{margin:0;min-height:100vh;color:#fff;background:#090909;font-family:Arial,Helvetica,sans-serif}button,input{font:inherit}button{-webkit-tap-highlight-color:transparent}.topbar{background:#090909;border-bottom:1px solid #292319}.topbar-inner{max-width:1040px;margin:auto;padding:17px 22px;display:flex;align-items:center;justify-content:space-between;gap:15px}.brand{display:flex;align-items:center;gap:10px;color:#f0cf68;font-size:clamp(16px,2.5vw,21px);font-weight:800;text-decoration:none}.brand img{width:37px;height:37px;object-fit:contain}.top-actions{display:flex;gap:9px}.small-link{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid #514323;border-radius:10px;background:#211b0e;color:#e9bd53;text-decoration:none;font-size:13px;font-weight:700;white-space:nowrap}.small-link:hover{background:#2b2312}main{width:min(100% - 32px,820px);margin:30px auto 48px}.page-heading{margin-bottom:22px}.eyebrow{margin:0 0 8px;color:#e9bd53;text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:800}h1{margin:0;font-size:clamp(27px,5vw,36px)}.subtitle{margin:9px 0 0;color:#aaa69b;line-height:1.6;font-size:14px}.layout{display:flex;flex-direction:column;gap:16px;align-items:stretch}.layout>section:first-child{display:contents}.balance-card{order:1}.layout>section:first-child>.card:not(.balance-card){order:3}.layout>section:last-child{order:2}.card{min-width:0;padding:22px;border:1px solid #353535;border-radius:18px;background:#171717;box-shadow:none}.balance-card{position:relative;overflow:hidden;background:linear-gradient(145deg,#211b0e,#17140d);border-color:#65502b}.balance-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.balance-label{color:#d3c6a5;font-size:14px;margin:0}.balance-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;color:#e9bd53;background:#2a2415;border:1px solid #514323}.balance-value{overflow-wrap:anywhere;margin:16px 0 9px;color:#f2d37b;font-size:clamp(29px,4vw,38px);font-weight:800;letter-spacing:-.5px}.balance-note{color:#b9ad91;font-size:12px;line-height:1.6}.card h2{margin:0 0 8px;font-size:21px}.card-description{margin:0 0 20px;color:#aaa69b;font-size:13px;line-height:1.6}.field-label{display:block;margin:0 0 9px;font-size:13px;font-weight:700}.input-wrap{position:relative}.currency{position:absolute;top:50%;left:15px;transform:translateY(-50%);color:#e9bd53;font-size:12px;font-weight:800}#amount{width:100%;min-height:55px;padding:15px 15px 15px 53px;border:1px solid #393939;border-radius:12px;outline:none;background:#090909;color:#fff;font-size:19px}#amount:focus{border-color:#bd9236;box-shadow:0 0 0 3px rgba(212,175,55,.08)}.quick-select{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:13px}.quick-amount{min-width:0;padding:12px 3px;border:1px solid #514323;border-radius:10px;background:#0c0c0c;color:#e9bd53;font-size:13px;font-weight:800;cursor:pointer}.quick-amount:hover,.quick-amount.active{border-color:#bd9236;background:#2a2415}.primary-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;margin-top:19px;padding:15px;border:0;border-radius:12px;background:#e9bd53;color:#171208;font-weight:800;cursor:pointer}.primary-btn:hover{filter:brightness(1.06)}.primary-btn:disabled{opacity:.6;cursor:not-allowed}#message{min-height:24px;margin:15px 0 0;font-size:13px;line-height:1.6;overflow-wrap:anywhere}.info-list{display:grid;gap:16px;margin-top:20px}.info-item{display:flex;align-items:flex-start;gap:12px}.info-icon{flex-shrink:0;display:grid;place-items:center;width:35px;height:35px;border-radius:11px;background:#2a2415;color:#e9bd53}.info-item strong{display:block;margin-bottom:5px;font-size:13px}.info-item p{margin:0;color:#aaa69b;font-size:12px;line-height:1.6}.security-note{margin-top:20px;padding:14px;border:1px solid #39342a;border-radius:12px;background:#121212;color:#bdb7a6;font-size:12px;line-height:1.7}footer{padding:20px 15px;text-align:center;border-top:1px solid rgba(212,175,55,.12);color:#777;font-size:12px}footer img{width:22px;height:22px;vertical-align:middle;object-fit:contain;margin-right:6px}@media(max-width:600px){.topbar-inner{padding:13px 14px;gap:8px}.brand{gap:8px;font-size:14px}.brand img{width:33px;height:33px}.top-actions{gap:6px}.small-link{padding:9px 10px;font-size:11px}main{width:calc(100% - 24px);margin:24px auto 35px}.card{padding:18px;border-radius:16px}.quick-select{gap:7px}.quick-amount{padding:11px 2px;font-size:12px}}@media(max-width:370px){.brand{font-size:12px}.small-link{padding:8px;font-size:10px}.quick-select{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 
@@ -313,7 +42,7 @@ footer img {
       <div class="card balance-card">
         <div class="balance-top">
           <p class="balance-label">Available balance</p>
-          <div class="balance-icon" aria-hidden="true">₦</div>
+          <div class="balance-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 9h18M16 14h2"/><path d="M6 6V4.5A1.5 1.5 0 0 1 7.5 3H19"/></svg></div>
         </div>
         <p class="balance-value" id="walletBalance" aria-live="polite">Loading balance…</p>
         <div class="balance-note">Your shopping wallet balance, updated from your account.</div>
@@ -323,21 +52,21 @@ footer img {
         <h2>Wallet information</h2>
         <div class="info-list">
           <div class="info-item">
-            <div class="info-icon">₦</div>
+            <div class="info-icon"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M15 9.5c0-1-1.3-1.5-3-1.5s-3 .7-3 2 1.2 1.8 3 2 3 .8 3 2-1.3 2-3 2-3-.5-3-1.5"/></svg></div>
             <div>
-              <strong>Pay in Naira</strong>
-              <p>Enter the amount you want to add to your wallet.</p>
+              <strong>Wallet currency: NGN</strong>
+              <p>Choose your amount and securely add funds to your wallet.</p>
             </div>
           </div>
           <div class="info-item">
-            <div class="info-icon">✓</div>
+            <div class="info-icon"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></div>
             <div>
               <strong>Payment confirmation</strong>
               <p>Your wallet is credited only after the server verifies your payment.</p>
             </div>
           </div>
           <div class="info-item">
-            <div class="info-icon">↗</div>
+            <div class="info-icon"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/><path d="m17 15 3 2-3 2"/></svg></div>
             <div>
               <strong>Transaction history</strong>
               <p>Visit Transactions to view recorded wallet activity.</p>
@@ -352,23 +81,23 @@ footer img {
 
     <section class="card">
       <h2>Add money</h2>
-      <p class="card-description">Choose an amount or enter your own. Minimum funding amount: ₦100.</p>
+      <p class="card-description">Choose an amount or enter your own. Minimum funding amount: NGN 100.</p>
 
       <label class="field-label" for="amount">Amount (NGN)</label>
       <div class="input-wrap">
-        <span class="currency">₦</span>
+        <span class="currency">NGN</span>
         <input id="amount" type="number" min="100" max="1000000" step="1" inputmode="numeric" placeholder="Enter amount" autocomplete="off">
       </div>
 
       <div class="quick-select" aria-label="Choose a preset amount">
-        <button type="button" class="quick-amount" data-amount="100">₦100</button>
-        <button type="button" class="quick-amount" data-amount="200">₦200</button>
-        <button type="button" class="quick-amount" data-amount="500">₦500</button>
-        <button type="button" class="quick-amount" data-amount="1000">₦1,000</button>
-        <button type="button" class="quick-amount" data-amount="2000">₦2,000</button>
-        <button type="button" class="quick-amount" data-amount="5000">₦5,000</button>
-        <button type="button" class="quick-amount" data-amount="10000">₦10,000</button>
-        <button type="button" class="quick-amount" data-amount="20000">₦20,000</button>
+        <button type="button" class="quick-amount" data-amount="100">100</button>
+        <button type="button" class="quick-amount" data-amount="200">200</button>
+        <button type="button" class="quick-amount" data-amount="500">500</button>
+        <button type="button" class="quick-amount" data-amount="1000">1,000</button>
+        <button type="button" class="quick-amount" data-amount="2000">2,000</button>
+        <button type="button" class="quick-amount" data-amount="5000">5,000</button>
+        <button type="button" class="quick-amount" data-amount="10000">10,000</button>
+        <button type="button" class="quick-amount" data-amount="20000">20,000</button>
       </div>
 
       <button type="button" class="primary-btn" id="continueButton">
@@ -599,7 +328,7 @@ async function continuePayment() {
     amount > 1000000
   ) {
     showMessage(
-      "Enter a whole amount between ₦100 and ₦1,000,000.",
+      "Enter a whole amount between NGN 100 and NGN 1,000,000.",
       "#ff7777"
     );
     return;
