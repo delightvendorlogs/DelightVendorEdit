@@ -1,6 +1,16 @@
 <head>
 <script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script><style>.dve-banner-dots,#dvBannerDots{display:none!important}
 
+
+/* Approved My Purchases layout */
+body{background:#080808}.topbar{background:#090909;border-bottom:1px solid #28231a}.topbar-inner{max-width:1120px;padding:15px 22px}.brand{color:#f0cf68}.nav{gap:7px}.nav a{padding:10px 13px;border-color:#30291a;border-radius:11px;background:#111;color:#d7c28b}.nav a.active{background:#2a2312;border-color:#8c7130;color:#f4d77e}
+main{width:min(100% - 36px,1040px);margin:34px auto 55px}.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:24px}.hero h1{font-size:clamp(28px,5vw,38px)}.hero .subtitle{margin-top:9px;max-width:640px}.hero-actions{display:flex;gap:9px;align-items:center}.hero-actions .btn{min-height:42px}
+.summary{gap:13px;margin:22px 0}.metric{padding:19px 18px;border:1px solid #333;border-radius:15px;background:#171717;box-shadow:none}.metric-label{font-size:12px;color:#a6a6a6}.metric-value{margin-top:10px;color:#f0cf68;font-size:clamp(23px,3vw,30px)}
+.card{padding:22px;border:1px solid #333;border-radius:18px;background:#171717;box-shadow:none}.toolbar{align-items:center;margin-bottom:17px}.toolbar h2{font-size:20px}.filters{display:flex;gap:9px;flex:1;justify-content:flex-end}.filters .control{min-height:46px;border-radius:12px;background:#090909;border-color:#333}#searchInput{width:min(100%,280px)}#statusFilter{min-width:155px}
+.list{gap:12px}.order{padding:17px;border:1px solid #353535;border-radius:14px;background:#101010;gap:14px}.order-title{font-size:16px}.order-id{font-size:11px}.order-meta{margin-top:10px;color:#a6a6a6}.order-side{justify-content:center}.amount{font-size:18px;color:#f0cf68}.badge{padding:6px 10px}
+.delivery-details{margin-top:13px;border-color:#38332a;background:#151515}.empty{padding:45px 18px;border-color:#393939}.empty-icon{width:58px;height:58px;border-radius:18px;background:#2a2415;color:#f0cf68}.empty h3{font-size:18px}.empty p{font-size:14px}.footer{margin-top:26px;padding-top:18px;border-color:#3b3220}
+@media(max-width:700px){.topbar-inner{align-items:center;flex-direction:column;gap:11px;padding:12px 13px}.brand{width:100%;justify-content:center}.nav{width:100%;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.nav a,.nav .optional{display:flex;justify-content:center;min-width:0;padding:9px 3px;font-size:11px}main{width:min(100% - 24px,1040px);margin:25px auto 42px}.hero{align-items:flex-start;flex-direction:column;margin-bottom:19px}.hero-actions{width:100%}.hero-actions .btn{flex:1}.summary{gap:8px;margin:18px 0}.metric{padding:14px 11px}.metric-label{font-size:10px}.metric-value{font-size:23px}.card{padding:15px}.toolbar{align-items:flex-start;flex-direction:column}.filters{width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}#searchInput{width:100%}#statusFilter{min-width:0;width:100%}.order{grid-template-columns:minmax(0,1fr);padding:14px}.order-side{align-items:center;flex-direction:row;justify-content:space-between;text-align:left}}
+@media(max-width:370px){.nav a{font-size:10px;padding:8px 1px}.summary{gap:6px}.metric{padding:12px 8px}.metric-value{font-size:20px}}
 </style></head><!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,20 +37,20 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
 <body>
 <header class="topbar"><div class="topbar-inner">
 <a class="brand" href="dashboard.html"><img src="assets/dv-logo.png?v=3" alt="DV logo"><span>DelightVendorEdit</span></a>
-<nav class="nav" aria-label="Main navigation"><a href="dashboard.html">Dashboard</a><a href="wallet.html">Wallet</a><a class="optional" href="transactions.html">Transactions</a></nav>
+<nav class="nav" aria-label="Main navigation"><a href="dashboard.html">Home</a><a class="active" href="purchases.html" aria-current="page">Purchases</a><a href="wallet.html">Wallet</a><a href="notifications.html">Notifications</a><a href="profile.html">Profile</a></nav>
 </div></header>
 <main>
 <section class="hero">
-<div><p class="eyebrow">Your account</p><h1>My Purchases</h1><p class="subtitle">Keep track of your orders, check their latest status, and return to the marketplace whenever you’re ready.</p></div>
-<div class="hero-actions"><a class="btn primary" href="dashboard.html">Explore services <span aria-hidden="true">→</span></a><button class="btn" id="refreshBtn" type="button">↻ Refresh</button></div>
+<div><p class="eyebrow">Your account</p><h1>My Purchases</h1><p class="subtitle">Track your orders and check their latest status.</p></div>
+<div class="hero-actions"><a class="btn primary" href="dashboard.html">Dashboard</a><button class="btn" id="refreshBtn" type="button">↻ Refresh</button></div>
 </section>
 <section class="summary" aria-label="Purchase summary">
-<div class="metric"><div class="metric-label">Total orders shown</div><div class="metric-value" id="totalCount">—</div></div>
+<div class="metric"><div class="metric-label">Total orders</div><div class="metric-value" id="totalCount">—</div></div>
 <div class="metric"><div class="metric-label">In progress</div><div class="metric-value" id="progressCount">—</div></div>
 <div class="metric"><div class="metric-label">Completed</div><div class="metric-value" id="completedCount">—</div></div>
 </section>
 <section class="card">
-<div class="toolbar"><h2>Order history</h2><div class="filters">
+<div class="toolbar"><h2>Order History</h2><div class="filters">
 <input class="control" id="searchInput" type="search" placeholder="Search orders…" aria-label="Search orders">
 <select class="control" id="statusFilter" aria-label="Filter by order status"><option value="all">All statuses</option><option value="pending_payment">Awaiting payment</option><option value="paid">Paid</option><option value="processing">Processing</option><option value="completed">Completed</option><option value="failed">Failed</option><option value="cancelled">Cancelled</option><option value="refunded">Refunded</option></select>
 </div></div>
