@@ -375,20 +375,6 @@
           </div>
 
           <div class="field">
-            <label for="email">Email address</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autocomplete="email"
-              disabled
-            >
-            <span class="hint">
-              Email changes are not made on this profile form.
-            </span>
-          </div>
-
-          <div class="field">
             <label for="phone">Phone number</label>
             <input
               id="phone"
@@ -471,7 +457,6 @@
       const saveButton = document.getElementById("saveButton");
 
       const fullNameInput = document.getElementById("fullName");
-      const emailInput = document.getElementById("email");
       const phoneInput = document.getElementById("phone");
 
       let originalName = "";
@@ -523,7 +508,6 @@
         originalPhone = phone;
 
         fullNameInput.value = name;
-        emailInput.value = user.email || "";
         phoneInput.value = phone;
 
         document.getElementById("displayName").textContent =
