@@ -5,7 +5,7 @@
     @media(max-width:900px){
       .mobile-bottom-nav{
         position:fixed;left:0;right:0;bottom:0;z-index:35;
-        display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+        display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
         padding:9px 8px calc(9px + env(safe-area-inset-bottom));
         background:rgba(14,14,14,.97);border-top:1px solid rgba(231,184,75,.22);
         backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
@@ -1536,6 +1536,9 @@
       <nav class="mobile-bottom-nav" aria-label="Quick navigation">
         <a class="mobile-bottom-link active" href="dashboard.html" aria-current="page">
           <span class="mobile-bottom-icon" aria-hidden="true">⌂</span><span>Home</span>
+        </a>
+        <a class="mobile-bottom-link" href="purchases.html">
+          <span class="mobile-bottom-icon" aria-hidden="true">▤</span><span>Purchases</span>
         </a>
         <a class="mobile-bottom-link" href="wallet.html">
           <span class="mobile-bottom-icon" aria-hidden="true">₦</span><span>Wallet</span>
