@@ -24,6 +24,11 @@ form .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:
 .rank{display:flex;align-items:center;gap:12px}.rankicon{width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:#241c0b;border:1px solid #665022;color:var(--gold);font-size:23px}
 @media(max-width:760px){.nav,main{padding-left:12px;padding-right:12px}.navlinks{width:100%;margin:0;justify-content:space-between;gap:8px}.navlinks a{font-size:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}.panel{padding:14px}}
 @media(max-width:430px){form .fields{grid-template-columns:1fr}.wide{grid-column:auto}.grid3{grid-template-columns:1fr}.hero h1{font-size:29px}}
+.stat{background:linear-gradient(145deg,#191714,#0d0d0d);border-color:#44371f;min-height:116px;display:flex;flex-direction:column;justify-content:center}.stat:before{content:"";display:block;width:30px;height:3px;border-radius:9px;background:var(--gold);margin-bottom:10px}.stat span{font-size:12px;letter-spacing:.02em}.stat b{font-size:clamp(19px,3vw,26px)}
+#sellerTools{background:linear-gradient(145deg,#17130b,#0d0d0d)}#sellerPerformancePanel .rank{padding:12px;border:1px solid #44371f;border-radius:13px;background:#0b0b0b}#sellerPerformancePanel .achievement-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}#sellerPerformancePanel .achievement-meta .item{margin:0}#sellerPerformancePanel .achievement-meta strong{font-size:19px;color:var(--gold)}
+.order-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.listing-status-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:12px}.listing-status-grid .item{text-align:center;padding:13px 8px}.listing-status-grid strong{display:block;color:var(--gold);font-size:22px}.listing-status-grid .meta{font-size:11px}
+.quick-action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.quick-action{display:flex;align-items:center;gap:10px;min-height:58px;padding:12px;border:1px solid #59471e;border-radius:12px;background:linear-gradient(145deg,#211c12,#0b0b0b);color:#f7f4ec;font-weight:800;font-size:13px}.quick-action .qa-icon{font-size:20px}
+.mobile-bottom-nav{display:none}@media(max-width:900px){main{padding-bottom:125px}.mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:35;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:9px 8px calc(9px + env(safe-area-inset-bottom));background:rgba(14,14,14,.97);border-top:1px solid rgba(231,184,75,.22);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.mobile-bottom-link{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:3px 2px;color:#aaa69c;font-size:10px;font-weight:700;line-height:1.2;text-align:center}.mobile-bottom-icon{height:23px;display:flex;align-items:center;justify-content:center;color:currentColor;font-size:22px;line-height:1}}@media(max-width:600px){.listing-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.listing-status-grid .item:last-child{grid-column:1/-1}.quick-action-grid{grid-template-columns:1fr 1fr}}@media(min-width:901px){.mobile-bottom-nav{display:none!important}}
 </style>
 </head>
 <body>
@@ -35,10 +40,10 @@ form .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:
 <div id="restrictionNotice" class="notice danger" hidden></div>
 <div id="pendingNotice" class="notice" hidden>Your seller application is not approved yet. You can still follow your application from the Seller Centre. Your business dashboard and public storefront editor unlock after admin approval. <a href="sell.html">Open Seller Centre →</a></div>
 <div id="stats" class="stats" hidden>
-<div class="stat"><span>Verified completed sales</span><b id="salesCount">0</b><small>Successful marketplace orders</small></div>
-<div class="stat"><span>Seller earnings</span><b id="earnings">₦0</b><small>After platform commission</small></div>
-<div class="stat"><span>Pending payouts</span><b id="pendingPayouts">₦0</b><small>Awaiting payout processing</small></div>
-<div class="stat"><span>Published listings</span><b id="publishedCount">0</b><small id="listingBreakdown">0 pending · 0 sold</small></div>
+<div class="stat"><span>Verified Sales</span><b id="salesCount">0</b><small>Successful marketplace orders</small></div>
+<div class="stat"><span>Seller Earnings</span><b id="earnings">₦0</b><small>After platform commission</small></div>
+<div class="stat"><span>Pending Payouts</span><b id="pendingPayouts">₦0</b><small>Awaiting payout processing</small></div>
+<div class="stat"><span>Published Listings</span><b id="publishedCount">0</b><small id="listingBreakdown">0 pending · 0 sold</small></div>
 </div>
 <div id="approvedContent" hidden>
 <section class="panel" id="sellerTools">
@@ -55,8 +60,19 @@ form .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:
 </section>
 <section class="panel" id="sellerNotificationsPanel"><div class="sectionhead"><div><h2>Business notifications <span id="unreadCount" class="badge">0 unread</span></h2><p class="muted" style="margin:0">Updates and alerts sent to your seller account.</p></div><button type="button" id="markAllRead">Mark all as read</button></div><div id="sellerNotifications" class="list" style="margin-top:12px"></div></section>
 <div class="grid2">
-<section class="panel" id="sellerPerformancePanel"><div class="sectionhead"><h2>Business performance</h2><span id="sellerBadge" class="badge">Seller</span></div><div class="rank"><div class="rankicon">🏆</div><div><strong id="rankTitle">Marketplace standing</strong><div class="meta" id="rankMeta">Your performance is being calculated from verified completed sales.</div></div></div><div class="grid3" style="margin-top:14px"><div class="item"><div class="meta">Products</div><strong id="productCount">0</strong></div></div><p class="hint">Your marketplace standing is based on verified completed sales. Special awards and verification remain under admin control.</p></section>
-<section class="panel"><div class="sectionhead"><h2>Quick actions</h2></div><div class="actions"><a class="btn primary" href="sell.html">＋ Add a product or service</a><a class="btn" href="sell.html">View orders & sales</a><a class="btn" href="sell.html">Manage payouts</a><a class="btn" href="#profileEditor">Edit business profile</a></div><p class="hint">DelightVendorEdit supports digital products and services. Delivery, customer payment and payout remain inside the platform.</p></section>
+<section class="panel" id="sellerPerformancePanel"><div class="sectionhead"><h2>Business performance</h2><span id="sellerBadge" class="badge">Seller</span></div><div class="rank"><div class="rankicon">🏆</div><div><strong id="rankTitle">Marketplace standing</strong><div class="meta" id="rankMeta">Your performance is being calculated from verified completed sales.</div></div></div><div class="achievement-meta">
+<div class="item"><div class="meta">Verification</div><strong id="verificationStatus">Approved</strong></div>
+<div class="item"><div class="meta">Seller award</div><strong id="awardStatus">—</strong></div>
+<div class="item"><div class="meta">Products</div><strong id="productCount">0</strong></div>
+<div class="item"><div class="meta">Completed sales</div><strong id="achievementSales">0</strong></div>
+</div><p class="hint">Your marketplace standing is based on verified completed sales. Special awards and verification remain under admin control.</p></section>
+<section class="panel"><div class="sectionhead"><h2>Quick Actions</h2></div><div class="quick-action-grid">
+<a class="quick-action" href="sell.html"><span class="qa-icon">＋</span>Add Product</a>
+<a class="quick-action" href="sell.html#tab-orders"><span class="qa-icon">🛍️</span>Customer Orders</a>
+<a class="quick-action" href="#salesPanel"><span class="qa-icon">📈</span>Sales History</a>
+<a class="quick-action" href="wallet.html"><span class="qa-icon">₦</span>Manage Payouts</a>
+<a class="quick-action" href="#profileEditor"><span class="qa-icon">✏️</span>Edit Business Profile</a>
+</div><p class="hint">DelightVendorEdit supports digital products and services. Delivery, customer payment and payout remain inside the platform.</p></section>
 </div>
 <section class="panel" id="salesPanel"><div class="sectionhead"><div><h2>Recent sales</h2><p class="muted" style="margin:0">Your latest successful and in-progress customer orders.</p></div><a href="sell.html">Full sales history →</a></div><div id="recentSales" class="list" style="margin-top:12px"></div></section>
 <section class="panel" id="profileEditor"><div class="sectionhead"><div><h2>Edit my seller profile</h2><p class="muted" style="margin:0">Update the name and description customers see on your public storefront.</p></div><a id="previewProfile" href="#" target="_blank" rel="noopener">Preview storefront ↗</a></div>
@@ -66,10 +82,23 @@ form .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:
 <div class="field wide"><label for="bio">About your business</label><textarea id="bio" maxlength="400" placeholder="Tell customers what digital products or services you offer, what makes your store useful, and what buyers can expect."></textarea><div class="hint"><span id="bioCount">0</span>/400 characters · No contact details or external links.</div></div>
 </div><div id="profileStatus" class="status"></div><div class="actions"><button class="primary" type="submit" id="saveProfile">Save public profile</button><button type="button" id="resetProfile">Reset changes</button></div></form></section>
 <section class="panel" id="productPerformancePanel"><div class="sectionhead"><div><h2>Product performance</h2><p class="muted" style="margin:0">See which digital products and services are generating verified sales and seller earnings.</p></div><a href="sell.html">Manage listings →</a></div><div id="productPerformance" class="list" style="margin-top:12px"></div></section>
-<section class="panel" id="listingOverviewPanel"><div class="sectionhead"><h2>Listing overview</h2><a href="sell.html">Manage all listings →</a></div><div class="grid3" style="margin-top:12px"><div class="item"><div class="meta">Published</div><strong id="listPublished">0</strong></div><div class="item"><div class="meta">Under review</div><strong id="listPending">0</strong></div><div class="item"><div class="meta">Sold out / archived</div><strong id="listSold">0</strong></div></div></section>
+<section class="panel" id="listingOverviewPanel"><div class="sectionhead"><h2>Listing overview</h2><a href="sell.html">Manage all listings →</a></div><div class="listing-status-grid">
+<div class="item"><div class="meta">Published</div><strong id="listPublished">0</strong></div>
+<div class="item"><div class="meta">Under Review</div><strong id="listPending">0</strong></div>
+<div class="item"><div class="meta">Sold Out</div><strong id="listSoldOut">0</strong></div>
+<div class="item"><div class="meta">Rejected</div><strong id="listRejected">0</strong></div>
+<div class="item"><div class="meta">Deleted / Archived</div><strong id="listArchived">0</strong></div>
+</div></section>
 </div>
 </section>
 </main>
+<nav class="mobile-bottom-nav" aria-label="Main navigation">
+<a class="mobile-bottom-link" href="dashboard.html"><span class="mobile-bottom-icon">⌂</span><span>Home</span></a>
+<a class="mobile-bottom-link" href="purchases.html"><span class="mobile-bottom-icon">▣</span><span>Purchases</span></a>
+<a class="mobile-bottom-link" href="wallet.html"><span class="mobile-bottom-icon">◈</span><span>Wallet</span></a>
+<a class="mobile-bottom-link" href="notifications.html"><span class="mobile-bottom-icon">♧</span><span>Notifications</span></a>
+<a class="mobile-bottom-link" href="profile.html"><span class="mobile-bottom-icon">○</span><span>Profile</span></a>
+</nav>
 <script>
 (function(){
 "use strict";
@@ -93,13 +122,21 @@ var isRestricted=restricted(seller);var performance=[];if(!isRestricted){var per
 $("businessApp").hidden=false;$("stats").hidden=false;$("approvedContent").hidden=false;$("pageStatus").textContent="";
 $("welcome").textContent="Welcome, "+(publicProfile&&publicProfile.display_name||seller.business_name||"Seller");
 var completed=sales.filter(function(s){return s.order_status==="completed"&&s.payment_status==="verified"}),net=completed.reduce(function(t,s){return t+Number(s.seller_net_amount||0)},0),pending=payouts.filter(function(p){return ["pending","processing"].includes(String(p.status||"").toLowerCase())}).reduce(function(t,p){return t+Number(p.net_amount||0)},0);
-var published=products.filter(function(p){return p.listing_status==="published"}).length,pendingListings=products.filter(function(p){return p.listing_status==="pending"}).length,sold=products.filter(function(p){return ["sold_out","deleted","rejected"].includes(p.listing_status)}).length;
-$("salesCount").textContent=String(completed.length);$("earnings").textContent=money(net);$("pendingPayouts").textContent=money(pending);$("publishedCount").textContent=String(published);$("listingBreakdown").textContent=pendingListings+" pending · "+sold+" sold / archived";
-$("listPublished").textContent=String(published);$("listPending").textContent=String(pendingListings);$("listSold").textContent=String(sold);$("productCount").textContent=String(products.length);
+var published=products.filter(function(p){return p.listing_status==="published"}).length,pendingListings=products.filter(function(p){return p.listing_status==="pending"}).length,soldOut=products.filter(function(p){return p.listing_status==="sold_out"}).length,rejected=products.filter(function(p){return p.listing_status==="rejected"}).length,archived=products.filter(function(p){return p.listing_status==="deleted"||p.listing_status==="archived"}).length;
+$("salesCount").textContent=String(completed.length);$("earnings").textContent=money(net);$("pendingPayouts").textContent=money(pending);$("publishedCount").textContent=String(published);$("listingBreakdown").textContent=pendingListings+" under review · "+soldOut+" sold out";
+$("listPublished").textContent=String(published);$("listPending").textContent=String(pendingListings);$("listSoldOut").textContent=String(soldOut);$("listRejected").textContent=String(rejected);$("listArchived").textContent=String(archived);$("productCount").textContent=String(products.length);
 var award=seller.seller_award||"none",verification=seller.verification_level||"none";$("sellerBadge").textContent=award!=="none"?award.charAt(0).toUpperCase()+award.slice(1)+" seller":verification!=="none"?(verification==="trusted"?"Trusted seller":"Verified seller"):"Approved seller";
+$("verificationStatus").textContent=verification==="none"?"Approved":verification.charAt(0).toUpperCase()+verification.slice(1);$("awardStatus").textContent=award==="none"?"No award yet":award.charAt(0).toUpperCase()+award.slice(1);$("achievementSales").textContent=String(completed.length);
 var rankRows=ranking.slice().sort(function(a,b){return Number(b.completed_sales||0)-Number(a.completed_sales||0)}),rank=rankRows.findIndex(function(x){return x.seller_user_id===user.id});var hasRank=rank>=0&&Number((rankRows[rank]||{}).completed_sales||0)>0;$("rankTitle").textContent=hasRank?"Marketplace position: #"+(rank+1):"Building your marketplace record";$("rankMeta").textContent=hasRank?"Among "+rankRows.length+" approved, unrestricted sellers · "+Number((rankRows[rank]||{}).completed_sales||0)+" completed sales":"Your public ranking becomes meaningful after your first verified completed sale.";
 $("publicProfileLink").href="seller-profile.html?seller="+encodeURIComponent(user.id);$("previewProfile").href=$("publicProfileLink").href;$("mySellerProfileShortcut").href=$("publicProfileLink").href;fillForm();
-var recent=completed.slice(0,6);$("recentSales").innerHTML=recent.length?recent.map(function(s){return '<article class="item"><div class="sectionhead"><div><h3>'+esc(s.item_title||"Digital product")+'</h3><div class="meta">Order '+esc(s.order_number||s.order_id)+' · '+esc(date(s.created_at))+'</div></div><span class="badge good">Completed</span></div><div class="meta">Buyer: '+esc(s.buyer_name||"Customer")+' · Seller earnings: '+money(s.seller_net_amount)+'</div></article>'}).join(""):'<div class="empty">No verified completed sales yet. Your first customer order will appear here.</div>';$("productPerformance").innerHTML=performance.length?performance.map(function(p){return '<article class="item"><div class="sectionhead"><div><h3>'+esc(p.title||"Digital product")+'</h3><div class="meta">'+esc(p.listing_status||"")+' · '+Number(p.completed_sales||0)+' completed sale(s) · '+Number(p.units_sold||0)+' unit(s) sold</div></div><span class="badge">'+money(p.seller_earnings)+' earned</span></div></article>'}).join(""):'<div class="empty">Your product performance will appear here after you add listings. You can still create your first digital product or service now.</div>';
+var recent=sales.slice().sort(function(a,b){return new Date(b.created_at||0)-new Date(a.created_at||0)}).slice(0,8);
+$("recentSales").innerHTML=recent.length?recent.map(function(s){
+var completedOrder=s.order_status==="completed"&&s.payment_status==="verified";
+var raw=String(s.order_status||s.payment_status||"pending").toLowerCase();
+var label=completedOrder?"Completed":raw==="cancelled"||raw==="canceled"||raw==="failed"?"Cancelled / Failed":"Pending";
+var badgeClass=completedOrder?"good":label==="Cancelled / Failed"?"bad":"";
+return '<article class="item"><div class="order-row"><div><h3>'+esc(s.item_title||"Digital product")+'</h3><div class="meta">Order '+esc(s.order_number||s.order_id)+' · '+esc(date(s.created_at))+'</div></div><span class="badge '+badgeClass+'">'+label+'</span></div><div class="meta">Buyer: '+esc(s.buyer_name||"Customer")+' · Amount: '+money(s.amount||s.total_amount||s.seller_net_amount)+(completedOrder?' · Seller earnings: '+money(s.seller_net_amount):'')+'</div></article>'
+}).join(""):'<div class="empty">No customer orders yet. New customer orders will appear here.</div>';$("productPerformance").innerHTML=performance.length?performance.map(function(p){return '<article class="item"><div class="sectionhead"><div><h3>'+esc(p.title||"Digital product")+'</h3><div class="meta">'+esc(p.listing_status||"")+' · '+Number(p.completed_sales||0)+' completed sale(s) · '+Number(p.units_sold||0)+' unit(s) sold</div></div><span class="badge">'+money(p.seller_earnings)+' earned</span></div></article>'}).join(""):'<div class="empty">Your product performance will appear here after you add listings. You can still create your first digital product or service now.</div>';
 }
 $("profileForm").addEventListener("submit",saveProfile);$("bio").addEventListener("input",function(){$("bioCount").textContent=String(this.value.length)});$("resetProfile").addEventListener("click",function(){fillForm();status("profileStatus","Your unsaved changes have been reset.");});
 document.getElementById("markAllRead").addEventListener("click",async function(){var button=this;button.disabled=true;try{var result=await db.from("notifications").update({is_read:true,read_at:new Date().toISOString()}).eq("recipient_user_id",user.id).eq("is_read",false);if(result.error)throw result.error;var refreshed=await db.from("notifications").select("id,title,message,category,is_read,created_at,event_key").eq("recipient_user_id",user.id).order("created_at",{ascending:false}).limit(12);if(refreshed.error)throw refreshed.error;renderNotifications(refreshed.data||[])}catch(err){alert(err.message||"Could not update notifications.")}finally{button.disabled=false}});
