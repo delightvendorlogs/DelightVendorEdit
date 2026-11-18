@@ -1,5 +1,26 @@
 <head><script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script><style>.dve-banner-dots,#dvBannerDots{display:none!important}</style>
-  </head><!DOCTYPE html>
+  
+  <style>
+    .mobile-bottom-nav{display:none}
+    @media(max-width:900px){
+      .mobile-bottom-nav{
+        position:fixed;left:0;right:0;bottom:0;z-index:35;
+        display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+        padding:9px 8px calc(9px + env(safe-area-inset-bottom));
+        background:rgba(14,14,14,.97);border-top:1px solid rgba(231,184,75,.22);
+        backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+      }
+      .mobile-bottom-link{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+        padding:3px 2px;color:#aaa69c;font-size:10px;font-weight:700;line-height:1.2;text-align:center}
+      .mobile-bottom-icon{height:23px;display:flex;align-items:center;justify-content:center;color:currentColor;font-size:22px;line-height:1}
+      .mobile-bottom-link.active{color:#f5d47e}
+      .mobile-bottom-link.active .mobile-bottom-icon{color:#e7b84b}
+      .main{padding-bottom:115px}
+    }
+    @media(min-width:901px){.mobile-bottom-nav{display:none!important}}
+  </style>
+
+</head><!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -1511,6 +1532,23 @@
         </footer>
       </main>
     </div>
+
+      <nav class="mobile-bottom-nav" aria-label="Quick navigation">
+        <a class="mobile-bottom-link active" href="dashboard.html" aria-current="page">
+          <span class="mobile-bottom-icon" aria-hidden="true">⌂</span><span>Home</span>
+        </a>
+        <a class="mobile-bottom-link" href="wallet.html">
+          <span class="mobile-bottom-icon" aria-hidden="true">₦</span><span>Wallet</span>
+        </a>
+        <a class="mobile-bottom-link" href="notifications.html?v=ef8c9aa">
+          <span class="mobile-bottom-icon mobile-bottom-bell" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+          </span><span>Notifications</span>
+        </a>
+        <a class="mobile-bottom-link" href="profile.html">
+          <span class="mobile-bottom-icon" aria-hidden="true">◉</span><span>Profile</span>
+        </a>
+      </nav>
   </div>
 
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
