@@ -82,24 +82,8 @@ button.primary,.button.primary{background:linear-gradient(135deg,#f3d47e,#d8aa45
 .empty{background:#0b0b0a;border-color:#514326}
 #tab-payout>.panel{background:#0b0b0a;border-color:#40341d}
 .foot{border-color:#342a17}
-.seller-bottom-nav{display:none}
-@media(max-width:650px){
- body{padding-bottom:74px}
- main{padding:20px 13px 100px}
- .nav{padding:11px 13px}
- .navlinks{gap:10px;justify-content:flex-start}
- .navlinks a{font-size:11px}
- #app>.tabs{gap:5px;padding:6px;border-radius:12px}
- #app>.tabs .tab{font-size:12px;padding:9px 4px;min-height:43px}
- #app>div[style*="margin-top:10px"] .button{flex:1;min-width:0;font-size:11px;padding:9px 7px}
- .panel{padding:15px;border-radius:14px}
- .statgrid{gap:7px}
- .stat{padding:10px}
- .stat b{font-size:17px}
- .seller-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:7px 4px calc(7px + env(safe-area-inset-bottom));background:#090909f7;border-top:1px solid #4b3b1d;box-shadow:0 -8px 25px #0009}
- .seller-bottom-nav a{display:flex;min-width:0;flex-direction:column;align-items:center;gap:3px;color:#b8ad94;text-decoration:none;font-size:10px;font-weight:700}
- .seller-bottom-nav a .nav-icon{height:22px;display:grid;place-items:center;color:var(--gold);font-size:19px}
-}</style></head><body>
+@media(max-width:900px){main{padding-bottom:115px}}
+</style></head><body>
 <header class="top"><nav class="nav"><a class="brand" href="dashboard.html"><img src="assets/dv-logo.png" alt="DV logo"><span>DelightVendorEdit</span></a><div class="navlinks"><a href="dashboard.html">Dashboard</a><a href="explore-sellers.html">Explore Sellers</a><a href="purchases.html">Purchases</a><a href="wallet.html">Wallet</a><a href="transactions.html">Transactions</a></div></nav></header>
 <main><section class="hero"><p class="muted">SELLER CENTRE</p><h1>Sell on DelightVendorEdit</h1><p class="muted">Submit a product, track your orders and see your payouts from one place.</p></section>
 <div id="pageStatus" class="status">Checking your login…</div>
@@ -128,7 +112,25 @@ button.primary,.button.primary{background:linear-gradient(135deg,#f3d47e,#d8aa45
 <section id="tab-orders" class="panel hidden" role="tabpanel"><div class="section-heading"><div><span class="section-mark">02 · Listing activity</span><h2>Your Orders</h2><p class="muted">Track submitted products, approval status, completed sales and rejection reasons.</p></div><button id="refreshOrders">↻ Refresh orders</button></div><div class="statgrid"><div class="stat"><span class="muted small">All</span><b id="countAll">0</b></div><div class="stat"><span class="muted small">Waiting</span><b id="countPending">0</b></div><div class="stat"><span class="muted small">Sold</span><b id="countSold">0</b></div></div><div class="filters" id="orderFilters" style="margin-top:14px"><button class="active" data-filter="all">All</button><button data-filter="pending">Pending</button><button data-filter="approved">Approved</button><button data-filter="sold">Sold</button><button data-filter="rejected">Rejected</button></div><div id="ordersStatus" class="status"></div><div id="ordersList" class="list"></div></section><section id="tab-sales" class="panel hidden" role="tabpanel"><div class="section-heading"><div><span class="section-mark">03 · Customer activity</span><h2>Sales History</h2><p class="muted">Every successful customer purchase appears here, including repeat sales from Endless listings.</p></div><button id="refreshSales">↻ Refresh sales</button></div><div id="salesStatus" class="status"></div><div id="salesList" class="list"></div></section>
 <section id="tab-payout" class="panel hidden" role="tabpanel"><div class="section-heading"><div><span class="section-mark">04 · Seller earnings</span><h2>Payouts</h2><p class="muted">Review pending, completed and cancelled payouts. Each successful sale creates a separate payout after the 10% fee.</p></div><button id="refreshPayouts">↻ Refresh payouts</button></div><div class="statgrid"><div class="stat"><span class="muted small">Total pending payout</span><b id="payoutPending">₦0.00</b></div><div class="stat"><span class="muted small">Total completed payout</span><b id="payoutCompleted">₦0.00</b></div><div class="stat"><span class="muted small">Total cancelled payout</span><b id="payoutCancelled">₦0.00</b></div></div><div class="filters" id="payoutFilters" style="margin-top:14px"><button class="active" data-payout-filter="all">All payouts</button><button data-payout-filter="pending">Pending</button><button data-payout-filter="completed">Completed</button><button data-payout-filter="cancelled">Cancelled</button></div><div id="payoutStatus" class="status"></div><div id="payoutList" class="list"></div><div class="panel"><h3>Change payout account</h3><p class="muted">Your current payout details are shown below. Changes must be reviewed by the team and apply to future payouts after approval.</p><div id="currentBank" class="notice">Loading payout account…</div><button id="togglePayoutChange">Request payout change</button><form id="payoutChangeForm" class="hidden" style="margin-top:14px"><div class="fields"><div class="field"><label for="newBank">New bank name *</label><input id="newBank" required maxlength="100"></div><div class="field"><label for="newAccountName">New account name *</label><input id="newAccountName" required maxlength="120"></div><div class="field"><label for="newAccountNumber">New account number *</label><input id="newAccountNumber" required inputmode="numeric" pattern="[0-9 ]{8,20}" maxlength="20"></div></div><div id="changeStatus" class="status"></div><div class="actions"><button class="primary" type="submit">Send change request</button><button type="button" id="cancelChange">Cancel</button></div></form><div id="changeRequests" class="list"></div></div></section>
 </section></main>
-<nav class="seller-bottom-nav" aria-label="Quick navigation"><a href="dashboard.html"><span class="nav-icon">⌂</span><span>Home</span></a><a href="purchases.html"><span class="nav-icon">▤</span><span>Purchases</span></a><a href="wallet.html"><span class="nav-icon">▣</span><span>Wallet</span></a><a href="notifications.html?v=ef8c9aa"><span class="nav-icon">♧</span><span>Notifications</span></a><a href="profile.html"><span class="nav-icon">◉</span><span>Profile</span></a></nav><div id="confirmModal" class="modalback hidden" role="dialog" aria-modal="true"><div class="modal"><h2>Submit product for review?</h2><p>Your inventory or delivery information will be reviewed. If needed, our team may log in or otherwise check the information to confirm it is correct. Your product will not appear publicly until approved.</p><p>Do you want to continue?</p><div class="actions"><button id="confirmYes" class="primary">Yes, submit request</button><button id="confirmNo">No, go back</button></div></div></div>
+<nav class="mobile-bottom-nav" aria-label="Quick navigation">
+        <a class="mobile-bottom-link active" href="dashboard.html" aria-current="page">
+          <span class="mobile-bottom-icon" aria-hidden="true">⌂</span><span>Home</span>
+        </a>
+        <a class="mobile-bottom-link" href="purchases.html">
+          <span class="mobile-bottom-icon" aria-hidden="true">▤</span><span>Purchases</span>
+        </a>
+        <a class="mobile-bottom-link" href="wallet.html">
+          <span class="mobile-bottom-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 9h18M16 14h2"/><path d="M6 6V4.5A1.5 1.5 0 0 1 7.5 3H19"/></svg></span><span>Wallet</span>
+        </a>
+        <a class="mobile-bottom-link" href="notifications.html?v=ef8c9aa">
+          <span class="mobile-bottom-icon mobile-bottom-bell" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+          </span><span>Notifications</span>
+        </a>
+        <a class="mobile-bottom-link" href="profile.html">
+          <span class="mobile-bottom-icon" aria-hidden="true">◉</span><span>Profile</span>
+        </a>
+      </nav><div id="confirmModal" class="modalback hidden" role="dialog" aria-modal="true"><div class="modal"><h2>Submit product for review?</h2><p>Your inventory or delivery information will be reviewed. If needed, our team may log in or otherwise check the information to confirm it is correct. Your product will not appear publicly until approved.</p><p>Do you want to continue?</p><div class="actions"><button id="confirmYes" class="primary">Yes, submit request</button><button id="confirmNo">No, go back</button></div></div></div>
  <div id="deleteConfirmModal" class="modalback hidden" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle"><div class="modal"><h2 id="deleteConfirmTitle">Delete this listing?</h2><p id="deleteConfirmText">This action cannot be undone. Your previous sales and payout records will remain in your account history.</p><div id="deleteConfirmStatus" class="status"></div><div class="actions"><button id="deleteConfirmYes" class="primary">Yes, delete listing</button><button id="deleteConfirmNo">No, keep listing</button></div></div></div>
 <div id="messageModal" class="modalback hidden" role="dialog" aria-modal="true"><div class="modal"><h2 id="messageTitle">Notice</h2><div id="messageBody"></div><div class="actions"><button id="messageClose" class="primary">Close</button><a class="button" href="purchases.html">Purchases</a></div></div></div>
 <footer class="foot"><img src="assets/dv-logo.png" alt="DV" width="20" height="20" style="vertical-align:middle"> DelightVendorEdit · <a href="seller-policy.html">Seller Policy</a> · <a href="withdrawal-policy.html">Withdrawal Policy</a> · <a href="https://wa.me/2347015908401" target="_blank" rel="noopener">Support</a></footer>
