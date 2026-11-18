@@ -110,6 +110,55 @@
       .seller-panel{padding:20px!important}
       .dashboard-support-section{padding:18px}
     }
+ 
+    /* Approved dashboard review styling. Quick Access markup and styles remain unchanged. */
+    .dashboard-wallet-section .wallet-card{
+      position:relative;overflow:hidden;min-height:0;padding:24px;
+      border:1px solid rgba(231,184,75,.42);border-radius:20px;
+      background:linear-gradient(135deg,#211b0f 0%,#15130e 52%,#101010 100%);
+      box-shadow:0 14px 34px rgba(0,0,0,.25)
+    }
+    .dashboard-wallet-section .wallet-label{font-size:12px;color:#d8c89f;font-weight:700}
+    .dashboard-wallet-section .wallet-tag{background:rgba(126,214,164,.10);border-color:rgba(126,214,164,.25);color:#7ed6a4;font-weight:800}
+    .dashboard-wallet-section .balance-line{align-items:flex-end;justify-content:space-between}
+    .dashboard-wallet-section .balance{font-size:clamp(25px,4vw,36px)}
+    .dashboard-wallet-section .balance-status{color:#7ed6a4}
+    .dashboard-wallet-section .wallet-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .dashboard-wallet-section .wallet-actions .btn{min-height:44px;padding:11px 10px}
+    .featured-offers-section .section-head h2,
+    .dashboard-categories .section-head h2,
+    .dashboard-sellers .section-head h2,
+    .dashboard-support-section .section-head h2{font-size:19px}
+    .dve-banner-fallback{
+      min-height:154px;display:flex;flex-direction:column;justify-content:center;gap:14px;
+      padding:22px;border:1px solid rgba(231,184,75,.5);border-radius:18px;
+      background:linear-gradient(135deg,#292111,#17130b 65%,#111)
+    }
+    .dve-banner-fallback-title{display:flex;align-items:center;gap:11px;color:#f5f3ed;font:800 16px Manrope,sans-serif}
+    .dve-banner-fallback-title span{color:#e7b84b;font-size:22px}
+    .dve-banner-fallback p{margin:0;color:#b7ad98;font-size:13px;line-height:1.55}
+    .dve-banner-fallback small{align-self:flex-start;padding:8px 13px;border-radius:30px;background:#493015;color:#f0a05d;font-weight:800}
+    .dashboard-categories .section-head h2{text-transform:capitalize}
+    .dashboard-sellers .seller-panel .seller-toolbar>div:first-child:before{content:"▣";font-size:27px}
+    .dashboard-sellers .seller-panel .searchbox input{border:1px solid rgba(255,255,255,.12);padding:0 15px}
+    #websiteReviewSection{display:block!important}
+    #websiteReviewCard{min-height:145px}
+    #websiteReviewStars:empty:before{content:"Customer feedback";color:#d6af52;letter-spacing:0;font-size:13px}
+    .dashboard-support-section .dashboard-support-grid{display:block}
+    .dashboard-support-section .support-tile{display:inline!important;padding:0!important;border:0!important;background:transparent!important}
+    .dashboard-support-section .support-tile:not(:last-child):after{content:" · ";color:var(--muted)}
+    .dashboard-support-section .support-tile-icon,
+    .dashboard-support-section .support-tile small,
+    .dashboard-support-section .support-tile .text-link{display:none!important}
+    .dashboard-support-section .support-tile strong{display:inline!important;color:var(--muted);font:500 12px "DM Sans",sans-serif!important}
+    @media(max-width:620px){
+      .dashboard-wallet-section .wallet-card{padding:19px}
+      .dashboard-wallet-section .balance-line{align-items:flex-start;flex-direction:column;gap:7px}
+      .dashboard-wallet-section .wallet-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .dve-banner-fallback{min-height:154px;padding:19px}
+      .dve-banner-fallback-title{font-size:15px}
+      .dashboard-categories .section-head h2,.dashboard-sellers .section-head h2{font-size:18px}
+    }
   </style>
 
 </head><!DOCTYPE html>
@@ -1451,7 +1500,7 @@
 </style>
 <section id="dveBannerSection" aria-label="Featured promotions">
  <div class="dve-banner-shell" id="dveBannerShell">
-  <div id="dveBannerSlides"></div>
+  <div id="dveBannerSlides"><div class="dve-banner-fallback"><div class="dve-banner-fallback-title"><span>⚑</span>Special offers and announcements</div><p>Your promotional banners and announcements will appear here.</p><small>Featured offers</small></div></div>
   <button class="dve-banner-arrow prev" id="dveBannerPrev" type="button" aria-label="Previous banner">‹</button>
   <button class="dve-banner-arrow next" id="dveBannerNext" type="button" aria-label="Next banner">›</button>
  </div>
@@ -1552,7 +1601,7 @@
           </div>
         </section>
 
-                <section id="websiteReviewSection" aria-label="Customer reviews" style="margin:22px 0;display:none"><div class="section-head"><div><h2>What customers say</h2><p>Feedback from customers who have used DelightVendorEdit.</p></div></div><article id="websiteReviewCard" style="background:#101010;border:1px solid var(--line);border-radius:15px;padding:18px"><div id="websiteReviewStars" aria-label="Customer rating" style="color:var(--gold);letter-spacing:3px;font-size:17px;margin-bottom:8px"></div><div id="websiteReviewText" style="font-size:15px;line-height:1.7"></div><div id="websiteReviewName" style="color:var(--gold);font-weight:800;margin-top:12px"></div><div id="websiteReviewPosition" style="font-size:11px;color:var(--muted);margin-top:3px"></div></article></section>
+                <section id="websiteReviewSection" aria-label="Customer reviews" style="margin:22px 0;display:block"><div class="section-head"><div><h2>What customers say</h2><p>Feedback from customers who have used DelightVendorEdit.</p></div></div><article id="websiteReviewCard" style="background:#101010;border:1px solid var(--line);border-radius:15px;padding:18px"><div id="websiteReviewStars" aria-label="Customer rating" style="color:var(--gold);letter-spacing:3px;font-size:17px;margin-bottom:8px"></div><div id="websiteReviewText" style="font-size:15px;line-height:1.7">Customer reviews will appear here when available.</div><div id="websiteReviewName" style="color:var(--gold);font-weight:800;margin-top:12px"></div><div id="websiteReviewPosition" style="font-size:11px;color:var(--muted);margin-top:3px"></div></article></section>
 
         <section class="dashboard-support-section" aria-labelledby="dashboardSupportTitle">
           <div class="section-head"><div><h2 id="dashboardSupportTitle">Need Help?</h2><p>Our support team is available through these channels.</p></div></div>
@@ -2189,7 +2238,7 @@ async function loadWebsiteReviews(){try{const r=await client.rpc("get_public_web
   try{
    const {data,error}=await db.from("dashboard_banners").select("id,image_url,destination_url,button_text,alt_text").eq("is_active",true).is("deleted_at",null).order("display_order",{ascending:true}).order("created_at",{ascending:true});
    if(error)throw error;items=data||[];
-   if(!items.length){section.style.display="none";return;}
+   if(!items.length){section.style.display="block";return;}
    slides.style.transform="translateX(0)";
    slides.innerHTML=items.map((b,i)=>'<a class="dve-banner-slide" href="'+esc(b.destination_url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(b.alt_text||"Open promotion")+'"><img src="'+esc(b.image_url)+'" alt="'+esc(b.alt_text||"Featured promotion")+'" loading="'+(i===0?'eager':'lazy')+'"><span class="dve-banner-overlay"></span>'+(b.button_text?'<span class="dve-banner-cta">'+esc(b.button_text)+'</span>':'')+'</a>').join("");
    dots.innerHTML=items.map((b,i)=>'<button class="dve-banner-dot '+(i===0?'active':'')+'" type="button" aria-label="Show banner '+(i+1)+'" data-index="'+i+'"></button>').join("");
