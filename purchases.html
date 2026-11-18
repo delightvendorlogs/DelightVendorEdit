@@ -29,6 +29,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
  main{padding-bottom:115px!important}
 }
 @media(min-width:901px){.mobile-bottom-nav{display:none!important}}
+.dashboard-return{display:inline-flex;align-items:center;gap:7px;margin:0 0 18px;padding:8px 12px;border:1px solid #514323;border-radius:10px;background:#17140c;color:var(--gold);font-size:12px;font-weight:800;transition:background .2s ease}.dashboard-return:hover{background:#28200d}
 </style>
 </head>
 <body>
@@ -38,7 +39,7 @@ main{width:min(100% - 32px,1040px);margin:34px auto 60px}.eyebrow{margin:0 0 8px
 </div></header>
 <main>
 <section class="hero">
-<div><p class="eyebrow">Your account</p><h1>My Purchases</h1><p class="subtitle">Track your orders and check their latest status.</p></div>
+<div><a class="dashboard-return" href="dashboard.html" aria-label="Return to dashboard">← Dashboard</a><p class="eyebrow">Your account</p><h1>My Purchases</h1><p class="subtitle">Manage your orders and track your purchases.</p></div>
 <div class="hero-actions"><button class="btn" id="refreshBtn" type="button">↻ Refresh</button></div>
 </section>
 <section class="summary" aria-label="Purchase summary">
@@ -228,7 +229,7 @@ function cleanDelivery(value) {
           };
         });
       allOrders = [...orderRows, ...fallbackRows].sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0,100);
-      if(allOrders.length) showStatus("Your purchases and wallet-funded provider orders are up to date.","ok");
+      if(allOrders.length) showStatus("","");
       else if(transactionResult.error) showStatus("Order history loaded, but wallet purchase history could not be checked: "+transactionResult.error.message,"error");
       else showStatus("You’re signed in. No purchase records were found for this account yet.","info");
       render();
