@@ -22,51 +22,70 @@
 <style>
 :root{color-scheme:dark;--gold:#e9bd53;--line:#302b20;--muted:#aaa69b;--green:#9ce8b1;--red:#ffb4b4}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#211a0b,#080808 48%);color:#f7f4ec;font:15px/1.55 system-ui,sans-serif}.top{border-bottom:1px solid var(--line);background:#080808ed}.nav,main{max-width:1100px;margin:auto;padding:15px}.nav{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:9px;color:#fff;text-decoration:none;font-weight:850}.brand img{width:36px;height:36px;object-fit:contain}.navlinks{margin-left:auto;display:flex;gap:13px;flex-wrap:wrap}.nav a,.foot a{color:var(--gold);text-decoration:none}main{padding-top:28px;padding-bottom:45px}.hero h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:5px 0 10px}.muted{color:var(--muted)}.panel{background:#101010;border:1px solid var(--line);border-radius:17px;padding:19px;margin:16px 0}.tabs,.filters,.actions{display:flex;gap:8px;flex-wrap:wrap}.tab,button,.button{border:1px solid #59471e;border-radius:11px;padding:11px 14px;background:#1a1a1a;color:#f5d77e;font-weight:800;cursor:pointer;font:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px}.tab.active,button.primary,.button.primary{background:var(--gold);color:#171208}.tab{flex:1}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:flex;flex-direction:column;gap:6px}.wide{grid-column:1/-1}label{font-size:13px;color:#ddd;font-weight:700}input,textarea,select{width:100%;border:1px solid #3a3a3a;border-radius:10px;background:#090909;color:#fff;padding:12px;font:inherit}textarea{min-height:100px;resize:vertical}input[type=file]{padding:9px}input[type=checkbox],input[type=radio]{width:auto;accent-color:var(--gold)}.hint{font-size:12px;color:var(--muted);line-height:1.6}.notice{border:1px solid #55441d;background:#171307;border-radius:12px;padding:13px;color:#e8d9ad;margin:12px 0}.status{white-space:pre-wrap;overflow-wrap:anywhere;border-radius:10px;padding:11px;margin:12px 0;background:#151515;border:1px solid #333}.status:empty{display:none}.status.error{color:var(--red);border-color:#713737}.status.ok{color:var(--green);border-color:#356846}.hidden{display:none!important}.filters button{font-size:12px;padding:8px 11px}.filters button.active{background:var(--gold);color:#171208}.list{display:grid;gap:12px;margin-top:14px}.item{border:1px solid #302b20;background:#0b0b0b;border-radius:14px;padding:15px;overflow-wrap:anywhere}.itemhead{display:flex;gap:12px;align-items:flex-start}.thumb{width:76px;height:76px;object-fit:cover;border-radius:10px;border:1px solid #333;background:#181818;flex-shrink:0}.item h3{font-size:16px;margin:0 0 4px}.price{color:var(--gold);font-weight:850;font-size:20px}.badge{display:inline-block;border:1px solid #4a4029;background:#211b0b;color:#f0d27a;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:850;text-transform:capitalize}.badge.good{color:#a8edb8;background:#102719;border-color:#285b3a}.badge.bad{color:#ffb6b6;background:#2b1414;border-color:#703737}.meta{font-size:12px;color:#aaa69b;margin:7px 0}.rowbetween{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.empty{border:1px dashed #393326;border-radius:14px;text-align:center;padding:30px 16px;color:var(--muted)}.empty strong{display:block;color:#fff;margin-bottom:5px}.small{font-size:12px}.modalback{position:fixed;inset:0;z-index:20;background:#000c;display:flex;align-items:center;justify-content:center;padding:16px}.modal{width:min(100%,540px);max-height:90vh;overflow:auto;background:#101010;border:1px solid #655022;border-radius:18px;padding:20px;box-shadow:0 20px 80px #000}.modal h2{margin-top:0}.modalbody{white-space:pre-wrap;overflow-wrap:anywhere;max-height:50vh;overflow:auto;background:#070707;border:1px solid #333;border-radius:10px;padding:13px}.foot{border-top:1px solid var(--line);padding:20px;text-align:center;color:#777;font-size:12px}.delivery{background:#080808;border:1px solid #3a321f;border-radius:10px;padding:12px;white-space:pre-wrap;overflow-wrap:anywhere}.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#090909;border:1px solid #302b20;border-radius:12px;padding:13px}.stat b{display:block;color:var(--gold);font-size:21px}@media(max-width:650px){.nav{padding:12px}.navlinks{margin:0;width:100%;justify-content:space-between}.navlinks a{font-size:12px}.fields,.split{grid-template-columns:1fr}.wide{grid-column:auto}.panel{padding:14px}.itemhead{gap:9px}.thumb{width:64px;height:64px}.tab{padding:10px 7px;font-size:13px}.statgrid{gap:7px}.stat{padding:10px}.stat b{font-size:17px}}
 
-/* Seller centre page layout refresh */
-.seller-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
-.seller-intro-copy{max-width:680px}
-.seller-kicker{display:inline-flex;align-items:center;gap:7px;color:var(--gold);font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
-.seller-shortcuts{display:flex;gap:8px;flex-wrap:wrap}
-.seller-shortcuts .button{min-height:42px}
-.seller-tabs-wrap{position:sticky;top:0;z-index:8;padding:10px 0;background:#080808ed;backdrop-filter:blur(14px);border-top:1px solid #272114;border-bottom:1px solid #272114}
-.seller-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.seller-tabs .tab{min-height:48px;border:1px solid #39301c;background:#111;color:#c9c1ae;border-radius:12px;font-weight:800;transition:background .18s,border-color .18s}
-.seller-tabs .tab.active{background:linear-gradient(135deg,#f2d17d,#d7a83c);border-color:#f2d17d;color:#171208;box-shadow:0 5px 18px #d6a83c22}
-.seller-tabs .tab span{display:block;font-size:10px;font-weight:600;opacity:.75}
-#tab-sell,#tab-orders,#tab-sales,#tab-payout{scroll-margin-top:90px;min-height:360px}
-.section-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:16px}
-.section-heading h2{margin:0 0 5px;font-size:22px}
-.section-heading p{margin:0}
-.section-mark{color:var(--gold);font-size:11px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
-#tab-orders .stat,#tab-payout .stat{min-height:86px}
-#tab-orders .filters,#tab-payout .filters{padding:5px 0 10px}
-#tab-orders .item,#tab-sales .item,#tab-payout .item{border-color:#39301d;background:linear-gradient(145deg,#121212,#0a0a0a);box-shadow:0 8px 24px #0003}
-#tab-orders .item h3,#tab-sales .item h3,#tab-payout .item h3{font-size:16px}
-#tab-payout>.panel{margin-top:20px;border-color:#4b3b1d}
+
+/* Approved Seller Centre preview — black and gold */
+:root{color-scheme:dark;--gold:#e9bd53;--line:#302817;--muted:#aaa69b;--green:#9ce8b1;--red:#ffb4b4}
+body{background:#080808;color:#f7f4ec}
+.top{background:#080808;border-bottom:1px solid #342a17}
+.nav{min-height:66px}
+.navlinks{gap:16px}
+.navlinks a{font-size:13px;font-weight:650}
+main{max-width:1120px;padding-top:26px;padding-bottom:100px}
+.hero{padding:8px 0 18px}
+.hero>p:first-child{color:var(--gold);font-size:11px;font-weight:900;letter-spacing:.16em}
+.hero h1{font-size:clamp(28px,4vw,38px);margin:5px 0 9px}
+.hero .muted{max-width:700px}
+#app>.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:9px;background:#100e09;border:1px solid #3b301b;border-radius:15px;margin:14px 0}
+#app>.tabs .tab{min-height:45px;padding:10px 8px;background:#171510;border:1px solid #44371e;border-radius:10px;color:#d9c99f;font-weight:800}
+#app>.tabs .tab.active{background:linear-gradient(135deg,#f4d987,#d6a63e);border-color:#f4d987;color:#171208;box-shadow:0 4px 16px #d6a63e22}
+#app>div[style*="margin-top:10px"]{display:flex;gap:9px;flex-wrap:wrap;margin:0 0 15px!important}
+#app>div[style*="margin-top:10px"] .button{min-height:40px;padding:9px 13px;font-size:13px}
+.panel{background:linear-gradient(145deg,#14130f,#0d0d0c);border:1px solid #40341d;border-radius:17px;padding:21px;margin:15px 0;box-shadow:0 12px 35px #0005}
+.panel>h2{font-size:22px;margin:0 0 6px}
+.notice{background:#1b160a;border-color:#69501e;color:#f0dfb4}
+.fields{gap:15px}
+input,textarea,select{background:#090909;border-color:#403a2d}
+input:focus,textarea:focus,select:focus{outline:1px solid var(--gold);border-color:var(--gold)}
+.actions{margin-top:14px}
+button.primary,.button.primary{background:linear-gradient(135deg,#f3d47e,#d8aa45);border-color:#e8bf5c;color:#171208}
+#tab-sell form{margin-top:12px}
+#tab-sell form>.fields{padding:2px 0}
+#tab-sell form .actions button.primary{min-height:46px;padding:12px 22px}
+.statgrid{gap:12px}
+.stat{background:#0a0907;border-color:#3b301b;border-radius:13px;padding:15px}
+.stat b{font-size:22px;color:var(--gold)}
+.filters{gap:8px}
+.filters button{border-color:#51401e;background:#17140e}
+.filters button.active{background:var(--gold);border-color:var(--gold);color:#171208}
+.list{gap:13px}
+.item{background:#0b0b0a;border-color:#3b301b;border-radius:14px;padding:16px}
+.item h3{font-size:16px}
+.empty{background:#0b0b0a;border-color:#514326}
+#tab-payout>.panel{background:#0b0b0a;border-color:#40341d}
+.foot{border-color:#342a17}
 .seller-bottom-nav{display:none}
 @media(max-width:650px){
- body{padding-bottom:78px}
- .seller-intro{align-items:flex-start}
- .seller-shortcuts{width:100%}
- .seller-shortcuts .button{flex:1;font-size:12px;padding:10px 8px}
- .seller-tabs-wrap{top:0;margin:0 -15px;padding:9px 15px}
- .seller-tabs{gap:6px}
- .seller-tabs .tab{font-size:12px;padding:9px 4px;min-height:46px}
- .seller-tabs .tab span{font-size:9px}
- .section-heading h2{font-size:19px}
- .seller-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:8px 5px calc(8px + env(safe-area-inset-bottom));background:#090909f5;border-top:1px solid #4b3b1d;box-shadow:0 -10px 30px #0008;backdrop-filter:blur(14px)}
- .seller-bottom-nav a{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#aaa18c;text-decoration:none;font-size:10px;font-weight:700}
- .seller-bottom-nav a:active,.seller-bottom-nav a:focus{color:var(--gold)}
- .seller-bottom-nav .nav-icon{height:23px;display:grid;place-items:center;font-size:20px;color:var(--gold)}
- .seller-bottom-nav svg{width:20px;height:20px}
-}
-@media(min-width:651px){.seller-tabs-wrap{top:0}}
-</style></head><body>
+ body{padding-bottom:74px}
+ main{padding:20px 13px 100px}
+ .nav{padding:11px 13px}
+ .navlinks{gap:10px;justify-content:flex-start}
+ .navlinks a{font-size:11px}
+ #app>.tabs{gap:5px;padding:6px;border-radius:12px}
+ #app>.tabs .tab{font-size:12px;padding:9px 4px;min-height:43px}
+ #app>div[style*="margin-top:10px"] .button{flex:1;min-width:0;font-size:11px;padding:9px 7px}
+ .panel{padding:15px;border-radius:14px}
+ .statgrid{gap:7px}
+ .stat{padding:10px}
+ .stat b{font-size:17px}
+ .seller-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:7px 4px calc(7px + env(safe-area-inset-bottom));background:#090909f7;border-top:1px solid #4b3b1d;box-shadow:0 -8px 25px #0009}
+ .seller-bottom-nav a{display:flex;min-width:0;flex-direction:column;align-items:center;gap:3px;color:#b8ad94;text-decoration:none;font-size:10px;font-weight:700}
+ .seller-bottom-nav a .nav-icon{height:22px;display:grid;place-items:center;color:var(--gold);font-size:19px}
+}</style></head><body>
 <header class="top"><nav class="nav"><a class="brand" href="dashboard.html"><img src="assets/dv-logo.png" alt="DV logo"><span>DelightVendorEdit</span></a><div class="navlinks"><a href="dashboard.html">Dashboard</a><a href="explore-sellers.html">Explore Sellers</a><a href="purchases.html">Purchases</a><a href="wallet.html">Wallet</a><a href="transactions.html">Transactions</a></div></nav></header>
-<main><section class="hero seller-intro"><div class="seller-intro-copy"><span class="seller-kicker">✦ Seller Centre</span><h1>Manage your store</h1><p class="muted">Create listings, follow every order, review your sales and keep track of your payouts — all from one seller workspace.</p></div><div class="seller-shortcuts"><a class="button" href="dashboard.html">← Dashboard</a><a id="mySellerProfile" class="button" href="seller-business.html#profileEditor">Edit seller profile ↗</a><a class="button primary" href="seller-business.html">Business Centre ✦</a></div></section>
+<main><section class="hero"><p class="muted">SELLER CENTRE</p><h1>Sell on DelightVendorEdit</h1><p class="muted">Submit a product, track your orders and see your payouts from one place.</p></section>
 <div id="pageStatus" class="status">Checking your login…</div>
 <section id="app" class="hidden">
-<div class="seller-tabs-wrap"><div class="seller-tabs" role="tablist" aria-label="Seller centre sections"><button class="tab active" type="button" role="tab" aria-selected="true" data-tab="sell">＋ Sell<span>New listing</span></button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="orders">Your Orders<span>Track listings</span></button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="sales">Sales History<span>Customer orders</span></button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="payout">Payout<span>Withdrawals</span></button></div></div>
+<div class="tabs" role="tablist" aria-label="Seller Centre sections"><button class="tab active" type="button" role="tab" aria-selected="true" data-tab="sell">＋ Sell</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="orders">Your Orders</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="sales">Sales History</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="payout">Payout</button></div><div style="margin-top:10px"><a id="mySellerProfile" class="button" href="seller-business.html#profileEditor">Edit my seller profile ↗</a><a class="button primary" href="seller-business.html">Business Centre ✦</a></div>
 <section id="tab-sell" class="panel" role="tabpanel"><div class="section-heading"><div><span class="section-mark">01 · New product</span><h2>Submit a product</h2><p class="muted">Add your product details and payout information for review.</p></div></div><div id="restrictionPanel" class="notice hidden" style="border-color:#713737;background:#211010;margin-bottom:16px"><h2 id="restrictionTitle" style="margin-top:0">Selling access restricted</h2><p id="restrictionMessage"></p><p id="restrictionReason" class="hint"></p><p id="restrictionExpiry" class="hint"></p><div id="appealHistory" class="list"></div><form id="appealForm" class="hidden" style="margin-top:14px"><div class="field"><label for="appealText">Explain your appeal</label><textarea id="appealText" minlength="10" maxlength="3000" required placeholder="Explain why you believe this restriction should be reconsidered."></textarea></div><div class="field"><label for="appealEvidence">Attach supporting image (optional)</label><input id="appealEvidence" type="file" accept="image/jpeg,image/png,image/webp"><div class="hint">JPG, PNG or WEBP · Maximum 5 MB. Only you and the admin can view this evidence.</div><img id="appealEvidencePreview" class="hidden" alt="Appeal evidence preview" style="display:block;max-width:100%;max-height:320px;object-fit:contain;background:#080808;border:1px solid #44391f;border-radius:12px;margin-top:10px"></div><div class="actions"><button class="primary" type="submit" id="appealSubmit">Submit Appeal</button></div><div id="appealStatus" class="status"></div></form></div>
 <p class="muted">Fill in the required information. Your product will not appear publicly until the team approves it.</p>
 <div class="notice"><strong>10% platform fee:</strong> When a customer successfully buys your product, DelightVendorEdit keeps 10% of that sale and your payout is the remaining 90%. For example, a ₦5,000 sale means ₦500 platform fee and ₦4,500 payout. Your own price may be different.</div>
@@ -137,7 +156,7 @@ function closeDeleteConfirm(){
  pendingDelete=null;
  msg("deleteConfirmStatus","");
 }
-function setTab(tab){document.querySelectorAll("[data-tab]").forEach(b=>{const active=b.dataset.tab===tab;b.classList.toggle("active",active);b.setAttribute("aria-selected",active?"true":"false")});["sell","orders","sales","payout"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==tab));if(tab==="orders"||tab==="sales")loadOrders();if(tab==="payout")loadPayouts();if(location.hash!=="#"+tab)history.replaceState(null,"","#"+tab)}
+function setTab(tab){document.querySelectorAll("[data-tab]").forEach(b=>{const active=b.dataset.tab===tab;b.classList.toggle("active",active);b.setAttribute("aria-selected",active?"true":"false")});["sell","orders","sales","payout"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==tab));if(tab==="orders"||tab==="sales")loadOrders();if(tab==="payout")loadPayouts()}
 document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
 $("price").addEventListener("input",()=>{const n=Number($("price").value);$("feePreview").textContent=n>0?"Platform fee: "+money(n*.1)+" · Estimated seller payout: "+money(n*.9):"Your payout after the 10% fee will be calculated automatically.";});
 $("productImage").addEventListener("change",()=>{const f=$("productImage").files[0],im=$("imagePreview");if(!f){im.classList.add("hidden");return}if(f.size>5242880){$("productImage").value="";msg("formStatus","Image must be 5 MB or smaller.","error");im.classList.add("hidden");return}im.src=URL.createObjectURL(f);im.classList.remove("hidden")});
