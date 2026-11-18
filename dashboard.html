@@ -68,51 +68,6 @@
       .support-tile{padding:13px}
       .seller-panel{padding:15px}
     }
-
-    /* Screenshot-matched mobile dashboard layout */
-    @media(max-width:620px){
-      .main{padding:24px 20px 118px}
-      .dashboard-wallet-section .wallet-card{padding:22px 20px;min-height:0;border:1px solid rgba(231,184,75,.58);border-radius:24px;background:#211a0b}
-      .wallet-label{font:800 17px Manrope,sans-serif;color:#fff}
-      .wallet-tag{color:#16a34a;background:rgba(22,163,74,.15);border:0;font-size:12px;font-weight:800}
-      .balance-line{margin:28px 0 25px}
-      .balance{font-size:clamp(28px,8vw,39px)}
-      .balance-status{display:none}
-      .wallet-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-      .wallet-actions .btn{min-height:54px;padding:12px 8px;font-size:14px}
-      .quick-access-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-      .quick-access-card{min-height:176px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;flex-wrap:nowrap;gap:13px;padding:20px 17px;border-radius:19px;background:#191919}
-      .quick-access-icon{width:30px;height:30px;padding:0;background:transparent;border-radius:0;font-size:26px}
-      .quick-access-copy{width:100%;display:flex;gap:9px}
-      .quick-access-copy strong{font-size:15px;line-height:1.3}
-      .quick-access-copy small{font-size:12px;line-height:1.5}
-      .featured-offers-section .section-head p,
-      section[aria-labelledby="categoriesTitle"] .section-head p,
-      section[aria-labelledby="sellersTitle"] .section-head p{display:none}
-      .featured-offers-section .section-head{align-items:center}
-      .featured-offers-section .section-head:after{content:"Promotions";color:var(--gold-2);font-size:13px}
-      .category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-      .category-card{min-height:62px;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:17px}
-      .category-card small,.category-card .category-arrow{display:none}
-      .category-card strong{font-size:13px}
-      .category-icon{font-size:21px}
-      .seller-panel{padding:19px;border-radius:20px}
-      .seller-toolbar{display:flex;flex-direction:column;align-items:stretch;gap:14px}
-      .seller-toolbar>div strong{font-size:16px!important}
-      .seller-toolbar>div div{font-size:12px!important;line-height:1.5}
-      .seller-toolbar .searchbox{width:100%}
-      #websiteReviewSection{margin-top:18px!important}
-      #websiteReviewSection .section-head p{display:none}
-      #websiteReviewCard{padding:20px!important}
-      .dashboard-support-section{margin-top:18px;padding:20px;border:1px solid var(--line);border-radius:20px;background:#171717}
-      .dashboard-support-section .section-head p{display:none}
-      .dashboard-support-grid{display:flex;flex-wrap:wrap;gap:0;align-items:center}
-      .support-tile{display:inline-flex;flex-direction:row;align-items:center;gap:0;padding:0;border:0;background:none;min-height:0}
-      .support-tile-icon,.support-tile small,.support-tile .text-link{display:none}
-      .support-tile strong{font-size:12px}
-      .support-tile:not(:last-child) strong:after{content:" · ";color:var(--muted);white-space:pre}
-      .mobile-bottom-link{font-size:10px}
-    }
   </style>
 
 </head><!DOCTYPE html>
@@ -1401,8 +1356,8 @@
         <section class="dashboard-wallet-section" aria-label="Wallet balance">
           <div class="wallet-card">
             <div class="wallet-head">
-              <span class="wallet-label">Available Wallet Balance</span>
-              <span class="wallet-tag">Active</span>
+              <span class="wallet-label">Available wallet balance</span>
+              <span class="wallet-tag">MY WALLET</span>
             </div>
             <div class="balance-line">
               <div class="balance" id="walletBalance">Checking…</div>
@@ -1436,7 +1391,7 @@
         </section>
 
         <section class="featured-offers-section" aria-labelledby="featuredOffersTitle">
-          <div class="section-head"><div><h2 id="featuredOffersTitle">Featured Offers</h2></div></div>
+          <div class="section-head"><div><h2 id="featuredOffersTitle">Featured Offers</h2><p>Discover the latest promotions from DelightVendorEdit.</p></div></div>
           <style>
 #dveBannerSection{display:none;margin:0 0 25px;position:relative}
 .dve-banner-shell{position:relative;overflow:hidden;border:1px solid rgba(231,184,75,.34);border-radius:18px;background:#080808;box-shadow:0 12px 35px rgba(0,0,0,.22);touch-action:pan-y}
@@ -1465,7 +1420,8 @@
                 <section aria-labelledby="categoriesTitle">
           <div class="section-head">
             <div>
-              <h2 id="categoriesTitle">Explore Categories</h2>
+              <h2 id="categoriesTitle">Explore categories</h2>
+              <p>Choose a category to get started.</p>
             </div>
           </div>
 
@@ -1524,7 +1480,8 @@
         <section aria-labelledby="sellersTitle">
           <div class="section-head">
             <div>
-              <h2 id="sellersTitle">Explore Other Sellers</h2>
+              <h2 id="sellersTitle">Explore other sellers</h2>
+              <p>Discover listings from approved sellers on the marketplace.</p>
             </div>
             <a class="text-link" href="explore-sellers.html">Explore all ↗</a>
           </div>
@@ -1532,9 +1489,9 @@
           <div class="seller-panel">
             <div class="seller-toolbar">
               <div>
-                <strong style="font:700 16px Manrope,sans-serif">Seller Marketplace</strong>
-                <div style="color:var(--muted);font-size:12px;margin-top:8px">
-                  Search approved seller listings and discover products.
+                <strong style="font:700 13px Manrope,sans-serif">Seller marketplace</strong>
+                <div style="color:var(--muted);font-size:11px;margin-top:5px">
+                  Only approved and published listings belong here.
                 </div>
               </div>
 
@@ -1554,10 +1511,10 @@
           </div>
         </section>
 
-                <section id="websiteReviewSection" aria-label="Customer reviews" style="margin:22px 0;display:none"><div class="section-head"><div><h2>What customers say</h2></div></div><article id="websiteReviewCard" style="background:#101010;border:1px solid var(--line);border-radius:15px;padding:18px"><div id="websiteReviewStars" aria-label="Customer rating" style="color:var(--gold);letter-spacing:3px;font-size:17px;margin-bottom:8px"></div><div id="websiteReviewText" style="font-size:15px;line-height:1.7"></div><div id="websiteReviewName" style="color:var(--gold);font-weight:800;margin-top:12px"></div><div id="websiteReviewPosition" style="font-size:11px;color:var(--muted);margin-top:3px"></div></article></section>
+                <section id="websiteReviewSection" aria-label="Customer reviews" style="margin:22px 0;display:none"><div class="section-head"><div><h2>What customers say</h2><p>Feedback from customers who have used DelightVendorEdit.</p></div></div><article id="websiteReviewCard" style="background:#101010;border:1px solid var(--line);border-radius:15px;padding:18px"><div id="websiteReviewStars" aria-label="Customer rating" style="color:var(--gold);letter-spacing:3px;font-size:17px;margin-bottom:8px"></div><div id="websiteReviewText" style="font-size:15px;line-height:1.7"></div><div id="websiteReviewName" style="color:var(--gold);font-weight:800;margin-top:12px"></div><div id="websiteReviewPosition" style="font-size:11px;color:var(--muted);margin-top:3px"></div></article></section>
 
         <section class="dashboard-support-section" aria-labelledby="dashboardSupportTitle">
-          <div class="section-head"><div><h2 id="dashboardSupportTitle">Need help?</h2></div></div>
+          <div class="section-head"><div><h2 id="dashboardSupportTitle">Need Help?</h2><p>Our support team is available through these channels.</p></div></div>
           <div class="dashboard-support-grid">
             <a class="support-tile" href="support-chat.html"><span class="support-tile-icon">💬</span><strong>Live Chat</strong><small>Chat with our team on the website</small><span class="text-link">Chat now →</span></a>
             <a class="support-tile" href="https://wa.me/2347015908401" target="_blank" rel="noopener"><span class="support-tile-icon">◉</span><strong>WhatsApp</strong><small>Message our customer support team</small><span class="text-link">Open WhatsApp ↗</span></a>
