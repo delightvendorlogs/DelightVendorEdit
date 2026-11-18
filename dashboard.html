@@ -1381,6 +1381,17 @@
         transition-duration: .01ms !important;
       }
     }
+  
+    /* Category cards match the approved compact two-column preview. */
+    .dashboard-categories .category-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:11px!important}
+    .dashboard-categories .category-card{min-width:0!important;min-height:62px!important;height:auto!important;padding:12px 13px!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;border-radius:17px!important;background:#171717!important;border:1px solid rgba(255,255,255,.10)!important}
+    .dashboard-categories .category-card .category-icon{width:28px!important;height:28px!important;flex:0 0 28px!important;margin:0!important;background:transparent!important;font-size:21px!important}
+    .dashboard-categories .category-card strong{margin:0!important;font-size:13px!important;line-height:1.3!important}
+    .dashboard-categories .category-card small,.dashboard-categories .category-card .category-arrow{display:none!important}
+    .dashboard-sellers .seller-panel .seller-toolbar{width:100%;min-width:0}
+    .dashboard-sellers .seller-panel .searchbox{display:flex!important;align-items:center!important;gap:9px!important;width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;padding:0 14px!important}
+    .dashboard-sellers .seller-panel .searchbox input{display:block!important;flex:1 1 auto!important;width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;margin:0!important}
+
   </style>
 </head>
 
@@ -1601,9 +1612,7 @@
           </div>
         </section>
 
-                <section id="websiteReviewSection" aria-label="Customer reviews" style="margin:22px 0;display:block"><div class="section-head"><div><h2>What customers say</h2><p>Feedback from customers who have used DelightVendorEdit.</p></div></div><article id="websiteReviewCard" style="background:#101010;border:1px solid var(--line);border-radius:15px;padding:18px"><div id="websiteReviewStars" aria-label="Customer rating" style="color:var(--gold);letter-spacing:3px;font-size:17px;margin-bottom:8px"></div><div id="websiteReviewText" style="font-size:15px;line-height:1.7">Customer reviews will appear here when available.</div><div id="websiteReviewName" style="color:var(--gold);font-weight:800;margin-top:12px"></div><div id="websiteReviewPosition" style="font-size:11px;color:var(--muted);margin-top:3px"></div></article></section>
-
-        <section class="dashboard-support-section" aria-labelledby="dashboardSupportTitle">
+                <section class="dashboard-support-section" aria-labelledby="dashboardSupportTitle">
           <div class="section-head"><div><h2 id="dashboardSupportTitle">Need Help?</h2><p>Our support team is available through these channels.</p></div></div>
           <div class="dashboard-support-grid">
             <a class="support-tile" href="support-chat.html"><strong>Live Chat</strong></a>
@@ -2160,9 +2169,7 @@ async function loadWallet(userId) {
         }
       }
 
-async function loadWebsiteReviews(){try{const r=await client.rpc("get_public_website_reviews");if(r.error)throw r.error;const rows=r.data&&r.data.reviews||[];if(!r.data?.enabled||!rows.length)return;const section=document.getElementById("websiteReviewSection"),stars=document.getElementById("websiteReviewStars"),txt=document.getElementById("websiteReviewText"),name=document.getElementById("websiteReviewName"),pos=document.getElementById("websiteReviewPosition");let index=0;function show(){const item=rows[index%rows.length],rating=Math.max(0,Math.min(5,Number(item.rating)||0));stars.textContent="★".repeat(rating)+"☆".repeat(5-rating);txt.textContent="“"+item.review_text+"”";name.textContent=item.display_name||"Customer";pos.textContent="Verified customer feedback · "+(index+1)+" of "+rows.length;index++}show();section.style.display="block";if(rows.length>1)setInterval(show,7000)}catch(e){console.warn("Customer reviews unavailable:",e?.message||e)}}
-
-            async function start() {
+async function start() {
         try {
           const { data, error } = await client.auth.getSession();
 
