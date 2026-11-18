@@ -1,5 +1,24 @@
 <head>
-<script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script><style>.dve-banner-dots,#dvBannerDots{display:none!important}</style></head><!doctype html>
+<script>document.documentElement.style.visibility="hidden";</script><script src="auth-guard.js"></script><style>.dve-banner-dots,#dvBannerDots{display:none!important}</style><style id="referral-page-redesign">
+body{background:radial-gradient(ellipse at 12% 0%,#211b0b 0%,#080808 43%);color:#f7f4ec}
+.nav,main{max-width:1000px}.nav{padding-top:16px;padding-bottom:16px}
+.hero{padding:28px 0 14px}.hero h1{font-size:clamp(30px,5vw,44px);letter-spacing:-.035em}
+.eyebrow{letter-spacing:.12em}.card{background:linear-gradient(145deg,#171717,#0d0d0d);border-color:#332b1c;border-radius:18px;padding:20px;box-shadow:0 12px 30px rgba(0,0,0,.15)}
+.overview-grid{grid-template-columns:1.35fr 1fr 1fr;gap:13px}
+.balance-card{background:linear-gradient(145deg,#211b0e,#11100c);border-color:#705923}
+.balance-card .balance{font-size:clamp(30px,5vw,42px)}
+.metric-card{min-height:170px;display:flex;flex-direction:column;justify-content:center}
+.metric-card .balance{font-size:clamp(27px,4vw,36px)}
+.metric-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:rgba(240,207,104,.12);color:var(--gold);font-size:21px;margin-bottom:10px}
+.btn{min-height:42px}.btn.primary{box-shadow:0 5px 16px rgba(240,207,104,.12)}
+.referral-link-card{margin-top:15px}.referral-link-card input{font-size:13px}
+.activity-heading{margin:28px 0 10px}.activity-heading h2{font-size:22px;margin:5px 0}
+.tabs{margin:12px 0;gap:9px}.tab{border-color:#45391f;background:#121212;color:#d8c783;min-height:44px}.tab.active{background:var(--gold);border-color:var(--gold);color:#171208}
+.item{background:#0c0c0c;border-color:#332b1c}.empty{background:#0c0c0c;border-color:#49402a}
+.info-card a{color:var(--gold);font-weight:750}.foot{margin-top:24px}
+@media(max-width:760px){.overview-grid{grid-template-columns:1fr 1fr}.balance-card{grid-column:1/-1}.metric-card{min-height:145px}.navlinks{gap:10px}}
+@media(max-width:480px){.nav,main{padding-left:15px;padding-right:15px}.card{padding:16px}.overview-grid{gap:9px}.metric-card{padding:14px}.actions .btn{flex:1}.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.tab{min-width:0;padding:9px 5px;font-size:11px}.hero{padding-top:23px}}
+</style></head><!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -11,25 +30,56 @@
 :root{color-scheme:dark;--bg:#080808;--card:#111;--gold:#f0cf68;--gold2:#c49a24;--muted:#aaa69b;--line:#302b20;--green:#8ee5a7;--red:#ff9292}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#211b0b,#080808 48%);color:#f7f4ec;font:15px/1.55 system-ui,Arial,sans-serif}a{color:var(--gold);text-decoration:none}button,input{font:inherit}button{cursor:pointer}.top{position:sticky;top:0;z-index:3;background:#080808ed;border-bottom:1px solid var(--line)}.nav,main{max-width:1000px;margin:auto;padding:14px 17px}.nav{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:9px;color:#fff;font-weight:850}.brand img{width:37px;height:37px;object-fit:contain}.navlinks{display:flex;gap:14px;flex-wrap:wrap;font-size:13px}.hero{padding:20px 0 8px}.eyebrow{color:var(--gold);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.hero h1{font-size:clamp(28px,5vw,42px);line-height:1.12;margin:7px 0}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.card{background:linear-gradient(145deg,#131313,#0b0b0b);border:1px solid var(--line);border-radius:16px;padding:17px;margin:13px 0;min-width:0}.balance{font-size:clamp(28px,6vw,40px);font-weight:900;color:var(--gold);letter-spacing:-.03em;overflow-wrap:anywhere}.label{font-size:12px;color:var(--muted)}.btn{border:1px solid #6a5422;background:#1b180f;color:var(--gold);border-radius:10px;padding:11px 14px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:7px}.btn.primary{background:var(--gold);color:#171208;border-color:var(--gold)}.btn:disabled{opacity:.55;cursor:wait}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.field{display:grid;gap:6px;margin:12px 0}label{font-size:12px;font-weight:800;color:#e7e1d3}input{width:100%;background:#080808;border:1px solid #403927;border-radius:10px;padding:12px;color:#fff;min-width:0}.hint{font-size:12px;color:var(--muted)}.notice{display:none;padding:11px;border-radius:10px;margin:12px 0;border:1px solid #3b3527;background:#14120c;white-space:pre-wrap;overflow-wrap:anywhere}.notice.show{display:block}.notice.error{border-color:#633;color:var(--red)}.notice.ok{border-color:#285b3a;color:var(--green)}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.sectionhead h2{font-size:19px;margin:0}.list{display:grid;gap:9px;margin-top:12px}.item{border:1px solid #2c281f;background:#090909;border-radius:12px;padding:13px;overflow-wrap:anywhere}.itemtop{display:flex;justify-content:space-between;gap:10px;align-items:start;flex-wrap:wrap}.pill{font-size:11px;border:1px solid #514426;border-radius:99px;padding:3px 8px;color:var(--gold);text-transform:capitalize}.pill.good{color:var(--green);border-color:#285b3a}.pill.bad{color:var(--red);border-color:#633}.empty{padding:22px;text-align:center;border:1px dashed #3b3527;border-radius:12px;color:var(--muted)}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.tab{flex:1;min-width:100px;border:1px solid #514426;border-radius:10px;padding:10px;background:#111;color:#d7c17c;font-weight:800}.tab.active{background:var(--gold);color:#171208}.hidden{display:none!important}.foot{text-align:center;border-top:1px solid var(--line);padding:20px;color:#777;font-size:12px}.foot img{vertical-align:middle;width:20px;height:20px}.spinner{opacity:.7}@media(max-width:640px){.grid{grid-template-columns:1fr}.navlinks{width:100%;justify-content:space-between}.card{padding:14px}.nav{padding:12px}}
 </style>
+<style id="dashboard-matched-mobile-nav">
+.mobile-bottom-nav{display:none}
+@media(max-width:900px){
+ .mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:35;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:9px 8px calc(9px + env(safe-area-inset-bottom));background:rgba(14,14,14,.97);border-top:1px solid rgba(231,184,75,.22);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+ .mobile-bottom-link{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:3px 2px;color:#aaa69c;font-size:10px;font-weight:700;line-height:1.2;text-align:center}
+ .mobile-bottom-icon{height:23px;display:flex;align-items:center;justify-content:center;color:currentColor;font-size:22px;line-height:1}
+ main{padding-bottom:115px}
+}
+@media(min-width:901px){.mobile-bottom-nav{display:none!important}}
+</style>
 </head>
 <body>
 <header class="top"><nav class="nav"><a class="brand" href="dashboard.html"><img src="assets/dv-logo.png" alt="DV logo"><span>DelightVendorEdit</span></a><div class="navlinks"><a href="dashboard.html">Dashboard</a><a href="wallet.html">Shopping Wallet</a><a href="transactions.html">Transactions</a></div></nav></header>
 <main>
-<section class="hero"><div class="eyebrow">Share • Invite • Earn</div><h1>Refer & Earn</h1><p class="muted">Invite people to DelightVendorEdit. When eligible purchases are completed, referral earnings are added to your referral wallet.</p></section>
+<section class="hero"><div class="eyebrow">SHARE · INVITE · EARN</div><h1>Refer & Earn</h1><p class="muted">Invite friends to DelightVendorEdit, share your personal link and earn rewards when eligible purchases are completed.</p></section>
 <div id="notice" class="notice" role="status" aria-live="polite"></div>
-<section class="grid">
- <article class="card"><div class="label">Available referral balance</div><div class="balance" id="balance">Loading…</div><div class="hint" id="balanceHint">Your referral wallet balance</div><div class="actions"><button class="btn primary" id="showWalletWithdraw">Withdraw to Wallet</button><button class="btn" id="showBankWithdraw">Withdraw</button></div></article>
- <article class="card"><div class="label">People you referred</div><div class="balance" id="refCount">—</div><p class="hint">Only the people you invited are shown here. Their purchases and wallet balances remain private.</p></article>
+<section class="grid overview-grid">
+ <article class="card balance-card"><div class="label">AVAILABLE REFERRAL BALANCE</div><div class="balance" id="balance">Loading…</div><div class="hint" id="balanceHint">Your available referral earnings</div><div class="actions"><button class="btn primary" id="showWalletWithdraw">Withdraw to Wallet</button><button class="btn" id="showBankWithdraw">Withdraw to Bank</button></div></article>
+ <article class="card metric-card"><div class="metric-icon">♧</div><div class="label">People Referred</div><div class="balance" id="refCount">—</div><p class="hint">Members who joined using your referral link or code.</p></article>
+ <article class="card metric-card"><div class="metric-icon">₦</div><div class="label">Referral Earnings</div><div class="balance" id="referralEarningsTotal">₦0.00</div><p class="hint">Total referral credits recorded on your account.</p></article>
 </section>
-<section class="card"><div class="sectionhead"><h2>Your referral link</h2><span class="pill">Personal link</span></div><p class="muted">Share this link with someone. If they register through it, your referral will be recorded automatically.</p><div class="field"><label for="refLink">Referral link</label><input id="refLink" readonly value="Loading…"></div><div class="actions"><button class="btn primary" id="copyLink">Copy referral link</button><button class="btn" id="shareLink">Share link</button></div><div class="field"><label for="refCode">Referral code</label><input id="refCode" readonly value="Loading…"></div><div class="actions"><button class="btn" id="copyCode">Copy referral code</button></div></section>
+<section class="card referral-link-card"><div class="sectionhead"><h2>Your Personal Referral Link</h2><span class="pill">PERSONAL LINK</span></div><p class="muted">Share this link with someone. If they register through it, your referral will be recorded automatically.</p><div class="field"><label for="refLink">Referral link</label><input id="refLink" readonly value="Loading…"></div><div class="actions"><button class="btn primary" id="copyLink">Copy referral link</button><button class="btn" id="shareLink">Share link</button></div><div class="field"><label for="refCode">Referral code</label><input id="refCode" readonly value="Loading…"></div><div class="actions"><button class="btn" id="copyCode">Copy referral code</button></div></section>
 <section id="walletPanel" class="card hidden"><h2>Withdraw to Wallet</h2><p class="muted">Move money from your referral wallet into your existing shopping wallet.</p><form id="walletForm"><div class="field"><label for="walletAmount">Amount (₦)</label><input id="walletAmount" type="number" min="1" step="0.01" inputmode="decimal" required placeholder="Enter amount"></div><div class="actions"><button class="btn primary" id="walletSubmit" type="submit">Withdraw to Wallet</button><button class="btn" type="button" data-close-panel>Cancel</button></div></form></section>
 <section id="bankPanel" class="card hidden"><h2>Withdraw to Bank</h2><p class="muted">Enter your bank details. Your request will remain Pending while the team reviews it and sends the payment.</p><form id="bankForm"><div class="field"><label for="bankAmount">Amount (₦)</label><input id="bankAmount" type="number" min="1" step="0.01" inputmode="decimal" required placeholder="Enter amount"></div><div class="field"><label for="bankName">Bank name</label><input id="bankName" maxlength="100" required autocomplete="organization" placeholder="e.g. Access Bank"></div><div class="field"><label for="accountName">Account name</label><input id="accountName" maxlength="120" required autocomplete="name" placeholder="Name on the bank account"></div><div class="field"><label for="accountNumber">Account number</label><input id="accountNumber" inputmode="numeric" pattern="[0-9 ]{10,24}" maxlength="24" required autocomplete="off" placeholder="Your account number"></div><div class="actions"><button class="btn primary" id="bankSubmit" type="submit">Submit withdrawal</button><button class="btn" type="button" data-close-panel>Cancel</button></div></form></section>
-<div class="tabs"><button class="tab active" data-tab="people">People I Referred</button><button class="tab" data-tab="earnings">Referral Earnings</button><button class="tab" data-tab="history">Withdrawal History</button></div>
+<div class="activity-heading"><div class="eyebrow">YOUR ACCOUNT</div><h2>Referral Activity</h2></div><div class="tabs"><button class="tab active" data-tab="people">People Referred</button><button class="tab" data-tab="earnings">Earnings</button><button class="tab" data-tab="history">Withdrawals</button></div>
 <section class="card" id="tab-people"><div class="sectionhead"><h2>People you referred</h2><button class="btn" id="refreshPeople">Refresh</button></div><div id="peopleList" class="list"><div class="empty">Loading your referrals…</div></div></section>
 <section class="card hidden" id="tab-earnings"><div class="sectionhead"><h2>Referral earnings</h2><button class="btn" id="refreshEarnings">Refresh</button></div><p class="hint">This list shows your referral credits only. It does not reveal the products or purchases of people you referred.</p><div id="earningsList" class="list"><div class="empty">Loading referral earnings…</div></div></section>
 <section class="card hidden" id="tab-history"><div class="sectionhead"><h2>Withdrawal history</h2><button class="btn" id="refreshHistory">Refresh</button></div><div id="historyList" class="list"><div class="empty">Loading withdrawal history…</div></div></section>
 </main>
+<section class="card info-card"><div class="sectionhead"><h2>Need help?</h2></div><a href="referral-policy.html">How referral earnings work · Referral Policy ↗</a><p class="hint">For assistance with your referral account, visit <a href="faq.html">Help & Support</a>.</p></section>
 <footer class="foot"><img src="assets/dv-logo.png" alt="DV logo"> DelightVendorEdit · <a href="referral-policy.html">Referral Policy</a> · <a href="faq.html">Help</a></footer>
+<nav class="mobile-bottom-nav" aria-label="Quick navigation">
+        <a class="mobile-bottom-link" href="dashboard.html">
+          <span class="mobile-bottom-icon" aria-hidden="true">⌂</span><span>Home</span>
+        </a>
+        <a class="mobile-bottom-link" href="purchases.html">
+          <span class="mobile-bottom-icon" aria-hidden="true">▤</span><span>Purchases</span>
+        </a>
+        <a class="mobile-bottom-link" href="wallet.html">
+          <span class="mobile-bottom-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 9h18M16 14h2"/><path d="M6 6V4.5A1.5 1.5 0 0 1 7.5 3H19"/></svg></span><span>Wallet</span>
+        </a>
+        <a class="mobile-bottom-link" href="notifications.html?v=ef8c9aa">
+          <span class="mobile-bottom-icon mobile-bottom-bell" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+          </span><span>Notifications</span>
+        </a>
+        <a class="mobile-bottom-link" href="profile.html">
+          <span class="mobile-bottom-icon" aria-hidden="true">◉</span><span>Profile</span>
+        </a>
+      </nav>
 <script>
 (function(){
 "use strict";
@@ -52,7 +102,7 @@ $("copyLink").addEventListener("click",()=>copy($("refLink").value));
 $("copyCode").addEventListener("click",()=>copy($("refCode").value));
 $("shareLink").addEventListener("click",async()=>{const data={title:"Join DelightVendorEdit",text:"Join me on DelightVendorEdit using my referral link:",url:$("refLink").value};if(navigator.share){try{await navigator.share(data)}catch(e){if(e.name!=="AbortError")note("Sharing was not available. Copy your link instead.","error")}}else copy(data.text+" "+data.url)});
 function renderPeople(){ $("refCount").textContent=String(people.length); $("peopleList").innerHTML=people.length?people.map(p=>'<article class="item"><div class="itemtop"><strong>'+esc(p.display_name||"Member")+'</strong><span class="pill">Joined '+esc(p.joined_at?new Date(p.joined_at).toLocaleDateString():"—")+'</span></div><div class="hint">Referral registered successfully</div></article>').join(""):'<div class="empty">No referrals yet. Share your link or code to invite someone.</div>';}
-function renderEarnings(){ $("earningsList").innerHTML=rewards.length?rewards.map(r=>'<article class="item"><div class="itemtop"><strong>Referral credit</strong>'+statusPill(r.reward_status)+'</div><div class="price">'+money(r.reward_amount)+'</div><div class="hint">'+esc(r.created_at?new Date(r.created_at).toLocaleString():"—")+'</div></article>').join(""):'<div class="empty">Your referral earnings will appear here after an eligible purchase is completed.</div>';}
+function renderEarnings(){ $("referralEarningsTotal").textContent=money(rewards.reduce((sum,r)=>sum+Number(r.reward_amount||0),0)); $("earningsList").innerHTML=rewards.length?rewards.map(r=>'<article class="item"><div class="itemtop"><strong>Referral credit</strong>'+statusPill(r.reward_status)+'</div><div class="price">'+money(r.reward_amount)+'</div><div class="hint">'+esc(r.created_at?new Date(r.created_at).toLocaleString():"—")+'</div></article>').join(""):'<div class="empty">Your referral earnings will appear here after an eligible purchase is completed.</div>';}
 function renderHistory(){ $("historyList").innerHTML=withdrawals.length?withdrawals.map(w=>'<article class="item"><div class="itemtop"><strong>'+(w.withdrawal_type==="wallet"?"Transfer to shopping wallet":"Bank withdrawal")+'</strong>'+statusPill(w.status)+'</div><div class="price">'+money(w.amount)+'</div><div class="hint">Requested '+esc(w.requested_at?new Date(w.requested_at).toLocaleString():"—")+(w.paid_at?" · Completed "+esc(new Date(w.paid_at).toLocaleString()):"")+'</div>'+(w.withdrawal_type==="bank"&&w.bank_name?'<div class="hint">'+esc(w.bank_name)+' · Account ending '+esc(String(w.account_number||"").slice(-4))+'</div>':"")+(w.admin_note?'<p class="hint">'+esc(w.admin_note)+'</p>':"")+'</article>').join(""):'<div class="empty">Your withdrawal history will appear here.</div>';}
 async function loadAll(){
  const {data:auth,error:authErr}=await db.auth.getUser();if(authErr)throw authErr;if(!auth.user){location.replace("login.html?redirect="+encodeURIComponent("refer-and-earn.html"));return}user=auth.user;
