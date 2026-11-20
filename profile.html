@@ -493,7 +493,7 @@
         return "A";
       }
 
-      function renderProfile(user) {
+      function renderProfile(user, savedPhone = "") {
         const metadata = user.user_metadata || {};
 
         const name =
@@ -502,7 +502,7 @@
           metadata.fullName ||
           "";
 
-        const phone = metadata.phone || "";
+        const phone = savedPhone || "";
 
         originalName = name;
         originalPhone = phone;
@@ -526,13 +526,10 @@
       async function loadProfile() {
         try {
           const { data, error } = await supabase.auth.getUser();
-
-          if (error || !data.user) {
-            window.location.replace("login.html");
-            return;
-          }
-
-          renderProfile(data.user);
+          if (error || !data.user) { window.location.replace("login.html"); return; }
+          const { data: phoneData, error: phoneError } = await supabase.functions.invoke("customer-phone", { body: { action: "status" } });
+          if (phoneError || !phoneData?.success) throw new Error(phoneData?.error || phoneError?.message || "Could not load your saved phone number.");
+          renderProfile(data.user, phoneData.phone || "");
         } catch (error) {
           console.error("Profile loading failed:", error);
           loading.textContent =
@@ -577,17 +574,11 @@
           const existingMetadata =
             userData.user.user_metadata || {};
 
-          const { data, error } = await supabase.auth.updateUser({
-            data: {
-              ...existingMetadata,
-              full_name: fullName,
-              phone: phone
-            }
-          });
-
+          const { data, error } = await supabase.auth.updateUser({ data: { ...existingMetadata, full_name: fullName } });
           if (error) throw error;
-
-          renderProfile(data.user);
+          const { data: phoneResult, error: phoneSaveError } = await supabase.functions.invoke("customer-phone", { body: { action: "update", phone_number: phone } });
+          if (phoneSaveError || !phoneResult?.success) throw new Error(phoneResult?.error || phoneSaveError?.message || "Could not save your phone number.");
+          renderProfile(data.user, phoneResult.phone || phone);
 
           showMessage(
             "Your profile has been updated successfully.",
